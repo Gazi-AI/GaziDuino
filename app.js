@@ -918,7 +918,11 @@ document.addEventListener("DOMContentLoaded", () => {
             };
 
             const baudrate = parseInt(serialBaudrate.value, 10) || 115200;
-            const esploader = new ESPLoader(transport, baudrate, terminal);
+            const esploader = new ESPLoader({
+                transport: transport,
+                baudrate: baudrate,
+                terminal: terminal
+            });
 
             progressMessage.textContent = "ESP'ye bağlanılıyor...";
             progressFill.style.width = "60%";
