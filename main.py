@@ -1331,7 +1331,7 @@ def ai_chat():
             err_body = e.read().decode("utf-8", errors="replace")
             yield "data: " + json_module.dumps({'error': f'Gemini API Hatası ({e.code}): {err_body}'}) + "\n\n"
         except Exception as e:
-            yield "data: " + json_module.dumps({'error': str(e)}) + "\n\n"
+            yield "data: " + json_module.dumps({'error': f'{type(e).__name__}: {str(e)}'}) + "\n\n"
 
     return app.response_class(generate(), mimetype="text/event-stream")
 
