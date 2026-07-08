@@ -1244,8 +1244,12 @@ def ai_chat():
                     headers={"Content-Type": "application/json"},
                     method="POST"
                 )
+                import ssl
+                ctx = ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
                 
-                with urllib.request.urlopen(req, timeout=120) as response:
+                with urllib.request.urlopen(req, timeout=120, context=ctx) as response:
                     res_body = response.read().decode('utf-8')
                     res_json = json_module.loads(res_body)
                     
@@ -1331,7 +1335,11 @@ def ai_chat():
             err_body = e.read().decode("utf-8", errors="replace")
             yield "data: " + json_module.dumps({'error': f'Gemini API Hatası ({e.code}): {err_body}'}) + "\n\n"
         except Exception as e:
-            yield "data: " + json_module.dumps({'error': f'{type(e).__name__}: {str(e)}'}) + "\n\n"
+            reason = getattr(e, 'reason', '')
+            error_msg = f"{type(e).__name__}: {str(e)}"
+            if reason:
+                error_msg += f" (Sebep: {reason})"
+            yield "data: " + json_module.dumps({'error': error_msg}) + "\n\n"
 
     return app.response_class(generate(), mimetype="text/event-stream")
 
