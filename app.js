@@ -603,8 +603,14 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleUpload() {
         if (isCompilingOrUploading) return;
 
-        // If board is ESP, use web flasher (works on Android too via polyfill)
-        if (currentBoard && currentBoard.includes("ESP") && ("serial" in navigator || typeof serial !== "undefined")) {
+        // DEBUG: Show what the system sees
+        const hasNativeSerial = "serial" in navigator;
+        const hasPolyfill = typeof serial !== "undefined";
+        console.log(`[Upload Debug] Board: ${currentBoard}, NativeSerial: ${hasNativeSerial}, Polyfill: ${hasPolyfill}`);
+
+        // If board is ESP, ALWAYS use web flasher
+        if (currentBoard && (currentBoard.includes("ESP") || currentBoard.includes("esp"))) {
+            addConsoleLog(`Web Yükleyici aktif! (Serial: ${hasNativeSerial}, Polyfill: ${hasPolyfill})`, "info");
             await handleWebUpload();
             return;
         }
