@@ -819,19 +819,16 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleWebUpload() {
         let port;
         try {
-            const isAndroid = navigator.userAgent.includes("Android");
-            
-            if (isAndroid && "usb" in navigator) {
-                // Android: Use our custom CP2102 WebUSB driver
-                addConsoleLog("Android tespit edildi. Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
+            if ("usb" in navigator) {
+                // Use WebUSB + our custom CP2102 driver (works on Android AND desktop)
+                addConsoleLog("Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
                 const usbDevice = await navigator.usb.requestDevice({ filters: [] });
                 addConsoleLog("USB Cihaz bulundu: " + usbDevice.productName + " (VID:" + usbDevice.vendorId + ")", "info");
                 
-                // Create our custom CP2102 serial port from the raw USB device
                 port = new CP2102SerialPort(usbDevice);
                 addConsoleLog("CP2102 sürücüsü hazır!", "info");
             } else if ("serial" in navigator) {
-                // Desktop: Use native Web Serial
+                // Fallback: native Web Serial
                 addConsoleLog("Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
                 port = await navigator.serial.requestPort();
             } else {
