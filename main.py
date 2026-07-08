@@ -194,6 +194,13 @@ def compile_sketch():
     if result.stderr:
         log.extend(result.stderr.splitlines())
         
+    # Translate and simplify Termux-specific errors
+    for i, line in enumerate(log):
+        if "no versions available for the current OS" in line:
+            log[i] = f"Hata: Bu kart için resmi derleyici (compiler) Android/Termux desteklemiyor! Lütfen 'Arduino Uno' veya 'Nano' seçerek deneyin. (Orijinal hata: {line})"
+        elif "platform not installed" in line:
+            log[i] = f"Hata: Platform yüklenemedi. Kartın işlemci mimarinizi (AArch64) desteklediğinden emin olun. (Orijinal hata: {line})"
+        
     return jsonify({
         "success": result.returncode == 0,
         "log": log
