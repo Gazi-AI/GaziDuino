@@ -73,14 +73,15 @@ Termux üzerinde sunucu kurarak projeyi Android'de çalıştırabilirsiniz. Anca
 - **Eğer ESP32 veya ESP8266 derleyecekseniz:** Resmi derleyiciler (glibc) Termux ile doğrudan uyumlu olmadığı için Termux içerisine **Ubuntu (proot-distro)** kurmanız **zorunludur**.
 
 **ESP32 Destekli Ubuntu (Termux) Kurulumu:**
-1. Termux'u açın ve Ubuntu kurun:
+1. Termux'u açın, projeyi dışarıda indirin ve Ubuntu kurun:
    ```bash
    pkg update
-   pkg install proot-distro
+   pkg install git proot-distro
+   git clone https://github.com/Gazi-AI/GaziDuino.git
    proot-distro install ubuntu
    proot-distro login ubuntu
    ```
-2. Ubuntu içine girdikten sonra Linux adımlarını uygulayın:
+2. Ubuntu içine girdikten sonra Linux araçlarını kurun:
    ```bash
    apt update
    apt install python3 python3-pip curl
@@ -88,10 +89,9 @@ Termux üzerinde sunucu kurarak projeyi Android'de çalıştırabilirsiniz. Anca
    export PATH=$PATH:/root/bin
    pip3 install flask
    ```
-3. Proje klasörünü indirip içine girin ve sunucuyu başlatın:
+3. Ubuntu içindeyken, Termux'un ana klasörüne (projeyi indirdiğimiz yere) gidin ve sunucuyu başlatın:
    ```bash
-   git clone https://github.com/Gazi-AI/GaziDuino.git
-   cd GaziDuino
+   cd /data/data/com.termux/files/home/GaziDuino
    python3 main.py
    ```
 
