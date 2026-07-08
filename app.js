@@ -710,14 +710,18 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             addConsoleLog("Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
-            port = await serialAPI.requestPort({
-                filters: [
-                    { usbVendorId: 0x1A86 }, // CH340
-                    { usbVendorId: 0x10C4 }, // CP2102
-                    { usbVendorId: 0x0403 }, // FTDI
-                    { usbVendorId: 0x303A }  // Espressif native USB
-                ]
-            });
+            
+            // First try: raw WebUSB with no filters to see ALL devices
+            try {
+                const usbDevice = await navigator.usb.requestDevice({ filters: [] });
+                addConsoleLog("USB Cihaz bulundu: " + usbDevice.productName + " (VID:" + usbDevice.vendorId + ")", "info");
+                // If we got a device, use the polyfill to wrap it as serial
+                port = await serialAPI.requestPort();
+            } catch (rawErr) {
+                // If raw WebUSB also fails, try native serial as last resort
+                addConsoleLog("WebUSB hata: " + rawErr.message + " — Native Serial deneniyor...", "info");
+                port = await navigator.serial.requestPort();
+            }
         } catch (err) {
             console.error("Port seçilmedi veya iptal edildi:", err);
             addConsoleLog("Port seçilmedi veya donanım desteklemiyor: " + err.message, "error");
