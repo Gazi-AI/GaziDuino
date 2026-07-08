@@ -1770,10 +1770,23 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!container) return;
         container.innerHTML = "";
         const q = filter.toLowerCase();
-        LIBRARIES.forEach((lib, idx) => {
-            if (q && !lib.name.toLowerCase().includes(q) && !lib.desc.toLowerCase().includes(q) && !lib.author.toLowerCase().includes(q)) return;
-            if (typeFilter === "installed" && !lib.installed) return;
-            if (typeFilter === "not-installed" && lib.installed) return;
+        let renderedCount = 0;
+        for (let idx = 0; idx < LIBRARIES.length; idx++) {
+            if (renderedCount >= 100) {
+                // Add a small message at the bottom
+                const msg = document.createElement("div");
+                msg.style.padding = "10px";
+                msg.style.textAlign = "center";
+                msg.style.color = "#888";
+                msg.innerHTML = "Daha fazla sonuç için aramayı daraltın...";
+                container.appendChild(msg);
+                break;
+            }
+            
+            const lib = LIBRARIES[idx];
+            if (q && !lib.name.toLowerCase().includes(q) && !lib.desc.toLowerCase().includes(q) && !lib.author.toLowerCase().includes(q)) continue;
+            if (typeFilter === "installed" && !lib.installed) continue;
+            if (typeFilter === "not-installed" && lib.installed) continue;
 
             const div = document.createElement("div");
             div.className = "library-item";
@@ -1792,7 +1805,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     : `<button class="btn-pkg-install" data-idx="${idx}">KUR</button>`}
                 </div>`;
             container.appendChild(div);
-        });
+            renderedCount++;
+        }
         // Bind install/remove buttons
         container.querySelectorAll(".btn-pkg-install").forEach(btn => {
             btn.addEventListener("click", async () => {
