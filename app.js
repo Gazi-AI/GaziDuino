@@ -604,7 +604,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isCompilingOrUploading) return;
 
         // If board is ESP, use web flasher if possible
-        if (currentBoard && currentBoard.includes("ESP") && "serial" in navigator && typeof window.esptooljs !== 'undefined') {
+        if (currentBoard && currentBoard.includes("ESP") && ("serial" in navigator || typeof serial !== "undefined") && typeof window.esptooljs !== 'undefined') {
             await handleWebUpload();
             return;
         }
@@ -1862,7 +1862,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function connectWebSerial() {
-        if (!("serial" in navigator)) {
+        if (!(("serial" in navigator || typeof serial !== "undefined"))) {
             alert("Web Serial API bu tarayıcıda desteklenmiyor. Lütfen güncel Chrome, Edge veya Opera kullanın.");
             return;
         }
