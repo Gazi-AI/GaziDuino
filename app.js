@@ -2048,6 +2048,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 await port.open({ baudRate: baud });
             }
 
+            // Reset ESP32 so it restarts and we catch the first Serial prints
+            if (port.setSignals) {
+                try {
+                    await port.setSignals({ dataTerminalReady: false, requestToSend: true });
+                    await new Promise(r => setTimeout(r, 100)); // wait 100ms
+                    await port.setSignals({ dataTerminalReady: false, requestToSend: false });
+                } catch(e) {
+                    console.warn("DTR/RTS reset failed:", e);
+                }
+            }
+
             serialWarningBanner.style.display = "none";
             serialContentArea.classList.add("connected");
             serialMessageInput.placeholder = `Mesaj ('${currentPort}'’a mesaj göndermek için Enter'a basın)`;
