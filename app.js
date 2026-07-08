@@ -685,7 +685,15 @@ document.addEventListener("DOMContentLoaded", () => {
             // In this case, we use the WebUSB polyfill (exposed globally as 'serial') to bypass the kernel.
             if (navigator.userAgent.includes("Android") && typeof serial !== 'undefined') {
                 console.log("[Web Upload] Android tespit edildi, WebUSB polyfill kullanılıyor...");
-                port = await serial.requestPort();
+                // Provide empty filters or specific vendor IDs to force WebUSB to show the device
+                port = await serial.requestPort({
+                    filters: [
+                        { usbVendorId: 0x1A86 }, // CH340
+                        { usbVendorId: 0x10C4 }, // CP2102
+                        { usbVendorId: 0x0403 }, // FTDI
+                        { usbVendorId: 0x303A }  // Espressif native
+                    ]
+                });
             } else {
                 port = await navigator.serial.requestPort();
             }
