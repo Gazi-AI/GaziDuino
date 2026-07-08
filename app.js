@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     // Global Error Overlay for Debugging
-    window.addEventListener('error', function(e) {
+    window.addEventListener('error', function (e) {
         let errDiv = document.getElementById('debug-error-overlay');
         if (!errDiv) {
             errDiv = document.createElement('div');
@@ -68,28 +68,28 @@ document.addEventListener("DOMContentLoaded", () => {
     // Generic handler for submenu options (EraseFlash, PSRAM, etc.)
     document.querySelectorAll(".submenu").forEach(submenu => {
         if (submenu.id === "menuBoardSubmenu" || submenu.id === "menuPortSubmenu") return;
-        
+
         submenu.querySelectorAll(".menu-row").forEach(row => {
             row.addEventListener("click", (e) => {
                 e.stopPropagation();
                 const valText = row.textContent.trim();
                 const parent = submenu.closest(".parent");
                 if (!parent) return;
-                
+
                 const labelSpan = parent.querySelector("span");
                 if (!labelSpan) return;
-                
+
                 const valSpan = labelSpan.querySelector(".opt-val");
                 if (valSpan) {
                     valSpan.textContent = valText;
                 }
-                
+
                 const labelTextFull = labelSpan.textContent;
                 const labelName = labelTextFull.split(":")[0].trim();
-                
+
                 const optKey = OPTION_KEY_MAP[labelName];
                 let optVal = valText;
-                
+
                 // Specific value mappings per key to prevent flat lookup collisions
                 if (optKey === "DebugLevel") {
                     const debugMap = { "None": "none", "Error": "err", "Warning": "warn", "Info": "info", "Debug": "dbg", "Verbose": "verbose" };
@@ -128,12 +128,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     const zigbeeMap = { "Disabled": "default", "ED (Zigbee End Device)": "ed", "ZCZR (Zigbee Coordinator/Router)": "zczr" };
                     optVal = zigbeeMap[valText] || "default";
                 }
-                
+
                 if (optKey) {
                     boardOptions[optKey] = optVal;
                     console.log(`[Ayarlar] ${optKey} ayarı ${optVal} olarak güncellendi.`);
                 }
-                
+
                 // Hide dropdown
                 const parentDropdown = submenu.closest(".dropdown-menu");
                 if (parentDropdown) {
@@ -146,17 +146,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // Global selectBoard function for all board selection elements
-    window.selectBoard = function(boardName) {
+    window.selectBoard = function (boardName) {
         currentBoard = boardName;
         const activeBoardLabel = document.getElementById("activeBoardLabel");
-        if(activeBoardLabel) activeBoardLabel.textContent = boardName;
-        
+        if (activeBoardLabel) activeBoardLabel.textContent = boardName;
+
         const statusBoardText = document.getElementById("statusBoardText");
-        if(statusBoardText) statusBoardText.textContent = `${currentBoard} - ${currentPort || "Port Seçilmedi"} [bağlı]`;
-        
+        if (statusBoardText) statusBoardText.textContent = `${currentBoard} - ${currentPort || "Port Seçilmedi"} [bağlı]`;
+
         const toolbarBoardText = document.getElementById("toolbarBoardText");
-        if(toolbarBoardText) toolbarBoardText.textContent = boardName;
-        
+        if (toolbarBoardText) toolbarBoardText.textContent = boardName;
+
         // Debug visual flash to confirm execution
         document.body.style.border = '5px solid #00ff00';
         setTimeout(() => {
@@ -170,10 +170,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const codeTextarea = document.getElementById("codeTextarea");
     const highlightOverlay = document.getElementById("highlightOverlay");
     const lineNumbers = document.getElementById("lineNumbers");
-    
+
     const toolbarBoardText = document.getElementById("toolbarBoardText");
     const activeBoardLabel = document.getElementById("activeBoardLabel");
-    
+
     // Board dropdown elements
     const boardDropdownTrigger = document.getElementById("boardDropdownTrigger");
     const boardDropdownMenu = document.getElementById("boardDropdownMenu");
@@ -254,7 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function highlightC(code) {
         let escaped = escapeHTML(code);
         const placeholders = [];
-        
+
         // 1. Extract comments & strings to placeholders to avoid regex overlapping
         escaped = escaped.replace(/(\/\/.*|\/\*[\s\S]*?\*\/|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/g, (match) => {
             const id = `___PLACEHOLDER_${placeholders.length}___`;
@@ -294,7 +294,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateEditor() {
         const text = codeTextarea.value;
-        
+
         // Highlight overlay
         highlightOverlay.innerHTML = highlightC(text) + "\n"; // extra newline to match height
 
@@ -305,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
             lineNumsHTML += `<div>${i}</div>`;
         }
         lineNumbers.innerHTML = lineNumsHTML;
-        
+
         // Match scroll position
         highlightOverlay.scrollTop = codeTextarea.scrollTop;
         highlightOverlay.scrollLeft = codeTextarea.scrollLeft;
@@ -347,7 +347,7 @@ document.addEventListener("DOMContentLoaded", () => {
     sidebarTabs.forEach(tab => {
         tab.addEventListener("click", () => {
             console.log(`[UI] Sidebar tab tıklandı: ${tab.title || tab.id}`);
-            
+
             if (tab.id === "btnSettings") {
                 // Toggle settings modal
                 let settingsModal = document.getElementById("settingsModal");
@@ -380,7 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             </div>
                         </div>`;
                     document.body.appendChild(settingsModal);
-                    
+
                     settingsModal.querySelector("#settingsClose").addEventListener("click", () => settingsModal.remove());
                     settingsModal.addEventListener("click", (e) => { if (e.target === settingsModal) settingsModal.remove(); });
                     settingsModal.querySelector("#settingsFontSize").addEventListener("input", (e) => {
@@ -422,7 +422,7 @@ document.addEventListener("DOMContentLoaded", () => {
         toolbarBoardText.textContent = boardName;
         activeBoardLabel.textContent = boardName;
         statusBoardText.textContent = `${boardName} - ${currentPort} [bağlı değil]`;
-        
+
         // Mark active item in list
         document.querySelectorAll(".board-item, .board-option").forEach(el => {
             if (el.getAttribute("data-board") === boardName) {
@@ -483,7 +483,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch("/api/ports");
             const data = await res.json();
             const ports = data.ports || [];
-            
+
             if (ports.length === 0) {
                 activePortLabel.textContent = "Yok";
                 menuPortSubmenu.innerHTML = '<div class="menu-row no-ports">Bağlı port bulunamadı</div>';
@@ -496,21 +496,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 activePortLabel.textContent = currentPort;
                 statusBoardText.textContent = `${currentBoard} - ${currentPort} [bağlı]`;
-                
+
                 menuPortSubmenu.innerHTML = "";
                 ports.forEach(p => {
                     const row = document.createElement("div");
                     row.className = `menu-row port-option ${p.port === currentPort ? 'active' : ''}`;
                     row.setAttribute("data-port", p.port);
                     row.innerHTML = `<span>${p.port} (${p.board})</span>`;
-                    
+
                     row.addEventListener("click", (e) => {
                         e.stopPropagation();
                         currentPort = p.port;
                         activePortLabel.textContent = currentPort;
                         statusBoardText.textContent = `${currentBoard} - ${currentPort} [bağlı]`;
                         updatePortsList();
-                        
+
                         // Hide dropdown hack
                         const parentDropdown = row.closest('.dropdown-menu');
                         if (parentDropdown) {
@@ -518,7 +518,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             setTimeout(() => parentDropdown.style.display = '', 150);
                         }
                     });
-                    
+
                     menuPortSubmenu.appendChild(row);
                 });
             }
@@ -544,11 +544,11 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleCompile() {
         if (isCompilingOrUploading) return;
         isCompilingOrUploading = true;
-        
+
         console.log("[Compile] Derleme başlatıldı.");
         consolePanel.style.height = "220px";
         consoleLogContent.innerHTML = "";
-        
+
         progressMessage.textContent = "Eskiz derleniyor...";
         progressFill.style.width = "0%";
         compileProgressModal.classList.add("show");
@@ -565,21 +565,21 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch("/api/compile", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     code: codeTextarea.value,
                     board: currentBoard,
                     board_options: boardOptions
                 })
             });
             const data = await res.json();
-            
+
             clearInterval(uploadProgressInterval);
             progressFill.style.width = "100%";
-            
+
             setTimeout(() => {
                 compileProgressModal.classList.remove("show");
                 isCompilingOrUploading = false;
-                
+
                 if (data.log) {
                     data.log.forEach(line => {
                         addConsoleLog(line, data.success ? "" : "error");
@@ -602,7 +602,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function handleUpload() {
         if (isCompilingOrUploading) return;
-        
+
         // If board is ESP, use web flasher if possible
         if (currentBoard && currentBoard.includes("ESP") && "serial" in navigator && typeof window.esptooljs !== 'undefined') {
             await handleWebUpload();
@@ -611,11 +611,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         isCompilingOrUploading = true;
         disconnectSerial();
-        
+
         console.log("[Upload] Yükleme başlatıldı (Arka Plan).");
         consolePanel.style.height = "220px";
         consoleLogContent.innerHTML = "";
-        
+
         progressMessage.textContent = "Karta yükleniyor...";
         progressFill.style.width = "0%";
         compileProgressModal.classList.add("show");
@@ -640,14 +640,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 })
             });
             const data = await res.json();
-            
+
             clearInterval(uploadProgressInterval);
             progressFill.style.width = "100%";
-            
+
             setTimeout(() => {
                 compileProgressModal.classList.remove("show");
                 isCompilingOrUploading = false;
-                
+
                 if (data.log) {
                     data.log.forEach(line => {
                         addConsoleLog(line, data.success ? "" : "error");
@@ -658,7 +658,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 } else {
                     addConsoleLog("Yükleme sırasında hata oluştu.", "error");
                 }
-                
+
                 // Reconnect serial monitor after upload completes
                 if (paneSerial.classList.contains("active")) {
                     connectSerial();
@@ -670,7 +670,7 @@ document.addEventListener("DOMContentLoaded", () => {
             compileProgressModal.classList.remove("show");
             isCompilingOrUploading = false;
             addConsoleLog("Hata: Yükleme sunucu hatası.", "error");
-            
+
             // Reconnect serial monitor on connection error
             if (paneSerial.classList.contains("active")) {
                 connectSerial();
@@ -700,7 +700,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("[Web Upload] Derleme başlatılıyor...");
         consolePanel.style.height = "220px";
         consoleLogContent.innerHTML = "";
-        
+
         progressMessage.textContent = "Derleniyor (Web Yükleme Öncesi)...";
         progressFill.style.width = "0%";
         compileProgressModal.classList.add("show");
@@ -726,7 +726,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 })
             });
             const data = await res.json();
-            
+
             if (data.log) {
                 data.log.forEach(line => addConsoleLog(line, data.success ? "" : "error"));
             }
@@ -745,20 +745,20 @@ document.addEventListener("DOMContentLoaded", () => {
             const firmwareData = new Uint8Array(binBuffer);
 
             compileProgressModal.classList.remove("show");
-            
+
             // 3. Connect to Web Serial
             addConsoleLog("Tarayıcıdan ESP'ye bağlanılıyor...", "");
             transport = new window.esptooljs.Transport(port);
-            
+
             const terminal = {
-                clean: () => {},
+                clean: () => { },
                 writeLine: (msg) => { console.log(msg); addConsoleLog(msg, "info"); },
                 write: (msg) => { console.log(msg); }
             };
 
             const baudrate = parseInt(serialBaudrate.value, 10) || 115200;
             const esploader = new window.esptooljs.ESPLoader(transport, baudrate, terminal);
-            
+
             progressMessage.textContent = "ESP'ye bağlanılıyor...";
             progressFill.style.width = "60%";
             compileProgressModal.classList.add("show");
@@ -769,14 +769,14 @@ document.addEventListener("DOMContentLoaded", () => {
             if (currentBoard.includes("ESP8266")) {
                 flashOffset = 0x0;
             }
-            
+
             progressMessage.textContent = `Yazdırılıyor (Adres: 0x${flashOffset.toString(16)})...`;
             progressFill.style.width = "75%";
-            
+
             addConsoleLog(`Flash işlemi başladı (Offset: 0x${flashOffset.toString(16)}), lütfen bekleyin...`, "info");
-            
+
             await esploader.flashBegin(firmwareData.length, flashOffset);
-            
+
             let currentOffset = flashOffset;
             let dataOffset = 0;
             const flashWriteSize = esploader.flash_write_size || 0x4000;
@@ -794,15 +794,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
             progressFill.style.width = "100%";
             addConsoleLog("Yükleme Tamamlandı! ESP yeniden başlatılıyor...", "success");
-            
+
             await esploader.after("hard_reset");
-            
+
         } catch (err) {
             console.error("Web Upload Hatası:", err);
             addConsoleLog("Web Upload Hatası: " + err.message, "error");
         } finally {
             if (transport) {
-                try { await transport.disconnect(); } catch(e){}
+                try { await transport.disconnect(); } catch (e) { }
             }
             clearInterval(uploadProgressInterval);
             compileProgressModal.classList.remove("show");
@@ -812,7 +812,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btnVerify.addEventListener("click", handleCompile);
     btnUpload.addEventListener("click", handleUpload);
-    
+
     btnCancelProgress.addEventListener("click", () => {
         console.log("[Compile/Upload] İşlem iptal edildi.");
         clearInterval(uploadProgressInterval);
@@ -863,19 +863,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // --- 8. Real Menu Bar action implementations ---
-    
+
     // Helper: Undo
     function editorUndo() {
         codeTextarea.focus();
         document.execCommand("undo");
     }
-    
+
     // Helper: Redo
     function editorRedo() {
         codeTextarea.focus();
         document.execCommand("redo");
     }
-    
+
     // Helper: Toggle comment on selected lines
     function toggleComment() {
         const start = codeTextarea.selectionStart;
@@ -903,7 +903,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateEditor();
         saveSketch();
     }
-    
+
     // Helper: Increase indent on selected lines
     function increaseIndent() {
         const start = codeTextarea.selectionStart;
@@ -922,7 +922,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateEditor();
         saveSketch();
     }
-    
+
     // Helper: Decrease indent on selected lines
     function decreaseIndent() {
         const start = codeTextarea.selectionStart;
@@ -941,7 +941,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateEditor();
         saveSketch();
     }
-    
+
     // Helper: Auto-format (basic C indent formatter)
     function autoFormat() {
         undoStack.push(codeTextarea.value);
@@ -966,7 +966,7 @@ document.addEventListener("DOMContentLoaded", () => {
         addConsoleLog("Kod otomatik biçimlendirildi.", "success");
         consolePanel.style.height = "220px";
     }
-    
+
     // Helper: Go to line
     function goToLine() {
         const input = prompt("Satır numarası:");
@@ -986,7 +986,7 @@ document.addEventListener("DOMContentLoaded", () => {
         codeTextarea.scrollTop = (lineNum - 5) * lineHeight;
         updateCursorPos();
     }
-    
+
     // Helper: Find in code
     function openFind() {
         let findBar = document.getElementById("findBar");
@@ -1003,13 +1003,13 @@ document.addEventListener("DOMContentLoaded", () => {
             <button id="closeFindBar" style="padding:3px 6px;background:transparent;color:#ccc;border:none;cursor:pointer;font-size:14px;">×</button>`;
         document.querySelector(".code-viewport").style.position = "relative";
         document.querySelector(".code-viewport").appendChild(findBar);
-        
+
         const findInput = findBar.querySelector("#findInput");
         const replaceInput = findBar.querySelector("#replaceInput");
         findInput.focus();
-        
+
         findBar.querySelector("#closeFindBar").addEventListener("click", () => findBar.remove());
-        
+
         findBar.querySelector("#findNextBtn").addEventListener("click", () => {
             const query = findInput.value;
             if (!query) return;
@@ -1022,7 +1022,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 codeTextarea.setSelectionRange(idx, idx + query.length);
             }
         });
-        
+
         findBar.querySelector("#replaceBtn").addEventListener("click", () => {
             const query = findInput.value;
             const replacement = replaceInput.value;
@@ -1039,7 +1039,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 saveSketch();
             }
         });
-        
+
         findBar.querySelector("#replaceAllBtn").addEventListener("click", () => {
             const query = findInput.value;
             const replacement = replaceInput.value;
@@ -1052,7 +1052,7 @@ document.addEventListener("DOMContentLoaded", () => {
             saveSketch();
         });
     }
-    
+
     // Helper: New sketch
     function newSketch() {
         if (!confirm("Mevcut eskiz kaybolacak. Yeni eskiz oluşturmak istediğinizden emin misiniz?")) return;
@@ -1065,7 +1065,7 @@ document.addEventListener("DOMContentLoaded", () => {
         addConsoleLog("Yeni eskiz oluşturuldu.", "success");
         consolePanel.style.height = "220px";
     }
-    
+
     // Helper: Save As (download)
     function saveAs() {
         const blob = new Blob([codeTextarea.value], { type: "text/plain" });
@@ -1078,7 +1078,7 @@ document.addEventListener("DOMContentLoaded", () => {
         addConsoleLog("Eskiz dosya olarak indirildi.", "success");
         consolePanel.style.height = "220px";
     }
-    
+
     // Helper: Export compiled binary
     async function exportBinary() {
         addConsoleLog("Derlenmiş ikili dosya dışa aktarılıyor...", "");
@@ -1105,7 +1105,7 @@ document.addEventListener("DOMContentLoaded", () => {
             addConsoleLog("Hata: Sunucuya bağlanılamadı.", "error");
         }
     }
-    
+
     // Helper: Archive sketch as ZIP
     async function archiveSketch() {
         addConsoleLog("Eskiz arşivleniyor...", "");
@@ -1128,7 +1128,7 @@ document.addEventListener("DOMContentLoaded", () => {
             addConsoleLog("Hata: Sunucuya bağlanılamadı.", "error");
         }
     }
-    
+
     // Helper: Zoom in/out
     function zoomIn() {
         editorFontSize = Math.min(editorFontSize + 2, 32);
@@ -1140,7 +1140,7 @@ document.addEventListener("DOMContentLoaded", () => {
         codeTextarea.style.fontSize = editorFontSize + "px";
         highlightOverlay.style.fontSize = editorFontSize + "px";
     }
-    
+
     // Helper: Copy code as Markdown for forums
     function copyAsMarkdown() {
         const md = "```cpp\n" + codeTextarea.value + "\n```";
@@ -1357,7 +1357,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const action = row.getAttribute("data-action");
             const label = row.querySelector("span") ? row.querySelector("span").textContent : row.textContent.trim();
             console.log(`[Menu Click] '${label}' (Action: ${action})`);
-            
+
             if (action && menuActions[action]) {
                 menuActions[action]();
             } else if (action) {
@@ -1370,7 +1370,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("keydown", (e) => {
         const ctrl = e.ctrlKey || e.metaKey;
         const shift = e.shiftKey;
-        
+
         if (ctrl && !shift && e.key === "n") { e.preventDefault(); newSketch(); }
         if (ctrl && !shift && e.key === "o") { e.preventDefault(); menuActions["open"](); }
         if (ctrl && !shift && e.key === "s") { e.preventDefault(); menuActions["save"](); }
@@ -1402,7 +1402,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (document.fullscreenElement) {
                 document.exitFullscreen();
             } else {
-                document.documentElement.requestFullscreen().catch(() => {});
+                document.documentElement.requestFullscreen().catch(() => { });
             }
         });
     }
@@ -1419,96 +1419,96 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- 10. Board & Library Managers (Real Data + Rendering) ---
     const BOARD_PACKAGES = [
-        { name: "Arduino AVR Boards", author: "Arduino", installed: true, installedVer: "1.8.6", versions: ["1.8.6","1.8.5","1.8.4","1.8.3"], desc: "Arduino Yún, Arduino UNO, Arduino UNO Mini, Arduino Mega ADK, Arduino Mega 2560, Arduino Leonardo, Arduino Micro, Arduino Nano, Arduino Esplora, Arduino Mini, Arduino Ethernet, Arduino Fio, Arduino BT, Arduino LilyPad USB, Arduino LilyPad, Arduino Pro, Arduino Gemma, Arduino Robot Control, Arduino Robot Motor.", core: "arduino:avr", url: "", boards: ["Arduino Uno", "Arduino Nano", "Arduino Mega 2560", "Arduino Leonardo", "Arduino Micro", "Arduino Pro Mini"] },
-        { name: "Arduino ESP32 Boards", author: "Espressif Systems", installed: true, installedVer: "3.0.2", versions: ["3.0.2","3.0.1","3.0.0","2.0.17","2.0.16","2.0.15","2.0.14"], desc: "ESP32, ESP32-S2, ESP32-S3, ESP32-C3, ESP32-C6, ESP32-H2 tabanlı tüm kartlar.", core: "esp32:esp32", url: "https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json", boards: ["ESP32 Dev Module", "NodeMCU-32S", "WEMOS LOLIN32", "ESP32 Wrover Module", "ESP32C3 Dev Module", "ESP32S3 Dev Module"] },
-        { name: "Arduino Mbed OS Nano Boards", author: "Arduino", installed: false, installedVer: "", versions: ["4.1.5","4.1.4","4.1.3","4.0.10"], desc: "Arduino Nano 33 BLE, Arduino Nano 33 BLE Sense, Arduino Nano RP2040 Connect.", core: "arduino:mbed_nano", url: "", boards: ["Arduino Nano 33 BLE", "Arduino Nano 33 BLE Sense", "Arduino Nano RP2040 Connect"] },
-        { name: "Arduino SAMD Boards", author: "Arduino", installed: false, installedVer: "", versions: ["1.8.14","1.8.13","1.8.12","1.8.11"], desc: "Arduino MKR WiFi 1010, Arduino MKR Zero, Arduino MKR 1000, Arduino Zero, Arduino Nano 33 IoT, Arduino MKR FOX 1200, Arduino MKR WAN 1300, Arduino MKR WAN 1310, Arduino MKR NB 1500, Arduino MKR GSM 1400.", core: "arduino:samd", url: "", boards: ["Arduino Zero", "Arduino MKR WiFi 1010", "Arduino Nano 33 IoT", "Arduino MKR1000"] },
-        { name: "Arduino megaAVR Boards", author: "Arduino", installed: false, installedVer: "", versions: ["1.8.8","1.8.7","1.8.6"], desc: "Arduino Uno WiFi Rev2, Arduino Nano Every.", core: "arduino:megaavr", url: "", boards: ["Arduino Uno WiFi Rev2", "Arduino Nano Every"] },
-        { name: "Arduino Mbed OS Edge Boards", author: "Arduino", installed: false, installedVer: "", versions: ["4.6.0","4.5.0","4.4.0"], desc: "Arduino Edge Control.", core: "arduino:mbed_edge", url: "", boards: ["Arduino Edge Control"] },
-        { name: "Arduino Renesas UNO R4 Boards", author: "Arduino", installed: false, installedVer: "", versions: ["1.2.0","1.1.0","1.0.5","1.0.4"], desc: "Arduino UNO R4 Minima, Arduino UNO R4 WiFi.", core: "arduino:renesas_uno", url: "", boards: ["Arduino UNO R4 Minima", "Arduino UNO R4 WiFi"] },
-        { name: "esp8266", author: "ESP8266 Community", installed: false, installedVer: "", versions: ["3.1.2","3.1.1","3.1.0","3.0.2"], desc: "NodeMCU 1.0, WeMos D1 Mini, WeMos D1 R2, Generic ESP8266 Module, Adafruit Feather HUZZAH ESP8266.", core: "esp8266:esp8266", url: "https://arduino.esp8266.com/stable/package_esp8266com_index.json", boards: ["NodeMCU 1.0 (ESP-12E Module)", "Generic ESP8266 Module", "WeMos D1 R1", "WeMos D1 mini"] },
-        { name: "Raspberry Pi Pico/RP2040", author: "Earle Philhower", installed: false, installedVer: "", versions: ["3.9.5","3.9.4","3.9.3","3.9.2"], desc: "Raspberry Pi Pico, Raspberry Pi Pico W, Adafruit Feather RP2040, SparkFun ProMicro RP2040.", core: "rp2040:rp2040", url: "https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json", boards: ["Raspberry Pi Pico", "Raspberry Pi Pico W", "Adafruit Feather RP2040"] },
-        { name: "STM32 MCU based boards", author: "STMicroelectronics", installed: false, installedVer: "", versions: ["2.7.1","2.7.0","2.6.0","2.5.0"], desc: "Nucleo-64, Nucleo-144, Discovery, Blue Pill (STM32F103C8), Black Pill (STM32F401CC).", core: "STMicroelectronics:stm32", url: "https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json", boards: ["Generic STM32F1 series", "Generic STM32F4 series", "Nucleo-64"] },
-        { name: "Adafruit SAMD Boards", author: "Adafruit", installed: false, installedVer: "", versions: ["1.7.13","1.7.12","1.7.11"], desc: "Adafruit Feather M0, Metro M4, ItsyBitsy M4, Trinket M0, Circuit Playground Express.", core: "adafruit:samd", url: "https://adafruit.github.io/arduino-board-index/package_adafruit_index.json", boards: ["Adafruit Feather M0", "Adafruit Circuit Playground Express", "Adafruit Trinket M0", "Adafruit Metro M4"] },
-        { name: "Seeed Studio XIAO", author: "Seeed Studio", installed: false, installedVer: "", versions: ["2.9.1","2.9.0","2.8.4","2.8.3"], desc: "XIAO ESP32S3, XIAO ESP32C3, XIAO nRF52840, XIAO nRF52840 Sense, XIAO RP2040, XIAO SAMD21.", core: "Seeeduino:samd", url: "https://files.seeedstudio.com/arduino/package_seeeduino_boards_index.json", boards: ["Seeed XIAO BLE Sense", "Seeed XIAO RP2040", "Seeed XIAO ESP32C3"] },
-        { name: "SparkFun Boards", author: "SparkFun Electronics", installed: false, installedVer: "", versions: ["2.0.8","2.0.7","2.0.6"], desc: "SparkFun ESP32 Thing, SparkFun Thing Plus, SparkFun MicroMod, SparkFun RedBoard Turbo.", core: "SparkFun:esp32", url: "https://raw.githubusercontent.com/sparkfun/Arduino_Boards/main/IDE_Board_Manager/package_sparkfun_index.json", boards: ["SparkFun ESP32 Thing", "SparkFun RedBoard Turbo", "SparkFun MicroMod SAMD51"] },
-        { name: "Teensy", author: "PJRC", installed: false, installedVer: "", versions: ["1.59.0","1.58.1","1.58.0"], desc: "Teensy 4.1, Teensy 4.0, Teensy 3.6, Teensy 3.5, Teensy 3.2, Teensy LC.", core: "teensy:avr", url: "https://www.pjrc.com/teensy/package_teensy_index.json", boards: ["Teensy 4.1", "Teensy 4.0", "Teensy 3.6", "Teensy 3.2", "Teensy LC"] },,
+        { name: "Arduino AVR Boards", author: "Arduino", installed: true, installedVer: "1.8.6", versions: ["1.8.6", "1.8.5", "1.8.4", "1.8.3"], desc: "Arduino Yún, Arduino UNO, Arduino UNO Mini, Arduino Mega ADK, Arduino Mega 2560, Arduino Leonardo, Arduino Micro, Arduino Nano, Arduino Esplora, Arduino Mini, Arduino Ethernet, Arduino Fio, Arduino BT, Arduino LilyPad USB, Arduino LilyPad, Arduino Pro, Arduino Gemma, Arduino Robot Control, Arduino Robot Motor.", core: "arduino:avr", url: "", boards: ["Arduino Uno", "Arduino Nano", "Arduino Mega 2560", "Arduino Leonardo", "Arduino Micro", "Arduino Pro Mini"] },
+        { name: "Arduino ESP32 Boards", author: "Espressif Systems", installed: true, installedVer: "3.0.2", versions: ["3.0.2", "3.0.1", "3.0.0", "2.0.17", "2.0.16", "2.0.15", "2.0.14"], desc: "ESP32, ESP32-S2, ESP32-S3, ESP32-C3, ESP32-C6, ESP32-H2 tabanlı tüm kartlar.", core: "esp32:esp32", url: "https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json", boards: ["ESP32 Dev Module", "NodeMCU-32S", "WEMOS LOLIN32", "ESP32 Wrover Module", "ESP32C3 Dev Module", "ESP32S3 Dev Module"] },
+        { name: "Arduino Mbed OS Nano Boards", author: "Arduino", installed: false, installedVer: "", versions: ["4.1.5", "4.1.4", "4.1.3", "4.0.10"], desc: "Arduino Nano 33 BLE, Arduino Nano 33 BLE Sense, Arduino Nano RP2040 Connect.", core: "arduino:mbed_nano", url: "", boards: ["Arduino Nano 33 BLE", "Arduino Nano 33 BLE Sense", "Arduino Nano RP2040 Connect"] },
+        { name: "Arduino SAMD Boards", author: "Arduino", installed: false, installedVer: "", versions: ["1.8.14", "1.8.13", "1.8.12", "1.8.11"], desc: "Arduino MKR WiFi 1010, Arduino MKR Zero, Arduino MKR 1000, Arduino Zero, Arduino Nano 33 IoT, Arduino MKR FOX 1200, Arduino MKR WAN 1300, Arduino MKR WAN 1310, Arduino MKR NB 1500, Arduino MKR GSM 1400.", core: "arduino:samd", url: "", boards: ["Arduino Zero", "Arduino MKR WiFi 1010", "Arduino Nano 33 IoT", "Arduino MKR1000"] },
+        { name: "Arduino megaAVR Boards", author: "Arduino", installed: false, installedVer: "", versions: ["1.8.8", "1.8.7", "1.8.6"], desc: "Arduino Uno WiFi Rev2, Arduino Nano Every.", core: "arduino:megaavr", url: "", boards: ["Arduino Uno WiFi Rev2", "Arduino Nano Every"] },
+        { name: "Arduino Mbed OS Edge Boards", author: "Arduino", installed: false, installedVer: "", versions: ["4.6.0", "4.5.0", "4.4.0"], desc: "Arduino Edge Control.", core: "arduino:mbed_edge", url: "", boards: ["Arduino Edge Control"] },
+        { name: "Arduino Renesas UNO R4 Boards", author: "Arduino", installed: false, installedVer: "", versions: ["1.2.0", "1.1.0", "1.0.5", "1.0.4"], desc: "Arduino UNO R4 Minima, Arduino UNO R4 WiFi.", core: "arduino:renesas_uno", url: "", boards: ["Arduino UNO R4 Minima", "Arduino UNO R4 WiFi"] },
+        { name: "esp8266", author: "ESP8266 Community", installed: false, installedVer: "", versions: ["3.1.2", "3.1.1", "3.1.0", "3.0.2"], desc: "NodeMCU 1.0, WeMos D1 Mini, WeMos D1 R2, Generic ESP8266 Module, Adafruit Feather HUZZAH ESP8266.", core: "esp8266:esp8266", url: "https://arduino.esp8266.com/stable/package_esp8266com_index.json", boards: ["NodeMCU 1.0 (ESP-12E Module)", "Generic ESP8266 Module", "WeMos D1 R1", "WeMos D1 mini"] },
+        { name: "Raspberry Pi Pico/RP2040", author: "Earle Philhower", installed: false, installedVer: "", versions: ["3.9.5", "3.9.4", "3.9.3", "3.9.2"], desc: "Raspberry Pi Pico, Raspberry Pi Pico W, Adafruit Feather RP2040, SparkFun ProMicro RP2040.", core: "rp2040:rp2040", url: "https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json", boards: ["Raspberry Pi Pico", "Raspberry Pi Pico W", "Adafruit Feather RP2040"] },
+        { name: "STM32 MCU based boards", author: "STMicroelectronics", installed: false, installedVer: "", versions: ["2.7.1", "2.7.0", "2.6.0", "2.5.0"], desc: "Nucleo-64, Nucleo-144, Discovery, Blue Pill (STM32F103C8), Black Pill (STM32F401CC).", core: "STMicroelectronics:stm32", url: "https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json", boards: ["Generic STM32F1 series", "Generic STM32F4 series", "Nucleo-64"] },
+        { name: "Adafruit SAMD Boards", author: "Adafruit", installed: false, installedVer: "", versions: ["1.7.13", "1.7.12", "1.7.11"], desc: "Adafruit Feather M0, Metro M4, ItsyBitsy M4, Trinket M0, Circuit Playground Express.", core: "adafruit:samd", url: "https://adafruit.github.io/arduino-board-index/package_adafruit_index.json", boards: ["Adafruit Feather M0", "Adafruit Circuit Playground Express", "Adafruit Trinket M0", "Adafruit Metro M4"] },
+        { name: "Seeed Studio XIAO", author: "Seeed Studio", installed: false, installedVer: "", versions: ["2.9.1", "2.9.0", "2.8.4", "2.8.3"], desc: "XIAO ESP32S3, XIAO ESP32C3, XIAO nRF52840, XIAO nRF52840 Sense, XIAO RP2040, XIAO SAMD21.", core: "Seeeduino:samd", url: "https://files.seeedstudio.com/arduino/package_seeeduino_boards_index.json", boards: ["Seeed XIAO BLE Sense", "Seeed XIAO RP2040", "Seeed XIAO ESP32C3"] },
+        { name: "SparkFun Boards", author: "SparkFun Electronics", installed: false, installedVer: "", versions: ["2.0.8", "2.0.7", "2.0.6"], desc: "SparkFun ESP32 Thing, SparkFun Thing Plus, SparkFun MicroMod, SparkFun RedBoard Turbo.", core: "SparkFun:esp32", url: "https://raw.githubusercontent.com/sparkfun/Arduino_Boards/main/IDE_Board_Manager/package_sparkfun_index.json", boards: ["SparkFun ESP32 Thing", "SparkFun RedBoard Turbo", "SparkFun MicroMod SAMD51"] },
+        { name: "Teensy", author: "PJRC", installed: false, installedVer: "", versions: ["1.59.0", "1.58.1", "1.58.0"], desc: "Teensy 4.1, Teensy 4.0, Teensy 3.6, Teensy 3.5, Teensy 3.2, Teensy LC.", core: "teensy:avr", url: "https://www.pjrc.com/teensy/package_teensy_index.json", boards: ["Teensy 4.1", "Teensy 4.0", "Teensy 3.6", "Teensy 3.2", "Teensy LC"] }, ,
     ];
 
     const LIBRARIES = [
-        { name: "Adafruit NeoPixel", author: "Adafruit", installed: false, installedVer: "", versions: ["1.12.0","1.11.0","1.10.7"], desc: "Arduino library for controlling single-wire-based LED pixels and strip such as the Adafruit 60 LED/meter Digital LED strip, the Adafruit FLORA RGB Smart Pixel, the Adafruit Breadboard-friendly RGB Smart Pixel, the Adafruit NeoPixel Stick, and the Adafruit NeoPixel Shield." },
-        { name: "DHT sensor library", author: "Adafruit", installed: false, installedVer: "", versions: ["1.4.6","1.4.5","1.4.4"], desc: "Arduino library for DHT11, DHT22, etc. Temperature & Humidity Sensors." },
-        { name: "ArduinoJson", author: "Benoit Blanchon", installed: false, installedVer: "", versions: ["7.0.4","7.0.3","6.21.5","6.21.4"], desc: "A simple and efficient JSON library for embedded C++. It supports JSON serialization, JSON deserialization, MessagePack, streams, and fixed memory allocation." },
-        { name: "FastLED", author: "Daniel Garcia", installed: false, installedVer: "", versions: ["3.6.0","3.5.0","3.4.0","3.3.3"], desc: "A library for easily & efficiently controlling a wide variety of LED chipsets, like the ones sold by Adafruit (NeoPixel, DotStar, LPD8806), SparkFun (WS2801), and others." },
-        { name: "Servo", author: "Arduino", installed: false, installedVer: "", versions: ["1.2.1","1.2.0","1.1.8"], desc: "Allows Arduino/Genuino boards to control a variety of servo motors." },
-        { name: "LiquidCrystal", author: "Arduino", installed: false, installedVer: "", versions: ["1.0.7","1.0.6","1.0.5"], desc: "Allows communication with alphanumerical liquid crystal displays (LCDs)." },
-        { name: "SD", author: "Arduino", installed: false, installedVer: "", versions: ["1.2.4","1.2.3","1.2.2"], desc: "Enables reading and writing on SD cards. The communication between the microcontroller and the SD card uses SPI." },
-        { name: "PubSubClient", author: "Nick O'Leary", installed: false, installedVer: "", versions: ["2.8.0","2.7.0","2.6.0"], desc: "A client library for MQTT messaging. Lightweight Arduino client for MQTT message sending and receiving." },
-        { name: "Adafruit GFX Library", author: "Adafruit", installed: false, installedVer: "", versions: ["1.11.9","1.11.8","1.11.7"], desc: "Adafruit GFX graphics core library, this is the 'core' class that all our other graphics libraries derive from." },
-        { name: "Adafruit SSD1306", author: "Adafruit", installed: false, installedVer: "", versions: ["2.5.9","2.5.8","2.5.7"], desc: "SSD1306 oled driver library for 'monochrome' 128x64 and 128x32 OLEDs." },
-        { name: "OneWire", author: "Jim Studt, Tom Pollard", installed: false, installedVer: "", versions: ["2.3.7","2.3.6","2.3.5"], desc: "Access 1-wire temperature sensors, memory and other chips." },
-        { name: "DallasTemperature", author: "Miles Burton", installed: false, installedVer: "", versions: ["3.9.0","3.8.1","3.8.0"], desc: "Arduino Library for Dallas Temperature ICs. Supports DS18B20, DS18S20, DS1822, DS1820." },
-        { name: "IRremote", author: "Armin Joachimsmeyer", installed: false, installedVer: "", versions: ["4.3.0","4.2.0","4.1.0","4.0.0"], desc: "Send and receive infrared signals with multiple protocols." },
-        { name: "AccelStepper", author: "Mike McCauley", installed: false, installedVer: "", versions: ["1.64.0","1.63.0","1.62.0"], desc: "An object-oriented, multi-instance stepper motor acceleration/deceleration library." },
-        { name: "ESP32Servo", author: "Kevin Harrington, John Bennett", installed: false, installedVer: "", versions: ["1.1.1","1.1.0","1.0.3"], desc: "Allows ESP32 boards to control servo motors using the LEDC peripheral." },
-        { name: "WiFiManager", author: "tzapu", installed: false, installedVer: "", versions: ["2.0.17","2.0.16","2.0.15"], desc: "ESP8266/ESP32 WiFi Connection manager with web captive portal." },
-        { name: "TFT_eSPI", author: "Bodmer", installed: false, installedVer: "", versions: ["2.5.34","2.5.33","2.5.32"], desc: "A fast TFT library for ESP8266 and ESP32 processors, supporting a wide range of display driver chips." },
-        { name: "U8g2", author: "oliver", installed: false, installedVer: "", versions: ["2.35.9","2.35.7","2.34.22"], desc: "Monochrome LCD, OLED and eInk Library. Successor of U8glib. Supports more than 50 display controllers." },
-        { name: "Blynk", author: "Volodymyr Shymanskyy", installed: false, installedVer: "", versions: ["1.3.2","1.3.1","1.3.0"], desc: "Build a smartphone app for your project in minutes. Blynk library for embedded hardware." },
-        { name: "Adafruit BME280 Library", author: "Adafruit", installed: false, installedVer: "", versions: ["2.2.4","2.2.3","2.2.2"], desc: "Arduino library for BME280 sensors with I2C and SPI interfaces. Pressure, temperature, humidity." },
-        { name: "AsyncTCP", author: "dvarrel", installed: false, installedVer: "", versions: ["1.1.4","1.1.3","1.1.1"], desc: "Async TCP Library for ESP32 Arduino." },
-        { name: "ESPAsyncWebServer", author: "lacamera", installed: false, installedVer: "", versions: ["3.1.0","2.10.8","1.2.7"], desc: "Async Web Server for ESP8266 and ESP32." },
-        { name: "Stepper", author: "Arduino", installed: false, installedVer: "", versions: ["1.1.3","1.1.2","1.1.1"], desc: "Allows Arduino boards to control a variety of stepper motors." },
-        { name: "LiquidCrystal I2C", author: "Frank de Brabander", installed: false, installedVer: "", versions: ["1.1.2","1.1.1","1.1.0"], desc: "Library for the LiquidCrystal I2C displays." },
-        { name: "MFRC522", author: "GithubCommunity", installed: false, installedVer: "", versions: ["1.4.10","1.4.9","1.4.8"], desc: "Arduino RFID Library for MFRC522." },
-        { name: "Keypad", author: "Mark Stanley, Alexander Brevig", installed: false, installedVer: "", versions: ["3.1.1","3.1.0"], desc: "A library for using matrix style keypads with the Arduino." },
-        { name: "TinyGPSPlus", author: "Mikal Hart", installed: false, installedVer: "", versions: ["1.0.3","1.0.2"], desc: "A new, full-featured GPS parsing library for Arduino." },
-        { name: "RTClib", author: "Adafruit", installed: false, installedVer: "", versions: ["2.1.1","2.1.0","2.0.3"], desc: "A fork of Jeelabs' fantastic RTC library for DS1307, DS3231, PCF8523." },
-        { name: "Time", author: "Michael Margolis", installed: false, installedVer: "", versions: ["1.6.1","1.6.0"], desc: "Timekeeping library for Arduino." },
-        { name: "Encoder", author: "Paul Stoffregen", installed: false, installedVer: "", versions: ["1.4.2","1.4.1"], desc: "Quadrature Encoder Library for Arduino." },
-        { name: "ModbusMaster", author: "Doc Walker", installed: false, installedVer: "", versions: ["2.0.1","2.0.0"], desc: "Arduino library for communicating with Modbus slaves over RS485/RS232." },
-        { name: "RadioHead", author: "Mike McCauley", installed: false, installedVer: "", versions: ["1.122","1.121"], desc: "Packet Radio library for Arduino." },
-        { name: "Ethernet", author: "Arduino", installed: false, installedVer: "", versions: ["2.0.2","2.0.1","2.0.0"], desc: "Allows Arduino boards to connect to the Internet using the Arduino Ethernet Shield." },
-        { name: "RF24", author: "TMRh20", installed: false, installedVer: "", versions: ["1.4.7","1.4.6"], desc: "OSI Layer 2 driver for nRF24L01 on Arduino & Raspberry Pi/Linux Devices." },
-        { name: "LoRa", author: "Sandeep Mistry", installed: false, installedVer: "", versions: ["0.8.0","0.7.2"], desc: "An Arduino library for sending and receiving data using LoRa radios." },
-        { name: "WebSockets", author: "Markus Sattler", installed: false, installedVer: "", versions: ["2.3.6","2.3.5"], desc: "WebSockets server and client for Arduino." },
-        { name: "ArduinoOTA", author: "Juergen Skrotzky", installed: false, installedVer: "", versions: ["1.0.9","1.0.8"], desc: "Library for updating ESP8266 and ESP32 over the air." },
-        { name: "MD_MAX72XX", author: "majicDesigns", installed: false, installedVer: "", versions: ["3.3.1","3.3.0"], desc: "Library for MAX7219 and MAX7221 led matrix displays." },
-        { name: "LedControl", author: "Eberhard Fahle", installed: false, installedVer: "", versions: ["1.0.6","1.0.5"], desc: "A library for the MAX7219 and MAX7221 Led display drivers." },
-        { name: "TaskScheduler", author: "Anatoliy Kuznetsov", installed: false, installedVer: "", versions: ["3.7.0","3.6.0"], desc: "Cooperative multitasking for Arduino microcontrollers." },
-        { name: "Bounce2", author: "Thomas O Fredericks", installed: false, installedVer: "", versions: ["2.71","2.70"], desc: "Debouncing library for Arduino and Wiring." },
-        { name: "PID", author: "Brett Beauregard", installed: false, installedVer: "", versions: ["1.2.1","1.2.0"], desc: "PID Controller library for Arduino." },
-        { name: "NTPClient", author: "Fabrice Weinberg", installed: false, installedVer: "", versions: ["3.2.1","3.2.0"], desc: "An NTPClient to connect to a time server." },
-        { name: "Adafruit MQTT Library", author: "Adafruit", installed: false, installedVer: "", versions: ["2.5.4","2.5.3"], desc: "MQTT library for Arduino, specifically tailored for Adafruit IO." },
-        { name: "Arduino_JSON", author: "Arduino", installed: false, installedVer: "", versions: ["0.2.0","0.1.0"], desc: "Official Arduino JSON Library." },
-        { name: "Firebase ESP32 Client", author: "Mobizt", installed: false, installedVer: "", versions: ["4.3.19","4.3.18"], desc: "Firebase RTDB, Cloud Firestore, Firebase Storage & Cloud Messaging for ESP32." },
-        { name: "Firebase ESP8266 Client", author: "Mobizt", installed: false, installedVer: "", versions: ["4.3.19","4.3.18"], desc: "Firebase RTDB, Cloud Firestore, Firebase Storage & Cloud Messaging for ESP8266." },
-        { name: "TMCStepper", author: "Teemu Mäntykallio", installed: false, installedVer: "", versions: ["0.7.3","0.7.2"], desc: "Library for Trinamic stepper drivers." },
-        { name: "Adafruit Motor Shield V2 Library", author: "Adafruit", installed: false, installedVer: "", versions: ["1.1.1","1.1.0"], desc: "Library for the Adafruit Motor Shield V2." },
-        { name: "Arduino_LSM9DS1", author: "Arduino", installed: false, installedVer: "", versions: ["1.1.1","1.1.0"], desc: "Allows you to read the accelerometer, magnetometer and gyroscope." },
-        { name: "WiFi101", author: "Arduino", installed: false, installedVer: "", versions: ["0.16.1","0.16.0"], desc: "Network driver for Arduino WiFi 101 shield." },
-        { name: "Adafruit_Sensor", author: "Adafruit", installed: false, installedVer: "", versions: ["1.1.14","1.1.13"], desc: "Common sensor library." },
+        { name: "Adafruit NeoPixel", author: "Adafruit", installed: false, installedVer: "", versions: ["1.12.0", "1.11.0", "1.10.7"], desc: "Arduino library for controlling single-wire-based LED pixels and strip such as the Adafruit 60 LED/meter Digital LED strip, the Adafruit FLORA RGB Smart Pixel, the Adafruit Breadboard-friendly RGB Smart Pixel, the Adafruit NeoPixel Stick, and the Adafruit NeoPixel Shield." },
+        { name: "DHT sensor library", author: "Adafruit", installed: false, installedVer: "", versions: ["1.4.6", "1.4.5", "1.4.4"], desc: "Arduino library for DHT11, DHT22, etc. Temperature & Humidity Sensors." },
+        { name: "ArduinoJson", author: "Benoit Blanchon", installed: false, installedVer: "", versions: ["7.0.4", "7.0.3", "6.21.5", "6.21.4"], desc: "A simple and efficient JSON library for embedded C++. It supports JSON serialization, JSON deserialization, MessagePack, streams, and fixed memory allocation." },
+        { name: "FastLED", author: "Daniel Garcia", installed: false, installedVer: "", versions: ["3.6.0", "3.5.0", "3.4.0", "3.3.3"], desc: "A library for easily & efficiently controlling a wide variety of LED chipsets, like the ones sold by Adafruit (NeoPixel, DotStar, LPD8806), SparkFun (WS2801), and others." },
+        { name: "Servo", author: "Arduino", installed: false, installedVer: "", versions: ["1.2.1", "1.2.0", "1.1.8"], desc: "Allows Arduino/Genuino boards to control a variety of servo motors." },
+        { name: "LiquidCrystal", author: "Arduino", installed: false, installedVer: "", versions: ["1.0.7", "1.0.6", "1.0.5"], desc: "Allows communication with alphanumerical liquid crystal displays (LCDs)." },
+        { name: "SD", author: "Arduino", installed: false, installedVer: "", versions: ["1.2.4", "1.2.3", "1.2.2"], desc: "Enables reading and writing on SD cards. The communication between the microcontroller and the SD card uses SPI." },
+        { name: "PubSubClient", author: "Nick O'Leary", installed: false, installedVer: "", versions: ["2.8.0", "2.7.0", "2.6.0"], desc: "A client library for MQTT messaging. Lightweight Arduino client for MQTT message sending and receiving." },
+        { name: "Adafruit GFX Library", author: "Adafruit", installed: false, installedVer: "", versions: ["1.11.9", "1.11.8", "1.11.7"], desc: "Adafruit GFX graphics core library, this is the 'core' class that all our other graphics libraries derive from." },
+        { name: "Adafruit SSD1306", author: "Adafruit", installed: false, installedVer: "", versions: ["2.5.9", "2.5.8", "2.5.7"], desc: "SSD1306 oled driver library for 'monochrome' 128x64 and 128x32 OLEDs." },
+        { name: "OneWire", author: "Jim Studt, Tom Pollard", installed: false, installedVer: "", versions: ["2.3.7", "2.3.6", "2.3.5"], desc: "Access 1-wire temperature sensors, memory and other chips." },
+        { name: "DallasTemperature", author: "Miles Burton", installed: false, installedVer: "", versions: ["3.9.0", "3.8.1", "3.8.0"], desc: "Arduino Library for Dallas Temperature ICs. Supports DS18B20, DS18S20, DS1822, DS1820." },
+        { name: "IRremote", author: "Armin Joachimsmeyer", installed: false, installedVer: "", versions: ["4.3.0", "4.2.0", "4.1.0", "4.0.0"], desc: "Send and receive infrared signals with multiple protocols." },
+        { name: "AccelStepper", author: "Mike McCauley", installed: false, installedVer: "", versions: ["1.64.0", "1.63.0", "1.62.0"], desc: "An object-oriented, multi-instance stepper motor acceleration/deceleration library." },
+        { name: "ESP32Servo", author: "Kevin Harrington, John Bennett", installed: false, installedVer: "", versions: ["1.1.1", "1.1.0", "1.0.3"], desc: "Allows ESP32 boards to control servo motors using the LEDC peripheral." },
+        { name: "WiFiManager", author: "tzapu", installed: false, installedVer: "", versions: ["2.0.17", "2.0.16", "2.0.15"], desc: "ESP8266/ESP32 WiFi Connection manager with web captive portal." },
+        { name: "TFT_eSPI", author: "Bodmer", installed: false, installedVer: "", versions: ["2.5.34", "2.5.33", "2.5.32"], desc: "A fast TFT library for ESP8266 and ESP32 processors, supporting a wide range of display driver chips." },
+        { name: "U8g2", author: "oliver", installed: false, installedVer: "", versions: ["2.35.9", "2.35.7", "2.34.22"], desc: "Monochrome LCD, OLED and eInk Library. Successor of U8glib. Supports more than 50 display controllers." },
+        { name: "Blynk", author: "Volodymyr Shymanskyy", installed: false, installedVer: "", versions: ["1.3.2", "1.3.1", "1.3.0"], desc: "Build a smartphone app for your project in minutes. Blynk library for embedded hardware." },
+        { name: "Adafruit BME280 Library", author: "Adafruit", installed: false, installedVer: "", versions: ["2.2.4", "2.2.3", "2.2.2"], desc: "Arduino library for BME280 sensors with I2C and SPI interfaces. Pressure, temperature, humidity." },
+        { name: "AsyncTCP", author: "dvarrel", installed: false, installedVer: "", versions: ["1.1.4", "1.1.3", "1.1.1"], desc: "Async TCP Library for ESP32 Arduino." },
+        { name: "ESPAsyncWebServer", author: "lacamera", installed: false, installedVer: "", versions: ["3.1.0", "2.10.8", "1.2.7"], desc: "Async Web Server for ESP8266 and ESP32." },
+        { name: "Stepper", author: "Arduino", installed: false, installedVer: "", versions: ["1.1.3", "1.1.2", "1.1.1"], desc: "Allows Arduino boards to control a variety of stepper motors." },
+        { name: "LiquidCrystal I2C", author: "Frank de Brabander", installed: false, installedVer: "", versions: ["1.1.2", "1.1.1", "1.1.0"], desc: "Library for the LiquidCrystal I2C displays." },
+        { name: "MFRC522", author: "GithubCommunity", installed: false, installedVer: "", versions: ["1.4.10", "1.4.9", "1.4.8"], desc: "Arduino RFID Library for MFRC522." },
+        { name: "Keypad", author: "Mark Stanley, Alexander Brevig", installed: false, installedVer: "", versions: ["3.1.1", "3.1.0"], desc: "A library for using matrix style keypads with the Arduino." },
+        { name: "TinyGPSPlus", author: "Mikal Hart", installed: false, installedVer: "", versions: ["1.0.3", "1.0.2"], desc: "A new, full-featured GPS parsing library for Arduino." },
+        { name: "RTClib", author: "Adafruit", installed: false, installedVer: "", versions: ["2.1.1", "2.1.0", "2.0.3"], desc: "A fork of Jeelabs' fantastic RTC library for DS1307, DS3231, PCF8523." },
+        { name: "Time", author: "Michael Margolis", installed: false, installedVer: "", versions: ["1.6.1", "1.6.0"], desc: "Timekeeping library for Arduino." },
+        { name: "Encoder", author: "Paul Stoffregen", installed: false, installedVer: "", versions: ["1.4.2", "1.4.1"], desc: "Quadrature Encoder Library for Arduino." },
+        { name: "ModbusMaster", author: "Doc Walker", installed: false, installedVer: "", versions: ["2.0.1", "2.0.0"], desc: "Arduino library for communicating with Modbus slaves over RS485/RS232." },
+        { name: "RadioHead", author: "Mike McCauley", installed: false, installedVer: "", versions: ["1.122", "1.121"], desc: "Packet Radio library for Arduino." },
+        { name: "Ethernet", author: "Arduino", installed: false, installedVer: "", versions: ["2.0.2", "2.0.1", "2.0.0"], desc: "Allows Arduino boards to connect to the Internet using the Arduino Ethernet Shield." },
+        { name: "RF24", author: "TMRh20", installed: false, installedVer: "", versions: ["1.4.7", "1.4.6"], desc: "OSI Layer 2 driver for nRF24L01 on Arduino & Raspberry Pi/Linux Devices." },
+        { name: "LoRa", author: "Sandeep Mistry", installed: false, installedVer: "", versions: ["0.8.0", "0.7.2"], desc: "An Arduino library for sending and receiving data using LoRa radios." },
+        { name: "WebSockets", author: "Markus Sattler", installed: false, installedVer: "", versions: ["2.3.6", "2.3.5"], desc: "WebSockets server and client for Arduino." },
+        { name: "ArduinoOTA", author: "Juergen Skrotzky", installed: false, installedVer: "", versions: ["1.0.9", "1.0.8"], desc: "Library for updating ESP8266 and ESP32 over the air." },
+        { name: "MD_MAX72XX", author: "majicDesigns", installed: false, installedVer: "", versions: ["3.3.1", "3.3.0"], desc: "Library for MAX7219 and MAX7221 led matrix displays." },
+        { name: "LedControl", author: "Eberhard Fahle", installed: false, installedVer: "", versions: ["1.0.6", "1.0.5"], desc: "A library for the MAX7219 and MAX7221 Led display drivers." },
+        { name: "TaskScheduler", author: "Anatoliy Kuznetsov", installed: false, installedVer: "", versions: ["3.7.0", "3.6.0"], desc: "Cooperative multitasking for Arduino microcontrollers." },
+        { name: "Bounce2", author: "Thomas O Fredericks", installed: false, installedVer: "", versions: ["2.71", "2.70"], desc: "Debouncing library for Arduino and Wiring." },
+        { name: "PID", author: "Brett Beauregard", installed: false, installedVer: "", versions: ["1.2.1", "1.2.0"], desc: "PID Controller library for Arduino." },
+        { name: "NTPClient", author: "Fabrice Weinberg", installed: false, installedVer: "", versions: ["3.2.1", "3.2.0"], desc: "An NTPClient to connect to a time server." },
+        { name: "Adafruit MQTT Library", author: "Adafruit", installed: false, installedVer: "", versions: ["2.5.4", "2.5.3"], desc: "MQTT library for Arduino, specifically tailored for Adafruit IO." },
+        { name: "Arduino_JSON", author: "Arduino", installed: false, installedVer: "", versions: ["0.2.0", "0.1.0"], desc: "Official Arduino JSON Library." },
+        { name: "Firebase ESP32 Client", author: "Mobizt", installed: false, installedVer: "", versions: ["4.3.19", "4.3.18"], desc: "Firebase RTDB, Cloud Firestore, Firebase Storage & Cloud Messaging for ESP32." },
+        { name: "Firebase ESP8266 Client", author: "Mobizt", installed: false, installedVer: "", versions: ["4.3.19", "4.3.18"], desc: "Firebase RTDB, Cloud Firestore, Firebase Storage & Cloud Messaging for ESP8266." },
+        { name: "TMCStepper", author: "Teemu Mäntykallio", installed: false, installedVer: "", versions: ["0.7.3", "0.7.2"], desc: "Library for Trinamic stepper drivers." },
+        { name: "Adafruit Motor Shield V2 Library", author: "Adafruit", installed: false, installedVer: "", versions: ["1.1.1", "1.1.0"], desc: "Library for the Adafruit Motor Shield V2." },
+        { name: "Arduino_LSM9DS1", author: "Arduino", installed: false, installedVer: "", versions: ["1.1.1", "1.1.0"], desc: "Allows you to read the accelerometer, magnetometer and gyroscope." },
+        { name: "WiFi101", author: "Arduino", installed: false, installedVer: "", versions: ["0.16.1", "0.16.0"], desc: "Network driver for Arduino WiFi 101 shield." },
+        { name: "Adafruit_Sensor", author: "Adafruit", installed: false, installedVer: "", versions: ["1.1.14", "1.1.13"], desc: "Common sensor library." },
         { name: "SimpleTimer", author: "Schallbert", installed: false, installedVer: "", versions: ["1.0.0"], desc: "A simple timer library for calling functions at a set interval." }
     ];
 
     function updateBoardMenu() {
         const boardMenu = document.getElementById("menuBoardSubmenu");
         if (!boardMenu) return;
-        
+
         let availableBoards = [];
         BOARD_PACKAGES.forEach(pkg => {
             if (pkg.installed && pkg.boards) {
                 availableBoards = availableBoards.concat(pkg.boards);
             }
         });
-        
+
         boardMenu.innerHTML = "";
-        
+
         if (availableBoards.length === 0) {
             boardMenu.innerHTML = '<div class="menu-row no-boards">Lütfen Kart Yöneticisinden bir kart paketi kurun.</div>';
             return;
         }
-        
+
         availableBoards.forEach(board => {
             const div = document.createElement("div");
             div.className = "menu-row board-option";
@@ -1517,7 +1517,7 @@ document.addEventListener("DOMContentLoaded", () => {
             div.addEventListener("click", (e) => {
                 e.stopPropagation();
                 window.selectBoard(board);
-                
+
                 // Hide dropdown hack to resolve "menu stuck open"
                 const parentDropdown = div.closest('.dropdown-menu');
                 if (parentDropdown) {
@@ -1538,7 +1538,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (q && !pkg.name.toLowerCase().includes(q) && !pkg.desc.toLowerCase().includes(q)) return;
             if (typeFilter === "installed" && !pkg.installed) return;
             if (typeFilter === "not-installed" && pkg.installed) return;
-            
+
             const div = document.createElement("div");
             div.className = "board-package-item";
             const versOpts = pkg.versions.map(v => `<option value="${v}">${v}</option>`).join("");
@@ -1551,9 +1551,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 <a class="pkg-more-info" href="#" onclick="return false">Daha fazla bilgi</a>
                 <div class="pkg-actions">
                     <select class="pkg-version-select">${versOpts}</select>
-                    ${pkg.installed 
-                        ? `<button class="btn-pkg-remove" data-idx="${idx}">KALDIR</button>` 
-                        : `<button class="btn-pkg-install" data-idx="${idx}">KUR</button>`}
+                    ${pkg.installed
+                    ? `<button class="btn-pkg-remove" data-idx="${idx}">KALDIR</button>`
+                    : `<button class="btn-pkg-install" data-idx="${idx}">KUR</button>`}
                 </div>`;
             container.appendChild(div);
         });
@@ -1568,7 +1568,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 try {
                     const res = await fetch("/api/core/install", {
                         method: "POST",
-                        headers: {"Content-Type": "application/json"},
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ core: pkg.core, url: pkg.url || "" })
                     });
                     const data = await res.json();
@@ -1581,7 +1581,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         addConsoleLog(`${pkg.name} kurulamadı.`, "error");
                         if (data.log) data.log.forEach(l => addConsoleLog(l, "error"));
                     }
-                } catch(e) { addConsoleLog("Hata: Sunucuya bağlanılamadı.", "error"); }
+                } catch (e) { addConsoleLog("Hata: Sunucuya bağlanılamadı.", "error"); }
                 consolePanel.style.height = "220px";
                 renderBoardPackages(document.getElementById("panelBoardSearch").value, document.getElementById("boardTypeFilter").value);
             });
@@ -1596,7 +1596,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 try {
                     const res = await fetch("/api/core/uninstall", {
                         method: "POST",
-                        headers: {"Content-Type": "application/json"},
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ core: pkg.core })
                     });
                     const data = await res.json();
@@ -1608,7 +1608,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     } else {
                         addConsoleLog(`${pkg.name} kaldırılamadı.`, "error");
                     }
-                } catch(e) { addConsoleLog("Hata.", "error"); }
+                } catch (e) { addConsoleLog("Hata.", "error"); }
                 consolePanel.style.height = "220px";
                 renderBoardPackages(document.getElementById("panelBoardSearch").value, document.getElementById("boardTypeFilter").value);
             });
@@ -1624,7 +1624,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (q && !lib.name.toLowerCase().includes(q) && !lib.desc.toLowerCase().includes(q) && !lib.author.toLowerCase().includes(q)) return;
             if (typeFilter === "installed" && !lib.installed) return;
             if (typeFilter === "not-installed" && lib.installed) return;
-            
+
             const div = document.createElement("div");
             div.className = "library-item";
             const versOpts = lib.versions.map(v => `<option value="${v}">${v}</option>`).join("");
@@ -1637,9 +1637,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 <a class="lib-more-info" href="#" onclick="return false">Daha fazla bilgi</a>
                 <div class="lib-actions">
                     <select class="lib-version-select">${versOpts}</select>
-                    ${lib.installed 
-                        ? `<button class="btn-pkg-remove" data-idx="${idx}">KALDIR</button>` 
-                        : `<button class="btn-pkg-install" data-idx="${idx}">KUR</button>`}
+                    ${lib.installed
+                    ? `<button class="btn-pkg-remove" data-idx="${idx}">KALDIR</button>`
+                    : `<button class="btn-pkg-install" data-idx="${idx}">KUR</button>`}
                 </div>`;
             container.appendChild(div);
         });
@@ -1654,7 +1654,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 try {
                     const res = await fetch("/api/library/install", {
                         method: "POST",
-                        headers: {"Content-Type": "application/json"},
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ library: lib.name, version: ver })
                     });
                     const data = await res.json();
@@ -1666,7 +1666,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         addConsoleLog(`${lib.name} kurulamadı.`, "error");
                         if (data.log) data.log.forEach(l => addConsoleLog(l, "error"));
                     }
-                } catch(e) { addConsoleLog("Hata: Sunucuya bağlanılamadı.", "error"); }
+                } catch (e) { addConsoleLog("Hata: Sunucuya bağlanılamadı.", "error"); }
                 consolePanel.style.height = "220px";
                 renderLibraries(document.getElementById("panelLibSearch").value, document.getElementById("libTypeFilter").value);
             });
@@ -1681,7 +1681,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 try {
                     const res = await fetch("/api/library/uninstall", {
                         method: "POST",
-                        headers: {"Content-Type": "application/json"},
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ library: lib.name })
                     });
                     const data = await res.json();
@@ -1690,7 +1690,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         lib.installedVer = "";
                         addConsoleLog(`${lib.name} kaldırıldı.`, "success");
                     } else { addConsoleLog(`Kaldırma başarısız.`, "error"); }
-                } catch(e) { addConsoleLog("Hata.", "error"); }
+                } catch (e) { addConsoleLog("Hata.", "error"); }
                 consolePanel.style.height = "220px";
                 renderLibraries(document.getElementById("panelLibSearch").value, document.getElementById("libTypeFilter").value);
             });
@@ -1791,45 +1791,45 @@ document.addEventListener("DOMContentLoaded", () => {
             serialEventSource.close();
             serialEventSource = null;
         }
-        
+
         if (webSerialReader) {
-            webSerialReader.cancel().catch(()=>{});
+            webSerialReader.cancel().catch(() => { });
             webSerialReader = null;
         }
         if (webSerialWriter) {
-            webSerialWriter.close().catch(()=>{});
+            webSerialWriter.close().catch(() => { });
             webSerialWriter = null;
         }
         if (webSerialPort) {
-            webSerialPort.close().catch(()=>{});
+            webSerialPort.close().catch(() => { });
             webSerialPort = null;
         }
-        
+
         fetch("/api/serial/disconnect", { method: "POST" }).catch(err => console.error("Disconnect error:", err));
     }
 
     function connectSerial() {
         disconnectSerial();
-        
+
         if (!currentPort) {
             serialWarningBanner.style.display = "block";
             serialContentArea.classList.remove("connected");
             return;
         }
-        
+
         serialWarningBanner.style.display = "none";
         serialContentArea.classList.add("connected");
-        
+
         const baud = serialBaudrate.value;
         console.log(`[Serial] ${currentPort} portuna ${baud} baud hızında bağlanılıyor...`);
-        
+
         // Update placeholder
         serialMessageInput.placeholder = `Mesaj ('${currentBoard}' - '${currentPort}'’a mesaj göndermek için Enter'a basın)`;
-        
+
         serialTerminal.innerHTML = `--- ${currentPort} portu açıldı (Hız: ${baud}) ---\n`;
-        
+
         serialEventSource = new EventSource(`/api/serial/stream?port=${currentPort}&baud=${baud}`);
-        
+
         serialEventSource.onmessage = (event) => {
             let data = event.data;
             if (chkTimestamp.checked) {
@@ -1845,7 +1845,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 serialPlotterWindow.addPlotData(event.data);
             }
         };
-        
+
         serialEventSource.onerror = (err) => {
             console.error("[Serial] Akış hatası:", err);
             serialTerminal.innerHTML += "\n[Serial bağlantı hatası veya cihaz ayrıldı]\n";
@@ -1863,20 +1863,20 @@ document.addEventListener("DOMContentLoaded", () => {
             webSerialPort = await navigator.serial.requestPort();
             const baud = parseInt(serialBaudrate.value, 10);
             await webSerialPort.open({ baudRate: baud });
-            
+
             serialWarningBanner.style.display = "none";
             serialContentArea.classList.add("connected");
             serialMessageInput.placeholder = "Mesaj (Web Serial Bağlantısı ile)";
             serialTerminal.innerHTML = `--- Web Serial ile Bağlanıldı (Hız: ${baud}) ---\n`;
-            
+
             const decoder = new TextDecoderStream();
             const inputDone = webSerialPort.readable.pipeTo(decoder.writable);
             webSerialReader = decoder.readable.getReader();
-            
+
             const encoder = new TextEncoderStream();
             const outputDone = encoder.readable.pipeTo(webSerialPort.writable);
             webSerialWriter = encoder.writable.getWriter();
-            
+
             readWebSerialLoop();
         } catch (err) {
             console.error("Web Serial Bağlantı Hatası:", err);
@@ -1923,7 +1923,7 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             const msg = serialMessageInput.value;
             if (!msg) return;
-            
+
             let finalMsg = msg;
             if (serialLineEnding.value === "nl") finalMsg += "\n";
             else if (serialLineEnding.value === "cr") finalMsg += "\r";
@@ -1933,18 +1933,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 try {
                     await webSerialWriter.write(finalMsg);
                     serialMessageInput.value = "";
-                } catch(err) {
+                } catch (err) {
                     console.error("Web Serial gönderme hatası:", err);
                 }
             } else {
                 try {
                     await fetch("/api/serial/send", {
                         method: "POST",
-                        headers: {"Content-Type": "application/json"},
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ message: msg, lineEnding: serialLineEnding.value })
                     });
                     serialMessageInput.value = "";
-                } catch(err) {
+                } catch (err) {
                     console.error("Serial gönderme hatası:", err);
                 }
             }
@@ -1963,7 +1963,7 @@ document.addEventListener("DOMContentLoaded", () => {
             serialPlotterWindow.focus();
             return;
         }
-        
+
         // Ensure serial is connected
         if (!serialEventSource && currentPort) {
             connectSerial();
@@ -2126,7 +2126,7 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
         items.forEach(item => {
             const treeItem = document.createElement("div");
             treeItem.className = "tree-item";
-            
+
             const row = document.createElement("div");
             row.className = "tree-row";
             if (item.path === currentFilePath) row.classList.add("active");
@@ -2216,10 +2216,10 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
             try {
                 await fetch("/api/files/write", {
                     method: "POST",
-                    headers: {"Content-Type": "application/json"},
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ path: currentFilePath, content: codeTextarea.value })
                 });
-            } catch(e) {}
+            } catch (e) { }
         }
 
         // Load new file (always reload when saveCurrent=false, i.e. AI tool trigger)
@@ -2231,11 +2231,11 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                 lastSavedCode = data.content;
                 currentFilePath = path;
                 updateEditor();
-                
+
                 // Update tab label
                 const tabLabel = document.querySelector(".editor-tab.active .tab-label");
                 if (tabLabel) tabLabel.textContent = data.name || path;
-                
+
                 // Update active row
                 document.querySelectorAll(".tree-row").forEach(r => r.classList.remove("active"));
                 const activeRow = document.querySelector(`.tree-row[data-path="${path}"]`);
@@ -2243,7 +2243,7 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
             } else {
                 addConsoleLog("Dosya okunamadı: " + (data.error || "Bilinmeyen hata"), "error");
             }
-        } catch(err) {
+        } catch (err) {
             addConsoleLog("Dosya açılamadı: " + err, "error");
         }
     }
@@ -2266,13 +2266,13 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                 try {
                     const res = await fetch("/api/files/create", {
                         method: "POST",
-                        headers: {"Content-Type": "application/json"},
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ path: newPath, type: "file" })
                     });
                     const data = await res.json();
                     if (data.success) { loadFileTree(); openFileInEditor(newPath); }
                     else addConsoleLog("Dosya oluşturulamadı: " + (data.error || ""), "error");
-                } catch(e) { addConsoleLog("Hata: " + e, "error"); }
+                } catch (e) { addConsoleLog("Hata: " + e, "error"); }
             } else if (action === "ctx-new-folder") {
                 const name = prompt("Yeni klasör adı:", "yeni_klasor");
                 if (!name) return;
@@ -2280,13 +2280,13 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                 try {
                     const res = await fetch("/api/files/create", {
                         method: "POST",
-                        headers: {"Content-Type": "application/json"},
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ path: newPath, type: "folder" })
                     });
                     const data = await res.json();
                     if (data.success) loadFileTree();
                     else addConsoleLog("Klasör oluşturulamadı: " + (data.error || ""), "error");
-                } catch(e) { addConsoleLog("Hata: " + e, "error"); }
+                } catch (e) { addConsoleLog("Hata: " + e, "error"); }
             } else if (action === "ctx-rename") {
                 const oldName = ctxTargetPath.split("/").pop();
                 const newName = prompt("Yeni ad:", oldName);
@@ -2294,7 +2294,7 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                 try {
                     const res = await fetch("/api/files/rename", {
                         method: "POST",
-                        headers: {"Content-Type": "application/json"},
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ oldPath: ctxTargetPath, newName: newName })
                     });
                     const data = await res.json();
@@ -2307,14 +2307,14 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                         }
                         loadFileTree();
                     } else addConsoleLog("Yeniden adlandırılamadı: " + (data.error || ""), "error");
-                } catch(e) { addConsoleLog("Hata: " + e, "error"); }
+                } catch (e) { addConsoleLog("Hata: " + e, "error"); }
             } else if (action === "ctx-delete") {
                 const name = ctxTargetPath.split("/").pop();
                 if (!confirm(`"${name}" silinsin mi? Bu işlem geri alınamaz.`)) return;
                 try {
                     const res = await fetch("/api/files/delete", {
                         method: "POST",
-                        headers: {"Content-Type": "application/json"},
+                        headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ path: ctxTargetPath })
                     });
                     const data = await res.json();
@@ -2325,7 +2325,7 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                             openFileInEditor(currentFilePath);
                         }
                     } else addConsoleLog("Silinemedi: " + (data.error || ""), "error");
-                } catch(e) { addConsoleLog("Hata: " + e, "error"); }
+                } catch (e) { addConsoleLog("Hata: " + e, "error"); }
             }
         });
     });
@@ -2337,13 +2337,13 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
         try {
             const res = await fetch("/api/files/create", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ path: name, type: "file" })
             });
             const data = await res.json();
             if (data.success) { loadFileTree(); openFileInEditor(name); }
             else addConsoleLog("Dosya oluşturulamadı: " + (data.error || ""), "error");
-        } catch(e) { addConsoleLog("Hata: " + e, "error"); }
+        } catch (e) { addConsoleLog("Hata: " + e, "error"); }
     });
 
     document.getElementById("btnNewFolder").addEventListener("click", async () => {
@@ -2352,27 +2352,27 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
         try {
             const res = await fetch("/api/files/create", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ path: name, type: "folder" })
             });
             const data = await res.json();
             if (data.success) loadFileTree();
             else addConsoleLog("Klasör oluşturulamadı: " + (data.error || ""), "error");
-        } catch(e) { addConsoleLog("Hata: " + e, "error"); }
+        } catch (e) { addConsoleLog("Hata: " + e, "error"); }
     });
 
     document.getElementById("btnRefreshTree").addEventListener("click", loadFileTree);
 
     // Also update the saveSketch function to write to current file path
     const origSaveSketch = saveSketch;
-    saveSketch = async function() {
+    saveSketch = async function () {
         try {
             await fetch("/api/files/write", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ path: currentFilePath, content: codeTextarea.value })
             });
-        } catch(e) {}
+        } catch (e) { }
     };
 
     loadFileTree();
@@ -2417,7 +2417,7 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                 if (s.systemPrompt) aiSystemPromptInput.value = s.systemPrompt;
                 if (s.autoRun !== undefined && aiAutoRunCheckbox) aiAutoRunCheckbox.checked = s.autoRun;
                 updateModelBadge();
-            } catch(e) {}
+            } catch (e) { }
         }
         // Load chat history list
         loadChats();
@@ -2442,7 +2442,7 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
         if (saved) {
             try {
                 aiChats = JSON.parse(saved);
-            } catch(e) {
+            } catch (e) {
                 aiChats = [];
             }
         }
@@ -2460,7 +2460,7 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                         localStorage.setItem("gaziduino_ai_chats", JSON.stringify(aiChats));
                         selectChat(aiChats[0].id);
                     }
-                } catch(e) {}
+                } catch (e) { }
             }
         }
         renderHistoryList();
@@ -2495,16 +2495,16 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
         if (!chat) return;
         currentChatId = id;
         aiChatHistory = chat.messages || [];
-        
+
         // Render messages
         const welcome = aiChatMessages.querySelector(".ai-welcome");
         aiChatMessages.innerHTML = "";
         if (welcome) aiChatMessages.appendChild(welcome);
-        
+
         aiChatHistory.forEach(msg => {
             appendChatMessage(msg.role, msg.content, false);
         });
-        
+
         renderHistoryList();
     }
 
@@ -2543,7 +2543,7 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
     }
 
     // Insert code from AI response into editor
-    window._insertAiCode = function(btn) {
+    window._insertAiCode = function (btn) {
         const pre = btn.closest("pre");
         if (!pre) return;
         const codeEl = pre.querySelector("code");
@@ -2564,22 +2564,22 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
     function appendChatMessage(role, content, animate = true) {
         const msgDiv = document.createElement("div");
         msgDiv.className = "ai-message" + (role === "user" ? " user-msg" : "");
-        
+
         const avatar = document.createElement("div");
         avatar.className = "ai-avatar";
         avatar.textContent = role === "user" ? "Sen" : "✨";
-        
+
         const bubble = document.createElement("div");
         bubble.className = "ai-bubble";
-        
+
         if (role === "user") {
             bubble.textContent = content;
         } else {
             bubble.innerHTML = markdownToHTML(content);
         }
-        
+
         if (!animate) msgDiv.style.animation = "none";
-        
+
         msgDiv.appendChild(avatar);
         msgDiv.appendChild(bubble);
         aiChatMessages.appendChild(msgDiv);
@@ -2654,12 +2654,12 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
             let langInstr = "";
             if (aiLanguageSelect.value === "tr") langInstr = "Yanıtlarını Türkçe ver.";
             else if (aiLanguageSelect.value === "en") langInstr = "Respond in English.";
-            
+
             const systemPrompt = (aiSystemPromptInput.value.trim() || "") + (langInstr ? "\n" + langInstr : "");
 
             const response = await fetch("/api/ai/chat", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     apiKey: apiKey,
                     model: aiModelSelect.value,
@@ -2749,7 +2749,7 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                         streamText += data.text;
                         bubble.innerHTML = markdownToHTML(streamText);
                     }
-                } catch(e) {}
+                } catch (e) { }
             }
 
             if (!hasStartedResponse && !streamText) {
@@ -2876,7 +2876,7 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
             const res = await fetch("/api/system-usage");
             if (!res.ok) return;
             const data = await res.json();
-            
+
             // CPU
             if (data.cpu !== undefined) {
                 const cpuStr = data.cpu.toFixed(1) + "%";
@@ -2918,5 +2918,3 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
     }
 
 });
- 
- 
