@@ -560,7 +560,8 @@ def export_binary():
     # Find the binary file
     binary_name = None
     for f in os.listdir(BUILD_DIR):
-        if f.endswith(".bin") or f.endswith(".hex"):
+        # We want the main application binary, avoid bootloader and partitions
+        if (f.endswith(".bin") or f.endswith(".hex")) and not f.endswith(".bootloader.bin") and not f.endswith(".partitions.bin"):
             binary_name = f
             break
     
