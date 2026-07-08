@@ -88,8 +88,10 @@ Termux üzerinde sunucu kurarak projeyi Android'de çalıştırabilirsiniz. Anca
    export PATH=$PATH:/root/bin
    pip3 install flask
    ```
-3. Proje klasörüne gidip sunucuyu başlatın:
+3. Proje klasörünü indirip içine girin ve sunucuyu başlatın:
    ```bash
+   git clone https://github.com/Gazi-AI/GaziDuino.git
+   cd GaziDuino
    python3 main.py
    ```
 
