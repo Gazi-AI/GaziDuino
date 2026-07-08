@@ -687,25 +687,35 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleWebUpload() {
         let port;
         try {
-            // Android Kernel often lacks CH340/CP2102 drivers, making navigator.serial list empty.
-            // In this case, we use the WebUSB polyfill (exposed globally as 'serial') to bypass the kernel.
-            if (navigator.userAgent.includes("Android") && typeof serial !== 'undefined') {
-                console.log("[Web Upload] Android tespit edildi, WebUSB polyfill kullanılıyor...");
-                // Provide empty filters or specific vendor IDs to force WebUSB to show the device
-                port = await serial.requestPort({
-                    filters: [
-                        { usbVendorId: 0x1A86 }, // CH340
-                        { usbVendorId: 0x10C4 }, // CP2102
-                        { usbVendorId: 0x0403 }, // FTDI
-                        { usbVendorId: 0x303A }  // Espressif native
-                    ]
-                });
+            let serialAPI;
+            
+            if ("serial" in navigator) {
+                // Desktop Chrome/Edge - native Web Serial
+                serialAPI = navigator.serial;
+                addConsoleLog("Native Web Serial kullanılıyor...", "info");
+            } else if ("usb" in navigator) {
+                // Android Chrome - use WebUSB polyfill to simulate Web Serial
+                addConsoleLog("Android tespit edildi, WebUSB polyfill yükleniyor...", "info");
+                const polyfillModule = await import('https://unpkg.com/web-serial-polyfill@1.0.15/dist/serial.js');
+                serialAPI = polyfillModule.serial;
+                addConsoleLog("WebUSB polyfill hazır!", "info");
             } else {
-                port = await navigator.serial.requestPort();
+                addConsoleLog("Bu tarayıcı ne Web Serial ne de WebUSB destekliyor.", "error");
+                return;
             }
+
+            addConsoleLog("Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
+            port = await serialAPI.requestPort({
+                filters: [
+                    { usbVendorId: 0x1A86 }, // CH340
+                    { usbVendorId: 0x10C4 }, // CP2102
+                    { usbVendorId: 0x0403 }, // FTDI
+                    { usbVendorId: 0x303A }  // Espressif native USB
+                ]
+            });
         } catch (err) {
             console.error("Port seçilmedi veya iptal edildi:", err);
-            addConsoleLog("Port seçilmedi veya donanım desteklemiyor.", "error");
+            addConsoleLog("Port seçilmedi veya donanım desteklemiyor: " + err.message, "error");
             return;
         }
 
