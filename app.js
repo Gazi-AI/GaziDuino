@@ -902,10 +902,14 @@ document.addEventListener("DOMContentLoaded", () => {
             // 3. Dynamically import esptool-js and connect to Web Serial
             addConsoleLog("esptool-js yükleniyor...", "");
             const esptoolModule = await import('https://unpkg.com/esptool-js/bundle.js');
-            const { ESPLoader, Transport } = esptoolModule;
+            addConsoleLog("esptool exports: " + Object.keys(esptoolModule).join(", "), "info");
+            const ESPLoader = esptoolModule.ESPLoader;
+            const Transport = esptoolModule.Transport;
+            addConsoleLog("Transport: " + typeof Transport + ", ESPLoader: " + typeof ESPLoader, "info");
+            addConsoleLog("port.getInfo: " + typeof port.getInfo, "info");
 
             addConsoleLog("Tarayıcıdan ESP'ye bağlanılıyor...", "");
-            transport = new Transport(port);
+            transport = new Transport(port, true);
 
             const terminal = {
                 clean: () => { },
