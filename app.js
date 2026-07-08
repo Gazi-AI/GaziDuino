@@ -687,45 +687,156 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // ===== Custom CP2102 WebUSB Serial Driver =====
+    // The web-serial-polyfill only supports CDC-ACM (class 2) devices.
+    // CP2102 uses vendor-specific USB protocol, so we implement our own driver.
+    class CP2102SerialPort {
+        constructor(device) {
+            this.device_ = device;
+            this.interfaceNumber_ = -1;
+            this.endpointIn_ = -1;
+            this.endpointOut_ = -1;
+            this.readable = null;
+            this.writable = null;
+        }
+
+        async open({ baudRate }) {
+            await this.device_.open();
+            if (this.device_.configuration === null) {
+                await this.device_.selectConfiguration(1);
+            }
+
+            // Find vendor-specific interface with bulk endpoints
+            for (const iface of this.device_.configuration.interfaces) {
+                for (const alt of iface.alternates) {
+                    if (alt.interfaceClass === 0xFF || alt.endpoints.length >= 2) {
+                        this.interfaceNumber_ = iface.interfaceNumber;
+                        for (const ep of alt.endpoints) {
+                            if (ep.direction === 'in' && ep.type === 'bulk') this.endpointIn_ = ep.endpointNumber;
+                            if (ep.direction === 'out' && ep.type === 'bulk') this.endpointOut_ = ep.endpointNumber;
+                        }
+                        if (this.endpointIn_ >= 0 && this.endpointOut_ >= 0) break;
+                    }
+                }
+                if (this.endpointIn_ >= 0 && this.endpointOut_ >= 0) break;
+            }
+
+            if (this.interfaceNumber_ < 0 || this.endpointIn_ < 0 || this.endpointOut_ < 0) {
+                throw new Error("CP2102 arayüzü veya endpoint bulunamadı.");
+            }
+
+            await this.device_.claimInterface(this.interfaceNumber_);
+
+            // IFC_ENABLE: Enable the interface
+            await this.device_.controlTransferOut({
+                requestType: 'vendor', recipient: 'interface',
+                request: 0x00, value: 0x0001, index: this.interfaceNumber_
+            });
+
+            // SET_BAUDRATE
+            await this.setBaudRate_(baudRate);
+
+            // SET_LINE_CTL: 8 data bits, no parity, 1 stop bit (0x0800)
+            await this.device_.controlTransferOut({
+                requestType: 'vendor', recipient: 'interface',
+                request: 0x03, value: 0x0800, index: this.interfaceNumber_
+            });
+
+            // PURGE: Clear read and write buffers
+            await this.device_.controlTransferOut({
+                requestType: 'vendor', recipient: 'interface',
+                request: 0x12, value: 0x000F, index: this.interfaceNumber_
+            });
+
+            // Set up readable stream
+            const device = this.device_;
+            const epIn = this.endpointIn_;
+            let keepReading = true;
+            this._keepReading = { value: true };
+            const keepReadingRef = this._keepReading;
+
+            this.readable = new ReadableStream({
+                pull: async (controller) => {
+                    if (!keepReadingRef.value) { controller.close(); return; }
+                    try {
+                        const result = await device.transferIn(epIn, 64);
+                        if (result.data && result.data.byteLength > 0) {
+                            controller.enqueue(new Uint8Array(result.data.buffer));
+                        }
+                    } catch (e) {
+                        if (keepReadingRef.value) controller.error(e);
+                    }
+                }
+            });
+
+            // Set up writable stream
+            const epOut = this.endpointOut_;
+            this.writable = new WritableStream({
+                write: async (chunk) => {
+                    await device.transferOut(epOut, chunk);
+                }
+            });
+        }
+
+        async setBaudRate_(baudRate) {
+            const data = new ArrayBuffer(4);
+            const view = new DataView(data);
+            view.setUint32(0, baudRate, true);
+            await this.device_.controlTransferOut({
+                requestType: 'vendor', recipient: 'interface',
+                request: 0x1E, value: 0, index: this.interfaceNumber_
+            }, data);
+        }
+
+        async setSignals({ dataTerminalReady, requestToSend }) {
+            let value = 0;
+            if (dataTerminalReady !== undefined) {
+                value |= 0x0100;
+                if (dataTerminalReady) value |= 0x0001;
+            }
+            if (requestToSend !== undefined) {
+                value |= 0x0200;
+                if (requestToSend) value |= 0x0002;
+            }
+            await this.device_.controlTransferOut({
+                requestType: 'vendor', recipient: 'interface',
+                request: 0x07, value: value, index: this.interfaceNumber_
+            });
+        }
+
+        async close() {
+            this._keepReading.value = false;
+            try {
+                await this.device_.controlTransferOut({
+                    requestType: 'vendor', recipient: 'interface',
+                    request: 0x00, value: 0x0000, index: this.interfaceNumber_
+                });
+                await this.device_.releaseInterface(this.interfaceNumber_);
+                await this.device_.close();
+            } catch (e) { console.warn("CP2102 close warning:", e); }
+        }
+    }
     async function handleWebUpload() {
         let port;
         try {
-            let serialAPI;
             const isAndroid = navigator.userAgent.includes("Android");
             
             if (isAndroid && "usb" in navigator) {
-                // Android: ALWAYS use WebUSB polyfill because kernel lacks CH340/CP2102 drivers
-                // navigator.serial exists but returns empty list without proper drivers
-                addConsoleLog("Android tespit edildi, WebUSB polyfill yükleniyor...", "info");
-                const polyfillModule = await import('https://unpkg.com/web-serial-polyfill@1.0.15/dist/serial.js');
-                serialAPI = polyfillModule.serial;
-                addConsoleLog("WebUSB polyfill hazır!", "info");
+                // Android: Use our custom CP2102 WebUSB driver
+                addConsoleLog("Android tespit edildi. Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
+                const usbDevice = await navigator.usb.requestDevice({ filters: [] });
+                addConsoleLog("USB Cihaz bulundu: " + usbDevice.productName + " (VID:" + usbDevice.vendorId + ")", "info");
+                
+                // Create our custom CP2102 serial port from the raw USB device
+                port = new CP2102SerialPort(usbDevice);
+                addConsoleLog("CP2102 sürücüsü hazır!", "info");
             } else if ("serial" in navigator) {
-                // Desktop Chrome/Edge - native Web Serial
-                serialAPI = navigator.serial;
-                addConsoleLog("Native Web Serial kullanılıyor...", "info");
+                // Desktop: Use native Web Serial
+                addConsoleLog("Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
+                port = await navigator.serial.requestPort();
             } else {
                 addConsoleLog("Bu tarayıcı ne Web Serial ne de WebUSB destekliyor.", "error");
                 return;
-            }
-
-            addConsoleLog("Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
-            
-            // Get raw USB device (single dialog - user selects device here)
-            const usbDevice = await navigator.usb.requestDevice({ filters: [] });
-            addConsoleLog("USB Cihaz bulundu: " + usbDevice.productName + " (VID:" + usbDevice.vendorId + ")", "info");
-            
-            // Import polyfill and wrap USB device as serial port (NO second dialog)
-            const polyfillModule = await import('https://unpkg.com/web-serial-polyfill@1.0.15/dist/serial.js');
-            addConsoleLog("Polyfill exports: " + Object.keys(polyfillModule).join(", "), "info");
-            
-            if (polyfillModule.SerialPort) {
-                port = new polyfillModule.SerialPort(usbDevice);
-                addConsoleLog("SerialPort oluşturuldu!", "info");
-            } else {
-                // If SerialPort not directly available, try default export
-                addConsoleLog("SerialPort bulunamadı, alternatif deneniyor...", "info");
-                port = new polyfillModule.default(usbDevice);
             }
         } catch (err) {
             console.error("Port seçilmedi veya iptal edildi:", err);
