@@ -691,17 +691,19 @@ document.addEventListener("DOMContentLoaded", () => {
         let port;
         try {
             let serialAPI;
+            const isAndroid = navigator.userAgent.includes("Android");
             
-            if ("serial" in navigator) {
-                // Desktop Chrome/Edge - native Web Serial
-                serialAPI = navigator.serial;
-                addConsoleLog("Native Web Serial kullanılıyor...", "info");
-            } else if ("usb" in navigator) {
-                // Android Chrome - use WebUSB polyfill to simulate Web Serial
+            if (isAndroid && "usb" in navigator) {
+                // Android: ALWAYS use WebUSB polyfill because kernel lacks CH340/CP2102 drivers
+                // navigator.serial exists but returns empty list without proper drivers
                 addConsoleLog("Android tespit edildi, WebUSB polyfill yükleniyor...", "info");
                 const polyfillModule = await import('https://unpkg.com/web-serial-polyfill@1.0.15/dist/serial.js');
                 serialAPI = polyfillModule.serial;
                 addConsoleLog("WebUSB polyfill hazır!", "info");
+            } else if ("serial" in navigator) {
+                // Desktop Chrome/Edge - native Web Serial
+                serialAPI = navigator.serial;
+                addConsoleLog("Native Web Serial kullanılıyor...", "info");
             } else {
                 addConsoleLog("Bu tarayıcı ne Web Serial ne de WebUSB destekliyor.", "error");
                 return;
