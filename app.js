@@ -603,14 +603,17 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleUpload() {
         if (isCompilingOrUploading) return;
 
-        // DEBUG: Show what the system sees
+        // DEBUG: Detailed system info
         const hasNativeSerial = "serial" in navigator;
-        const hasPolyfill = typeof serial !== "undefined";
-        console.log(`[Upload Debug] Board: ${currentBoard}, NativeSerial: ${hasNativeSerial}, Polyfill: ${hasPolyfill}`);
+        const hasWebUSB = "usb" in navigator;
+        const isSecure = window.isSecureContext;
+        const proto = window.location.protocol;
+        const host = window.location.hostname;
+        addConsoleLog(`[DEBUG] Secure: ${isSecure}, Proto: ${proto}, Host: ${host}, Serial: ${hasNativeSerial}, USB: ${hasWebUSB}`, "info");
 
         // If board is ESP, ALWAYS use web flasher
         if (currentBoard && (currentBoard.includes("ESP") || currentBoard.includes("esp"))) {
-            addConsoleLog(`Web Yükleyici aktif! (Serial: ${hasNativeSerial}, Polyfill: ${hasPolyfill})`, "info");
+            addConsoleLog(`Web Yükleyici aktif!`, "info");
             await handleWebUpload();
             return;
         }

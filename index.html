@@ -1,36 +1,45 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>sketch_jul6a | Arduino IDE 2.3.11-nightly-20260629</title>
     <link rel="stylesheet" href="styles.css?v=22">
     <!-- Google Fonts for professional UI look -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap?v=8" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap?v=8"
+        rel="stylesheet">
 </head>
+
 <body>
     <!-- Top Windows-Style Titlebar & Menu Combo -->
     <header class="main-header">
         <div class="top-titlebar">
             <div class="app-logo">
                 <svg width="18" height="18" viewBox="0 0 512 512" fill="currentColor" class="arduino-logo-svg">
-                    <path d="M192 128c-61.8 0-112 50.2-112 112s50.2 112 112 112c40.3 0 75.4-21.3 95.1-53.3l5.5-8.9 5.5 8.9c19.8 32 54.9 53.3 95.1 53.3 61.8 0 112-50.2 112-112s-50.2-112-112-112c-40.3 0-75.4 21.3-95.1 53.3l-5.5 8.9-5.5-8.9c-19.8-32-54.9-53.3-95.1-53.3zm0 48c35.3 0 64 28.7 64 64s-28.7 64-64 64-64-28.7-64-64 28.7-64 64-64zm222 0c35.3 0 64 28.7 64 64s-28.7 64-64 64-64-28.7-64-64 28.7-64 64-64z"/>
-                    <path d="M192 224h-32v32h32v-32zm222 0h-32v32h32v-32zm0-32h-32v32h32v-32z"/>
+                    <path
+                        d="M192 128c-61.8 0-112 50.2-112 112s50.2 112 112 112c40.3 0 75.4-21.3 95.1-53.3l5.5-8.9 5.5 8.9c19.8 32 54.9 53.3 95.1 53.3 61.8 0 112-50.2 112-112s-50.2-112-112-112c-40.3 0-75.4 21.3-95.1 53.3l-5.5 8.9-5.5-8.9c-19.8-32-54.9-53.3-95.1-53.3zm0 48c35.3 0 64 28.7 64 64s-28.7 64-64 64-64-28.7-64-64 28.7-64 64-64zm222 0c35.3 0 64 28.7 64 64s-28.7 64-64 64-64-28.7-64-64 28.7-64 64-64z" />
+                    <path d="M192 224h-32v32h32v-32zm222 0h-32v32h32v-32zm0-32h-32v32h32v-32z" />
                 </svg>
             </div>
             <div class="window-title">sketch_jul6a | Arduino IDE 2.3.11-nightly-20260629</div>
             <div class="window-resource-stats" id="windowResourceStats">
                 <span class="stat-item">CPU: <span id="topCpuVal">0.0%</span></span>
-                <span class="stat-item" id="topGpuItem" style="display: none;"> | GPU: <span id="topGpuVal">0.0%</span></span>
+                <span class="stat-item" id="topGpuItem" style="display: none;"> | GPU: <span
+                        id="topGpuVal">0.0%</span></span>
             </div>
         </div>
 
         <nav class="menu-bar">
             <div class="menu-item" id="menuDosya">Dosya
                 <div class="dropdown-menu">
-                    <div class="menu-row" data-action="new-sketch"><span>Yeni Eskiz</span><span class="shortcut">Ctrl+N</span></div>
-                    <div class="menu-row" data-action="new-cloud-sketch"><span>Yeni Bulut Eskiz</span><span class="shortcut">Alt+Ctrl+N</span></div>
-                    <div class="menu-row" data-action="open"><span>Aç...</span><span class="shortcut">Ctrl+O</span></div>
+                    <div class="menu-row" data-action="new-sketch"><span>Yeni Eskiz</span><span
+                            class="shortcut">Ctrl+N</span></div>
+                    <div class="menu-row" data-action="new-cloud-sketch"><span>Yeni Bulut Eskiz</span><span
+                            class="shortcut">Alt+Ctrl+N</span></div>
+                    <div class="menu-row" data-action="open"><span>Aç...</span><span class="shortcut">Ctrl+O</span>
+                    </div>
                     <div class="menu-row parent">
                         <span>Yakın Geçmiş</span><span class="arrow">▶</span>
                         <div class="submenu">
@@ -53,11 +62,14 @@
                         </div>
                     </div>
                     <div class="menu-row separator"></div>
-                    <div class="menu-row" data-action="close-sketch"><span>Kapat</span><span class="shortcut">Ctrl+W</span></div>
+                    <div class="menu-row" data-action="close-sketch"><span>Kapat</span><span
+                            class="shortcut">Ctrl+W</span></div>
                     <div class="menu-row" data-action="save"><span>Save</span><span class="shortcut">Ctrl+S</span></div>
-                    <div class="menu-row" data-action="save-as"><span>Farklı Kaydet...</span><span class="shortcut">Ctrl+Shift+S</span></div>
+                    <div class="menu-row" data-action="save-as"><span>Farklı Kaydet...</span><span
+                            class="shortcut">Ctrl+Shift+S</span></div>
                     <div class="menu-row separator"></div>
-                    <div class="menu-row" data-action="preferences"><span>Tercihler...</span><span class="shortcut">Ctrl+Virgül</span></div>
+                    <div class="menu-row" data-action="preferences"><span>Tercihler...</span><span
+                            class="shortcut">Ctrl+Virgül</span></div>
                     <div class="menu-row parent">
                         <span>Gelişmiş</span><span class="arrow">▶</span>
                         <div class="submenu">
@@ -65,55 +77,78 @@
                         </div>
                     </div>
                     <div class="menu-row separator"></div>
-                    <div class="menu-row" data-action="exit"><span>Çıkış</span><span class="shortcut">Ctrl+Q</span></div>
+                    <div class="menu-row" data-action="exit"><span>Çıkış</span><span class="shortcut">Ctrl+Q</span>
+                    </div>
                 </div>
             </div>
             <div class="menu-item" id="menuDuzenle">Düzenle
                 <div class="dropdown-menu">
-                    <div class="menu-row" data-action="undo"><span>Geri al</span><span class="shortcut">Ctrl+Z</span></div>
-                    <div class="menu-row" data-action="redo"><span>Yinele</span><span class="shortcut">Ctrl+Y</span></div>
+                    <div class="menu-row" data-action="undo"><span>Geri al</span><span class="shortcut">Ctrl+Z</span>
+                    </div>
+                    <div class="menu-row" data-action="redo"><span>Yinele</span><span class="shortcut">Ctrl+Y</span>
+                    </div>
                     <div class="menu-row separator"></div>
                     <div class="menu-row" data-action="cut"><span>Kes</span><span class="shortcut">Ctrl+X</span></div>
-                    <div class="menu-row" data-action="copy"><span>Kopyala</span><span class="shortcut">Ctrl+C</span></div>
-                    <div class="menu-row" data-action="copy-markdown"><span>Forum için Kopyala (Markdown)</span><span class="shortcut">Ctrl+Shift+C</span></div>
-                    <div class="menu-row" data-action="paste"><span>Paste</span><span class="shortcut">Ctrl+V</span></div>
-                    <div class="menu-row" data-action="select-all"><span>Tümünü Seç</span><span class="shortcut">Ctrl+A</span></div>
-                    <div class="menu-row" data-action="goto-line"><span>Satıra/Sütuna Git...</span><span class="shortcut">Ctrl+L</span></div>
+                    <div class="menu-row" data-action="copy"><span>Kopyala</span><span class="shortcut">Ctrl+C</span>
+                    </div>
+                    <div class="menu-row" data-action="copy-markdown"><span>Forum için Kopyala (Markdown)</span><span
+                            class="shortcut">Ctrl+Shift+C</span></div>
+                    <div class="menu-row" data-action="paste"><span>Paste</span><span class="shortcut">Ctrl+V</span>
+                    </div>
+                    <div class="menu-row" data-action="select-all"><span>Tümünü Seç</span><span
+                            class="shortcut">Ctrl+A</span></div>
+                    <div class="menu-row" data-action="goto-line"><span>Satıra/Sütuna Git...</span><span
+                            class="shortcut">Ctrl+L</span></div>
                     <div class="menu-row separator"></div>
                     <div class="menu-row" data-action="toggle-comment"><span>Yorum yap/Yorumu kaldır</span></div>
                     <div class="menu-row" data-action="increase-indent"><span>Girintiyi Artır</span></div>
                     <div class="menu-row" data-action="decrease-indent"><span>Girintiyi Azalt</span></div>
-                    <div class="menu-row" data-action="auto-format"><span>Otomatik Biçimlendir</span><span class="shortcut">Ctrl+T</span></div>
+                    <div class="menu-row" data-action="auto-format"><span>Otomatik Biçimlendir</span><span
+                            class="shortcut">Ctrl+T</span></div>
                     <div class="menu-row separator"></div>
                     <div class="menu-row" data-action="find-replace"><span>Dosyalarda Değiştir</span></div>
                     <div class="menu-row separator"></div>
-                    <div class="menu-row" data-action="zoom-in"><span>Yazı Tipi Boyutunu Büyüt</span><span class="shortcut">Ctrl++</span></div>
-                    <div class="menu-row" data-action="zoom-out"><span>Yazı Tipi Boyutunu Küçült</span><span class="shortcut">Ctrl+-</span></div>
+                    <div class="menu-row" data-action="zoom-in"><span>Yazı Tipi Boyutunu Büyüt</span><span
+                            class="shortcut">Ctrl++</span></div>
+                    <div class="menu-row" data-action="zoom-out"><span>Yazı Tipi Boyutunu Küçült</span><span
+                            class="shortcut">Ctrl+-</span></div>
                     <div class="menu-row separator"></div>
                     <div class="menu-row" data-action="find"><span>Bul</span><span class="shortcut">Ctrl+F</span></div>
-                    <div class="menu-row" data-action="find-next"><span>Sonrakini Bul</span><span class="shortcut">Ctrl+G</span></div>
-                    <div class="menu-row" data-action="find-prev"><span>Öncekini Bul</span><span class="shortcut">Ctrl+Shift+G</span></div>
-                    <div class="menu-row" data-action="find-selection"><span>Seçimle Bul</span><span class="shortcut">Ctrl+E</span></div>
+                    <div class="menu-row" data-action="find-next"><span>Sonrakini Bul</span><span
+                            class="shortcut">Ctrl+G</span></div>
+                    <div class="menu-row" data-action="find-prev"><span>Öncekini Bul</span><span
+                            class="shortcut">Ctrl+Shift+G</span></div>
+                    <div class="menu-row" data-action="find-selection"><span>Seçimle Bul</span><span
+                            class="shortcut">Ctrl+E</span></div>
                 </div>
             </div>
             <div class="menu-item" id="menuEskiz">Eskiz
                 <div class="dropdown-menu">
-                    <div class="menu-row" data-action="verify"><span>Doğrula/Derle</span><span class="shortcut">Ctrl+R</span></div>
-                    <div class="menu-row" data-action="upload"><span>Yükle</span><span class="shortcut">Ctrl+U</span></div>
-                    <div class="menu-row" data-action="upload-programmer"><span>Programlayıcı kullanarak yükle</span><span class="shortcut">Ctrl+Shift+U</span></div>
-                    <div class="menu-row" data-action="export-compiled"><span>Derlenmiş İkili Dosyayı Çıkart</span><span class="shortcut">Alt+Ctrl+S</span></div>
+                    <div class="menu-row" data-action="verify"><span>Doğrula/Derle</span><span
+                            class="shortcut">Ctrl+R</span></div>
+                    <div class="menu-row" data-action="upload"><span>Yükle</span><span class="shortcut">Ctrl+U</span>
+                    </div>
+                    <div class="menu-row" data-action="upload-programmer"><span>Programlayıcı kullanarak
+                            yükle</span><span class="shortcut">Ctrl+Shift+U</span></div>
+                    <div class="menu-row" data-action="export-compiled"><span>Derlenmiş İkili Dosyayı Çıkart</span><span
+                            class="shortcut">Alt+Ctrl+S</span></div>
                 </div>
             </div>
             <div class="menu-item" id="menuAraclar">Araçlar
                 <div class="dropdown-menu">
-                    <div class="menu-row" data-action="auto-format"><span>Otomatik Biçimlendir</span><span class="shortcut">Ctrl+T</span></div>
+                    <div class="menu-row" data-action="auto-format"><span>Otomatik Biçimlendir</span><span
+                            class="shortcut">Ctrl+T</span></div>
                     <div class="menu-row" data-action="archive-sketch"><span>Eskizi Arşivle</span></div>
-                    <div class="menu-row" data-action="manage-libraries"><span>Kütüphaneleri Yönet...</span><span class="shortcut">Ctrl+Shift+I</span></div>
-                    <div class="menu-row" data-action="serial-monitor"><span>Seri Port Ekranı</span><span class="shortcut">Ctrl+Shift+M</span></div>
-                    <div class="menu-row" data-action="serial-plotter"><span>Seri Çizici</span><span class="shortcut">Ctrl+Shift+L</span></div>
+                    <div class="menu-row" data-action="manage-libraries"><span>Kütüphaneleri Yönet...</span><span
+                            class="shortcut">Ctrl+Shift+I</span></div>
+                    <div class="menu-row" data-action="serial-monitor"><span>Seri Port Ekranı</span><span
+                            class="shortcut">Ctrl+Shift+M</span></div>
+                    <div class="menu-row" data-action="serial-plotter"><span>Seri Çizici</span><span
+                            class="shortcut">Ctrl+Shift+L</span></div>
                     <div class="menu-row separator"></div>
                     <div class="menu-row parent">
-                        <span>Kart: "<span id="activeBoardLabel">ESP32 Dev Module</span>"</span><span class="arrow">▶</span>
+                        <span>Kart: "<span id="activeBoardLabel">ESP32 Dev Module</span>"</span><span
+                            class="arrow">▶</span>
                         <div class="submenu" id="menuBoardSubmenu">
                             <div class="menu-row no-boards">Lütfen Kart Yöneticisinden bir kart paketi kurun.</div>
                         </div>
@@ -147,7 +182,8 @@
                         </div>
                     </div>
                     <div class="menu-row parent">
-                        <span>Erase All Flash Before Sketch Upload: "<span class="opt-val">Disabled</span>"</span><span class="arrow">▶</span>
+                        <span>Erase All Flash Before Sketch Upload: "<span class="opt-val">Disabled</span>"</span><span
+                            class="arrow">▶</span>
                         <div class="submenu">
                             <div class="menu-row">Disabled</div>
                             <div class="menu-row">Enabled</div>
@@ -200,7 +236,8 @@
                         </div>
                     </div>
                     <div class="menu-row parent">
-                        <span>Partition Scheme: "<span class="opt-val">Default 4MB with spiffs (1.2MB APP/1.5MB SPIFFS)</span>"</span><span class="arrow">▶</span>
+                        <span>Partition Scheme: "<span class="opt-val">Default 4MB with spiffs (1.2MB APP/1.5MB
+                                SPIFFS)</span>"</span><span class="arrow">▶</span>
                         <div class="submenu">
                             <div class="menu-row">Default 4MB with spiffs (1.2MB APP/1.5MB SPIFFS)</div>
                             <div class="menu-row">Default 4MB with ffat (1.2MB APP/1.5MB FATFS)</div>
@@ -240,7 +277,8 @@
             <div class="menu-item" id="menuYardim">Yardım
                 <div class="dropdown-menu">
                     <div class="menu-row" data-action="help-getting-started">Başlarken</div>
-                    <div class="menu-row" data-action="help-android" style="color: #00979d; font-weight: 500;">📱 Android OTG Yükleme Rehberi</div>
+                    <div class="menu-row" data-action="help-android" style="color: #00979d; font-weight: 500;">📱
+                        Android OTG Yükleme Rehberi</div>
                     <div class="menu-row" data-action="help-ref">Referans</div>
                     <div class="menu-row" data-action="help-about">Arduino IDE Hakkında</div>
                 </div>
@@ -253,13 +291,15 @@
         <div class="left-actions">
             <!-- Verify button -->
             <button class="tool-btn verify" id="btnVerify" title="Kontrol Et (Doğrula)">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
             </button>
             <!-- Upload button -->
             <button class="tool-btn upload" id="btnUpload" title="Yükle">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                     <polyline points="12 5 19 12 12 19"></polyline>
                 </svg>
@@ -270,7 +310,8 @@
         <div class="board-selector-container">
             <div class="board-dropdown-trigger" id="boardDropdownTrigger">
                 <span class="chip-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect>
                         <rect x="6" y="6" width="12" height="12"></rect>
                         <line x1="9" y1="1" x2="9" y2="3"></line>
@@ -303,7 +344,8 @@
         <div class="right-actions">
             <!-- Serial Monitor button -->
             <button class="tool-btn serial-monitor-toggle" id="btnToolbarSerial" title="Seri Port Ekranı">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <line x1="4" y1="9" x2="20" y2="9"></line>
                     <line x1="4" y1="15" x2="20" y2="15"></line>
                     <line x1="10" y1="3" x2="8" y2="21"></line>
@@ -319,12 +361,14 @@
         <aside class="sidebar-tabs">
             <div class="tab-top-group">
                 <button class="sidebar-tab active" data-panel="panel-sketchbook" title="Eskiz Defteri">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
                     </svg>
                 </button>
                 <button class="sidebar-tab" data-panel="panel-boards" title="Kart Yöneticisi">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <rect x="2" y="2" width="20" height="20" rx="2" ry="2"></rect>
                         <rect x="6" y="6" width="12" height="12"></rect>
                         <line x1="9" y1="1" x2="9" y2="3"></line>
@@ -334,13 +378,15 @@
                     </svg>
                 </button>
                 <button class="sidebar-tab" data-panel="panel-libraries" title="Kütüphane Yöneticisi">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                     </svg>
                 </button>
                 <button class="sidebar-tab" data-panel="panel-debug" title="Hata Ayıkla">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                         <path d="M12 2v9"></path>
                         <path d="M8 5h8"></path>
@@ -349,7 +395,8 @@
                     </svg>
                 </button>
                 <button class="sidebar-tab" data-panel="panel-ai" title="AI Asistan">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 2a4 4 0 0 1 4 4v1a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"></path>
                         <path d="M6 10a6 6 0 0 0 12 0"></path>
                         <path d="M12 16v6"></path>
@@ -359,7 +406,8 @@
                     </svg>
                 </button>
                 <button class="sidebar-tab" data-panel="panel-search" title="Ara">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
@@ -367,7 +415,8 @@
             </div>
             <div class="tab-bottom-group">
                 <button class="sidebar-tab" id="btnSettings" title="Kullanıcı Ayarları">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"></circle>
                         <path d="M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"></path>
                     </svg>
@@ -455,7 +504,8 @@
                     <div class="ai-message ai-welcome">
                         <div class="ai-avatar">✨</div>
                         <div class="ai-bubble">
-                            Merhaba! Ben GaziDuino AI Asistanıyım. Arduino programlama, devre tasarımı ve hata ayıklama konularında sana yardımcı olabilirim. 🤖
+                            Merhaba! Ben GaziDuino AI Asistanıyım. Arduino programlama, devre tasarımı ve hata ayıklama
+                            konularında sana yardımcı olabilirim. 🤖
                             <br><br>
                             <small style="opacity:0.7">Başlamak için ayarlardan API anahtarınızı girin.</small>
                         </div>
@@ -463,9 +513,12 @@
                 </div>
                 <div class="ai-input-area">
                     <div class="ai-input-row">
-                        <textarea class="ai-input" id="aiInput" placeholder="Arduino hakkında bir şey sor..." rows="2"></textarea>
+                        <textarea class="ai-input" id="aiInput" placeholder="Arduino hakkında bir şey sor..."
+                            rows="2"></textarea>
                         <button class="ai-send-btn" id="btnAiSend" title="Gönder">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                            </svg>
                         </button>
                     </div>
                     <label class="ai-context-toggle">
@@ -503,7 +556,16 @@
             <div class="code-viewport">
                 <!-- Line Numbers Sidebar -->
                 <div class="line-numbers" id="lineNumbers">
-                    <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div>
+                    <div>1</div>
+                    <div>2</div>
+                    <div>3</div>
+                    <div>4</div>
+                    <div>5</div>
+                    <div>6</div>
+                    <div>7</div>
+                    <div>8</div>
+                    <div>9</div>
+                    <div>10</div>
                 </div>
                 <!-- Textarea Editor with overlay for syntax highlighting -->
                 <div class="editor-area">
@@ -525,12 +587,14 @@ void loop() {
                 <div class="console-header">
                     <div class="console-tabs-list">
                         <span class="console-tab-item active" id="tabOutputBtn">Çıkış</span>
-                        <span class="console-tab-item" id="tabSerialBtn">Seri Port Ekranı <span class="close-serial-tab">×</span></span>
+                        <span class="console-tab-item" id="tabSerialBtn">Seri Port Ekranı <span
+                                class="close-serial-tab">×</span></span>
                     </div>
                     <div class="console-controls">
                         <button class="console-ctrl-btn" id="copyConsoleBtn" title="Kopyala">📋</button>
                         <button class="console-ctrl-btn" id="clearConsoleBtn" title="Temizle">🧹</button>
-                        <button class="console-ctrl-btn" id="toggleConsoleHeight" title="Tam Ekran Yap / Küçült">↕</button>
+                        <button class="console-ctrl-btn" id="toggleConsoleHeight"
+                            title="Tam Ekran Yap / Küçült">↕</button>
                         <button class="console-ctrl-btn" id="closeConsoleBtn" title="Kapat">×</button>
                     </div>
                 </div>
@@ -544,8 +608,12 @@ void loop() {
                         </div>
                         <div class="serial-content-area" id="serialContentArea">
                             <div class="serial-input-bar">
-                                <button id="btnWebSerial" class="btn-web-serial" style="padding: 4px 8px; background: #00979d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 8px; flex-shrink: 0;" title="Tarayıcı üzerinden doğrudan Android OTG veya masaüstü USB bağlantısı kurar">🌐 Web Serial Bağlan</button>
-                                <input type="text" id="serialMessageInput" placeholder="Mesaj göndermek için Enter'a basın">
+                                <button id="btnWebSerial" class="btn-web-serial"
+                                    style="padding: 4px 8px; background: #00979d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 8px; flex-shrink: 0;"
+                                    title="Tarayıcı üzerinden doğrudan Android OTG veya masaüstü USB bağlantısı kurar">🌐
+                                    Web Serial Bağlan</button>
+                                <input type="text" id="serialMessageInput"
+                                    placeholder="Mesaj göndermek için Enter'a basın">
                                 <select id="serialLineEnding">
                                     <option value="nl" selected>Yeni Satır</option>
                                     <option value="none">Satır Sonu Yok</option>
@@ -571,8 +639,10 @@ void loop() {
                             <div class="serial-terminal" id="serialTerminal"></div>
                             <div class="serial-footer-bar">
                                 <div class="serial-footer-left">
-                                    <input type="checkbox" id="chkAutoscroll" checked> <label for="chkAutoscroll">Otomatik kaydır</label>
-                                    <input type="checkbox" id="chkTimestamp"> <label for="chkTimestamp">Zaman damgası göster</label>
+                                    <input type="checkbox" id="chkAutoscroll" checked> <label
+                                        for="chkAutoscroll">Otomatik kaydır</label>
+                                    <input type="checkbox" id="chkTimestamp"> <label for="chkTimestamp">Zaman damgası
+                                        göster</label>
                                 </div>
                             </div>
                         </div>
@@ -603,7 +673,7 @@ void loop() {
         </div>
         <button class="btn-cancel-progress" id="btnCancelProgress">CANCEL</button>
     </div>
-    
+
     <!-- Context Menu for File Tree -->
     <div class="context-menu" id="contextMenu">
         <div class="ctx-item" data-action="ctx-new-file">📄 Yeni Dosya</div>
@@ -627,7 +697,8 @@ void loop() {
                         <input type="password" id="aiApiKey" placeholder="AIzaSy..." class="ai-setting-input">
                         <button class="btn-toggle-key" id="btnToggleKey">👁</button>
                     </div>
-                    <small class="ai-setting-hint"><a href="https://aistudio.google.com/apikey" target="_blank" style="color:#00979d">Google AI Studio</a>'dan ücretsiz API key alabilirsiniz.</small>
+                    <small class="ai-setting-hint"><a href="https://aistudio.google.com/apikey" target="_blank"
+                            style="color:#00979d">Google AI Studio</a>'dan ücretsiz API key alabilirsiniz.</small>
                 </div>
                 <div class="ai-setting-group">
                     <label>Model</label>
@@ -643,7 +714,8 @@ void loop() {
                 </div>
                 <div class="ai-setting-group">
                     <label>Sıcaklık (Temperature): <span id="aiTempVal">0.7</span></label>
-                    <input type="range" id="aiTemperature" min="0" max="2" step="0.1" value="0.7" class="ai-setting-range">
+                    <input type="range" id="aiTemperature" min="0" max="2" step="0.1" value="0.7"
+                        class="ai-setting-range">
                     <small class="ai-setting-hint">Düşük = tutarlı yanıtlar, Yüksek = yaratıcı yanıtlar</small>
                 </div>
                 <div class="ai-setting-group">
@@ -670,11 +742,13 @@ void loop() {
                         <input type="checkbox" id="aiAutoRun" style="width: auto; margin: 0; cursor: pointer;">
                         <span style="font-weight: 500; font-size: 13px;">Otomatik Yaz & Çalıştır (Auto Run)</span>
                     </label>
-                    <small class="ai-setting-hint" style="margin-top: 4px; display: block;">Etkinleştirildiğinde, AI ürettiği kodları doğrudan onay beklemeden skeçe yazar ve çalıştırır.</small>
+                    <small class="ai-setting-hint" style="margin-top: 4px; display: block;">Etkinleştirildiğinde, AI
+                        ürettiği kodları doğrudan onay beklemeden skeçe yazar ve çalıştırır.</small>
                 </div>
                 <div class="ai-setting-group">
                     <label>Sistem Promptu (Opsiyonel)</label>
-                    <textarea id="aiSystemPrompt" class="ai-setting-textarea" placeholder="Ek talimatlar... (ör: 'Her zaman kod açıklamaları ekle')" rows="3"></textarea>
+                    <textarea id="aiSystemPrompt" class="ai-setting-textarea"
+                        placeholder="Ek talimatlar... (ör: 'Her zaman kod açıklamaları ekle')" rows="3"></textarea>
                 </div>
                 <div class="ai-setting-group">
                     <label>Geçmiş</label>
@@ -698,21 +772,30 @@ void loop() {
                 <span class="close-btn" id="closeAndroidOTGModal">&times;</span>
             </div>
             <div class="modal-body" style="padding: 15px; font-size: 13px; line-height: 1.5;">
-                <p>Android işletim sistemi güvenlik nedeniyle Termux gibi uygulamaların USB portuna (<b>/dev/ttyUSB0</b>) doğrudan yazmasına izin vermez (Root gerektirir).</p>
+                <p>Android işletim sistemi güvenlik nedeniyle Termux gibi uygulamaların USB portuna
+                    (<b>/dev/ttyUSB0</b>) doğrudan yazmasına izin vermez (Root gerektirir).</p>
                 <p>Ancak <b>Root atmadan</b> karta kod yüklemenin çok kolay bir yolu var:</p>
                 <ol style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
                     <li>Kodunuzu tamamladıktan sonra yukarıdaki <b>"Kontrol Et (Derle)"</b> butonuna basın.</li>
-                    <li>Derleme başarılı olunca menüden <b>Eskiz -> Derlenmiş İkiliyi İndir (.bin)</b> seçeneğine tıklayarak dosyayı tabletinize indirin.</li>
-                    <li>Google Play Store'dan ücretsiz bir yükleyici uygulama (Örn: <b>ESP8266/ESP32 Loader</b> veya <b>ArduinoDroid</b>) indirin.</li>
-                    <li>Uygulamayı açıp OTG kablosuyla kartınızı bağlayın, indirdiğiniz <b>.bin</b> dosyasını seçip yükleyin!</li>
+                    <li>Derleme başarılı olunca menüden <b>Eskiz -> Derlenmiş İkiliyi İndir (.bin)</b> seçeneğine
+                        tıklayarak dosyayı tabletinize indirin.</li>
+                    <li>Google Play Store'dan ücretsiz bir yükleyici uygulama (Örn: <b>ESP8266/ESP32 Loader</b> veya
+                        <b>ArduinoDroid</b>) indirin.</li>
+                    <li>Uygulamayı açıp OTG kablosuyla kartınızı bağlayın, indirdiğiniz <b>.bin</b> dosyasını seçip
+                        yükleyin!</li>
                 </ol>
                 <div style="background: #e6f7ff; padding: 10px; border-left: 3px solid #1890ff; border-radius: 4px;">
-                    <b>💡 İpucu:</b> Yalnızca "Seri Port Ekranı"ndan gelen verileri okumak istiyorsanız <b>Web Serial Bağlan</b> butonunu kullanabilirsiniz (Bu, OTG destekler ve harici uygulama gerektirmez).
+                    <b>💡 İpucu:</b> Yalnızca "Seri Port Ekranı"ndan gelen verileri okumak istiyorsanız <b>Web Serial
+                        Bağlan</b> butonunu kullanabilirsiniz (Bu, OTG destekler ve harici uygulama gerektirmez).
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="app.js?v=26"></script>
+    <!-- Web Serial Polyfill (for Android WebUSB support) -->
+    <script src="https://unpkg.com/web-serial-polyfill@1.0.15/dist/serial.js"></script>
+
+    <script src="app.js?v=25"></script>
 </body>
+
 </html>
