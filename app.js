@@ -602,12 +602,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function handleUpload() {
         if (isCompilingOrUploading) return;
-        isCompilingOrUploading = true;
         
-        // Release serial monitor port so uploader (esptool) can access it
+        // If board is ESP, use web flasher if possible
+        if (currentBoard && currentBoard.includes("ESP") && "serial" in navigator && typeof esptooljs !== 'undefined') {
+            await handleWebUpload();
+            return;
+        }
+
+        isCompilingOrUploading = true;
         disconnectSerial();
         
-        console.log("[Upload] Yükleme başlatıldı.");
+        console.log("[Upload] Yükleme başlatıldı (Arka Plan).");
         consolePanel.style.height = "220px";
         consoleLogContent.innerHTML = "";
         
