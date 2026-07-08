@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Arduino CLI Downloaded Binary & License
+arduino-cli.exe
+arduino-cli
+arduino-cli.zip
+LICENSE.txt
+
+# Generated Workspace Directories
+build/
+sketch_*/
+
+# IDE settings
+.vscode/
+.idea/
