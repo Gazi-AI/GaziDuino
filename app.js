@@ -603,8 +603,8 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleUpload() {
         if (isCompilingOrUploading) return;
 
-        // If board is ESP, use web flasher if possible
-        if (currentBoard && currentBoard.includes("ESP") && ("serial" in navigator || typeof serial !== "undefined") && typeof window.esptooljs !== 'undefined') {
+        // If board is ESP, use web flasher (works on Android too via polyfill)
+        if (currentBoard && currentBoard.includes("ESP") && ("serial" in navigator || typeof serial !== "undefined")) {
             await handleWebUpload();
             return;
         }
@@ -754,9 +754,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             compileProgressModal.classList.remove("show");
 
-            // 3. Connect to Web Serial
+            // 3. Dynamically import esptool-js and connect to Web Serial
+            addConsoleLog("esptool-js yükleniyor...", "");
+            const esptoolModule = await import('https://unpkg.com/esptool-js/bundle.js');
+            const { ESPLoader, Transport } = esptoolModule;
+
             addConsoleLog("Tarayıcıdan ESP'ye bağlanılıyor...", "");
-            transport = new window.esptooljs.Transport(port);
+            transport = new Transport(port);
 
             const terminal = {
                 clean: () => { },
@@ -765,7 +769,7 @@ document.addEventListener("DOMContentLoaded", () => {
             };
 
             const baudrate = parseInt(serialBaudrate.value, 10) || 115200;
-            const esploader = new window.esptooljs.ESPLoader(transport, baudrate, terminal);
+            const esploader = new ESPLoader(transport, baudrate, terminal);
 
             progressMessage.textContent = "ESP'ye bağlanılıyor...";
             progressFill.style.width = "60%";
