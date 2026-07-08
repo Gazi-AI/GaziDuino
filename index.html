@@ -713,6 +713,9 @@ void loop() {
         </div>
     </div>
 
+    <!-- Web Serial Polyfill (for Android WebUSB support) -->
+    <script src="https://unpkg.com/web-serial-polyfill@1.0.15/dist/serial.js"></script>
+
     <!-- Web Serial ESP Flasher -->
     <script type="module">
         import { ESPLoader, Transport } from 'https://unpkg.com/esptool-js/bundle.js';

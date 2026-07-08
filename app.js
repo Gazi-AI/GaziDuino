@@ -681,9 +681,17 @@ document.addEventListener("DOMContentLoaded", () => {
     async function handleWebUpload() {
         let port;
         try {
-            port = await navigator.serial.requestPort();
+            // Android Kernel often lacks CH340/CP2102 drivers, making navigator.serial list empty.
+            // In this case, we use the WebUSB polyfill (exposed globally as 'serial') to bypass the kernel.
+            if (navigator.userAgent.includes("Android") && typeof serial !== 'undefined') {
+                console.log("[Web Upload] Android tespit edildi, WebUSB polyfill kullanılıyor...");
+                port = await serial.requestPort();
+            } else {
+                port = await navigator.serial.requestPort();
+            }
         } catch (err) {
             console.error("Port seçilmedi veya iptal edildi:", err);
+            addConsoleLog("Port seçilmedi veya donanım desteklemiyor.", "error");
             return;
         }
 
