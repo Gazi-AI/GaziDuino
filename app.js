@@ -711,16 +711,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
             addConsoleLog("Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
             
-            // First try: raw WebUSB with no filters to see ALL devices
-            try {
-                const usbDevice = await navigator.usb.requestDevice({ filters: [] });
-                addConsoleLog("USB Cihaz bulundu: " + usbDevice.productName + " (VID:" + usbDevice.vendorId + ")", "info");
-                // If we got a device, use the polyfill to wrap it as serial
-                port = await serialAPI.requestPort();
-            } catch (rawErr) {
-                // If raw WebUSB also fails, try native serial as last resort
-                addConsoleLog("WebUSB hata: " + rawErr.message + " — Native Serial deneniyor...", "info");
-                port = await navigator.serial.requestPort();
+            // Get raw USB device (single dialog - user selects device here)
+            const usbDevice = await navigator.usb.requestDevice({ filters: [] });
+            addConsoleLog("USB Cihaz bulundu: " + usbDevice.productName + " (VID:" + usbDevice.vendorId + ")", "info");
+            
+            // Import polyfill and wrap USB device as serial port (NO second dialog)
+            const polyfillModule = await import('https://unpkg.com/web-serial-polyfill@1.0.15/dist/serial.js');
+            addConsoleLog("Polyfill exports: " + Object.keys(polyfillModule).join(", "), "info");
+            
+            if (polyfillModule.SerialPort) {
+                port = new polyfillModule.SerialPort(usbDevice);
+                addConsoleLog("SerialPort oluşturuldu!", "info");
+            } else {
+                // If SerialPort not directly available, try default export
+                addConsoleLog("SerialPort bulunamadı, alternatif deneniyor...", "info");
+                port = new polyfillModule.default(usbDevice);
             }
         } catch (err) {
             console.error("Port seçilmedi veya iptal edildi:", err);
