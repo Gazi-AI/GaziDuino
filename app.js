@@ -25,7 +25,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- State Elements ---
     let currentBoard = "ESP32 Dev Module";
-    let currentPort = "COM4";
+    let currentPort = "Yok";
+    let globalWebPort = null; // Stored WebUSB/Serial port
     let isConsoleMaximized = false;
     let uploadProgressInterval = null;
     let isCompilingOrUploading = false;
@@ -474,61 +475,47 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Dynamic Port detection
+    // Dynamic Port detection using WebUSB/WebSerial
     const activePortLabel = document.getElementById("activePortLabel");
-    const menuPortSubmenu = document.getElementById("menuPortSubmenu");
+    const btnSelectWebPort = document.getElementById("btnSelectWebPort");
 
-    async function updatePortsList() {
-        try {
-            const res = await fetch("/api/ports");
-            const data = await res.json();
-            const ports = data.ports || [];
-
-            if (ports.length === 0) {
-                activePortLabel.textContent = "Yok";
-                menuPortSubmenu.innerHTML = '<div class="menu-row no-ports">Bağlı port bulunamadı</div>';
-                currentPort = "";
-                statusBoardText.textContent = `${currentBoard} - Port Seçilmedi`;
-            } else {
-                const portNames = ports.map(p => p.port);
-                if (!portNames.includes(currentPort)) {
-                    currentPort = portNames[0];
+    if (btnSelectWebPort) {
+        btnSelectWebPort.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            try {
+                if ("usb" in navigator) {
+                    const usbDevice = await navigator.usb.requestDevice({ filters: [] });
+                    globalWebPort = new CP2102SerialPort(usbDevice);
+                    currentPort = `WebUSB (${usbDevice.productName || 'Cihaz'})`;
+                } else if ("serial" in navigator) {
+                    globalWebPort = await navigator.serial.requestPort();
+                    currentPort = "Web Serial Cihazı";
+                } else {
+                    alert("Tarayıcınız WebUSB veya Web Serial desteklemiyor.");
+                    return;
                 }
+                
                 activePortLabel.textContent = currentPort;
                 statusBoardText.textContent = `${currentBoard} - ${currentPort} [bağlı]`;
-
-                menuPortSubmenu.innerHTML = "";
-                ports.forEach(p => {
-                    const row = document.createElement("div");
-                    row.className = `menu-row port-option ${p.port === currentPort ? 'active' : ''}`;
-                    row.setAttribute("data-port", p.port);
-                    row.innerHTML = `<span>${p.port} (${p.board})</span>`;
-
-                    row.addEventListener("click", (e) => {
-                        e.stopPropagation();
-                        currentPort = p.port;
-                        activePortLabel.textContent = currentPort;
-                        statusBoardText.textContent = `${currentBoard} - ${currentPort} [bağlı]`;
-                        updatePortsList();
-
-                        // Hide dropdown hack
-                        const parentDropdown = row.closest('.dropdown-menu');
-                        if (parentDropdown) {
-                            parentDropdown.style.display = 'none';
-                            setTimeout(() => parentDropdown.style.display = '', 150);
-                        }
-                    });
-
-                    menuPortSubmenu.appendChild(row);
-                });
+                
+                // Hide dropdown hack
+                const parentDropdown = btnSelectWebPort.closest('.dropdown-menu');
+                if (parentDropdown) {
+                    parentDropdown.style.display = 'none';
+                    setTimeout(() => parentDropdown.style.display = '', 150);
+                }
+                
+                addConsoleLog(`Port başarıyla seçildi: ${currentPort}`, "success");
+            } catch (err) {
+                console.error("Port seçimi başarısız:", err);
+                addConsoleLog("Port seçimi iptal edildi veya başarısız oldu: " + err.message, "error");
             }
-        } catch (err) {
-            console.error("Portlar yüklenemedi:", err);
-        }
+        });
     }
 
-    updatePortsList();
-    setInterval(updatePortsList, 3000);
+    // Default UI state
+    activePortLabel.textContent = "Yok";
+    statusBoardText.textContent = `${currentBoard} - Port Seçilmedi`;
 
 
     // --- 6. Compile & Upload Simulation & Logs ---
@@ -824,28 +811,38 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
     async function handleWebUpload() {
-        let port;
-        try {
-            if ("usb" in navigator) {
-                // Use WebUSB + our custom CP2102 driver (works on Android AND desktop)
-                addConsoleLog("Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
-                const usbDevice = await navigator.usb.requestDevice({ filters: [] });
-                addConsoleLog("USB Cihaz bulundu: " + usbDevice.productName + " (VID:" + usbDevice.vendorId + ")", "info");
-                
-                port = new CP2102SerialPort(usbDevice);
-                addConsoleLog("CP2102 sürücüsü hazır!", "info");
-            } else if ("serial" in navigator) {
-                // Fallback: native Web Serial
-                addConsoleLog("Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
-                port = await navigator.serial.requestPort();
-            } else {
-                addConsoleLog("Bu tarayıcı ne Web Serial ne de WebUSB destekliyor.", "error");
+        let port = globalWebPort;
+        if (!port) {
+            try {
+                if ("usb" in navigator) {
+                    addConsoleLog("Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
+                    const usbDevice = await navigator.usb.requestDevice({ filters: [] });
+                    addConsoleLog("USB Cihaz bulundu: " + usbDevice.productName + " (VID:" + usbDevice.vendorId + ")", "info");
+                    
+                    port = new CP2102SerialPort(usbDevice);
+                    globalWebPort = port;
+                    currentPort = `WebUSB (${usbDevice.productName || 'Cihaz'})`;
+                    document.getElementById("activePortLabel").textContent = currentPort;
+                    document.getElementById("statusBoardText").textContent = `${currentBoard} - ${currentPort} [bağlı]`;
+                    addConsoleLog("CP2102 sürücüsü hazır!", "info");
+                } else if ("serial" in navigator) {
+                    addConsoleLog("Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
+                    port = await navigator.serial.requestPort();
+                    globalWebPort = port;
+                    currentPort = "Web Serial Cihazı";
+                    document.getElementById("activePortLabel").textContent = currentPort;
+                    document.getElementById("statusBoardText").textContent = `${currentBoard} - ${currentPort} [bağlı]`;
+                } else {
+                    addConsoleLog("Bu tarayıcı ne Web Serial ne de WebUSB destekliyor.", "error");
+                    return;
+                }
+            } catch (err) {
+                console.error("Port seçilmedi veya iptal edildi:", err);
+                addConsoleLog("Port seçilmedi veya donanım desteklemiyor: " + err.message, "error");
                 return;
             }
-        } catch (err) {
-            console.error("Port seçilmedi veya iptal edildi:", err);
-            addConsoleLog("Port seçilmedi veya donanım desteklemiyor: " + err.message, "error");
-            return;
+        } else {
+            addConsoleLog("Daha önce seçilen port kullanılıyor...", "info");
         }
 
         isCompilingOrUploading = true;
@@ -1965,86 +1962,68 @@ document.addEventListener("DOMContentLoaded", () => {
             webSerialWriter.close().catch(() => { });
             webSerialWriter = null;
         }
-        if (webSerialPort) {
-            webSerialPort.close().catch(() => { });
-            webSerialPort = null;
+        if (globalWebPort && globalWebPort.close) {
+            globalWebPort.close().catch(() => { });
+            globalWebPort = null;
         }
 
         fetch("/api/serial/disconnect", { method: "POST" }).catch(err => console.error("Disconnect error:", err));
     }
 
-    function connectSerial() {
+    async function connectSerial() {
         disconnectSerial();
 
-        if (!currentPort) {
-            serialWarningBanner.style.display = "block";
-            serialContentArea.classList.remove("connected");
-            return;
+        let port = globalWebPort;
+        if (!port) {
+            try {
+                if ("usb" in navigator) {
+                    const usbDevice = await navigator.usb.requestDevice({ filters: [] });
+                    port = new CP2102SerialPort(usbDevice);
+                    globalWebPort = port;
+                    currentPort = `WebUSB (${usbDevice.productName || 'Cihaz'})`;
+                } else if ("serial" in navigator) {
+                    port = await navigator.serial.requestPort();
+                    globalWebPort = port;
+                    currentPort = "Web Serial Cihazı";
+                } else {
+                    alert("Tarayıcınız WebUSB veya Web Serial desteklemiyor.");
+                    return;
+                }
+                document.getElementById("activePortLabel").textContent = currentPort;
+                document.getElementById("statusBoardText").textContent = `${currentBoard} - ${currentPort} [bağlı]`;
+            } catch (err) {
+                console.error("Port seçimi başarısız:", err);
+                serialWarningBanner.style.display = "block";
+                serialContentArea.classList.remove("connected");
+                return;
+            }
         }
 
-        serialWarningBanner.style.display = "none";
-        serialContentArea.classList.add("connected");
-
-        const baud = serialBaudrate.value;
-        console.log(`[Serial] ${currentPort} portuna ${baud} baud hızında bağlanılıyor...`);
-
-        // Update placeholder
-        serialMessageInput.placeholder = `Mesaj ('${currentBoard}' - '${currentPort}'’a mesaj göndermek için Enter'a basın)`;
-
-        serialTerminal.innerHTML = `--- ${currentPort} portu açıldı (Hız: ${baud}) ---\n`;
-
-        serialEventSource = new EventSource(`/api/serial/stream?port=${currentPort}&baud=${baud}`);
-
-        serialEventSource.onmessage = (event) => {
-            let data = event.data;
-            if (chkTimestamp.checked) {
-                const timeStr = new Date().toLocaleTimeString();
-                data = `[${timeStr}] ${data}`;
-            }
-            serialTerminal.innerHTML += data + "\n";
-            if (chkAutoscroll.checked) {
-                serialTerminal.scrollTop = serialTerminal.scrollHeight;
-            }
-            // Feed data to plotter if open
-            if (serialPlotterWindow && !serialPlotterWindow.closed && serialPlotterWindow.addPlotData) {
-                serialPlotterWindow.addPlotData(event.data);
-            }
-        };
-
-        serialEventSource.onerror = (err) => {
-            console.error("[Serial] Akış hatası:", err);
-            serialTerminal.innerHTML += "\n[Serial bağlantı hatası veya cihaz ayrıldı]\n";
-            disconnectSerial();
-        };
-    }
-
-    async function connectWebSerial() {
-        if (!(("serial" in navigator || typeof serial !== "undefined"))) {
-            alert("Web Serial API bu tarayıcıda desteklenmiyor. Lütfen güncel Chrome, Edge veya Opera kullanın.");
-            return;
-        }
         try {
-            disconnectSerial();
-            webSerialPort = await navigator.serial.requestPort();
-            const baud = parseInt(serialBaudrate.value, 10);
-            await webSerialPort.open({ baudRate: baud });
+            const baud = parseInt(serialBaudrate.value, 10) || 115200;
+            
+            if (!port.readable) {
+                await port.open({ baudRate: baud });
+            }
 
             serialWarningBanner.style.display = "none";
             serialContentArea.classList.add("connected");
-            serialMessageInput.placeholder = "Mesaj (Web Serial Bağlantısı ile)";
-            serialTerminal.innerHTML = `--- Web Serial ile Bağlanıldı (Hız: ${baud}) ---\n`;
+            serialMessageInput.placeholder = `Mesaj ('${currentPort}'’a mesaj göndermek için Enter'a basın)`;
+            serialTerminal.innerHTML = `--- ${currentPort} portu açıldı (Hız: ${baud}) ---\n`;
 
             const decoder = new TextDecoderStream();
-            const inputDone = webSerialPort.readable.pipeTo(decoder.writable);
+            const inputDone = port.readable.pipeTo(decoder.writable);
             webSerialReader = decoder.readable.getReader();
 
             const encoder = new TextEncoderStream();
-            const outputDone = encoder.readable.pipeTo(webSerialPort.writable);
+            const outputDone = encoder.readable.pipeTo(port.writable);
             webSerialWriter = encoder.writable.getWriter();
 
             readWebSerialLoop();
         } catch (err) {
-            console.error("Web Serial Bağlantı Hatası:", err);
+            console.error("Seri Port Bağlantı Hatası:", err);
+            serialTerminal.innerHTML += "\n[Bağlantı açılamadı: " + err.message + "]\n";
+            disconnectSerial();
         }
     }
 
@@ -2052,15 +2031,12 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             while (true) {
                 const { value, done } = await webSerialReader.read();
-                if (done) {
-                    webSerialReader.releaseLock();
-                    break;
-                }
+                if (done) break;
                 if (value) {
                     let data = value;
                     if (chkTimestamp.checked) {
                         const timeStr = new Date().toLocaleTimeString();
-                        data = `[${timeStr}] ${data}`;
+                        data = data.split('\n').map(l => l ? `[${timeStr}] ${l}` : l).join('\n');
                     }
                     serialTerminal.innerHTML += data;
                     if (chkAutoscroll.checked) {
@@ -2072,14 +2048,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         } catch (e) {
-            console.error("Web Serial okuma hatası:", e);
+            console.error("Seri okuma hatası:", e);
             disconnectSerial();
         }
     }
 
     const btnWebSerial = document.getElementById("btnWebSerial");
     if (btnWebSerial) {
-        btnWebSerial.addEventListener("click", connectWebSerial);
+        btnWebSerial.addEventListener("click", connectSerial);
     }
 
     // Serial Send Message
