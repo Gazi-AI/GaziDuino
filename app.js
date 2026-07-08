@@ -2848,6 +2848,7 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                             const data = JSON.parse(line.substring(6));
                             if (data.error) {
                                 bubble.innerHTML = "❌ **Hata:** " + data.error;
+                                hasStartedResponse = true; // Prevent overwriting with "AI yanıt üretemedi"
                             } else {
                                 if (data.reloadTree) {
                                     loadFileTree();
@@ -2876,6 +2877,10 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
             if (buffer && buffer.startsWith("data: ")) {
                 try {
                     const data = JSON.parse(buffer.substring(6));
+                    if (data.error) {
+                        bubble.innerHTML = "❌ **Hata:** " + data.error;
+                        hasStartedResponse = true;
+                    }
                     if (data.reloadTree) {
                         loadFileTree();
                     }
