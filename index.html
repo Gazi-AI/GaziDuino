@@ -714,7 +714,10 @@ void loop() {
     </div>
 
     <!-- Web Serial ESP Flasher -->
-    <script src="https://unpkg.com/esptool-js/bundle.js"></script>
-    <script src="app.js?v=23"></script>
+    <script type="module">
+        import { ESPLoader, Transport } from 'https://unpkg.com/esptool-js/bundle.js';
+        window.esptooljs = { ESPLoader, Transport };
+    </script>
+    <script src="app.js?v=24"></script>
 </body>
 </html>

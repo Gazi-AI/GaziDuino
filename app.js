@@ -604,7 +604,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isCompilingOrUploading) return;
         
         // If board is ESP, use web flasher if possible
-        if (currentBoard && currentBoard.includes("ESP") && "serial" in navigator && typeof esptooljs !== 'undefined') {
+        if (currentBoard && currentBoard.includes("ESP") && "serial" in navigator && typeof window.esptooljs !== 'undefined') {
             await handleWebUpload();
             return;
         }
