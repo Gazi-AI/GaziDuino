@@ -678,6 +678,123 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    async function handleWebUpload() {
+        isCompilingOrUploading = true;
+        disconnectSerial();
+        console.log("[Web Upload] Derleme başlatılıyor...");
+        consolePanel.style.height = "220px";
+        consoleLogContent.innerHTML = "";
+        
+        progressMessage.textContent = "Derleniyor (Web Yükleme Öncesi)...";
+        progressFill.style.width = "0%";
+        compileProgressModal.classList.add("show");
+
+        let progress = 0;
+        uploadProgressInterval = setInterval(() => {
+            if (progress < 40) {
+                progress += 5;
+                progressFill.style.width = `${progress}%`;
+            }
+        }, 300);
+
+        let transport = null;
+        try {
+            // 1. Compile and get binary name
+            const res = await fetch("/api/export-binary", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    code: codeTextarea.value,
+                    board: currentBoard,
+                    board_options: boardOptions
+                })
+            });
+            const data = await res.json();
+            
+            if (data.log) {
+                data.log.forEach(line => addConsoleLog(line, data.success ? "" : "error"));
+            }
+
+            if (!data.success || !data.filename) {
+                throw new Error("Derleme başarısız oldu.");
+            }
+
+            progressMessage.textContent = "İkili dosya indiriliyor...";
+            progressFill.style.width = "50%";
+
+            // 2. Fetch the binary ArrayBuffer
+            const binRes = await fetch(`/api/download-binary?file=${data.filename}`);
+            if (!binRes.ok) throw new Error("Derlenmiş dosya alınamadı.");
+            const binBuffer = await binRes.arrayBuffer();
+            const firmwareData = new Uint8Array(binBuffer);
+
+            compileProgressModal.classList.remove("show");
+            
+            // 3. Connect to Web Serial
+            addConsoleLog("Tarayıcıdan ESP'ye bağlanılıyor... Lütfen açılan pencereden portu seçin.", "");
+            const port = await navigator.serial.requestPort();
+            transport = new window.esptooljs.Transport(port);
+            
+            const terminal = {
+                clean: () => {},
+                writeLine: (msg) => { console.log(msg); addConsoleLog(msg, "info"); },
+                write: (msg) => { console.log(msg); }
+            };
+
+            const baudrate = parseInt(serialBaudrate.value, 10) || 115200;
+            const esploader = new window.esptooljs.ESPLoader(transport, baudrate, terminal);
+            
+            progressMessage.textContent = "ESP'ye bağlanılıyor...";
+            progressFill.style.width = "60%";
+            compileProgressModal.classList.add("show");
+
+            await esploader.main();
+
+            let flashOffset = 0x10000;
+            if (currentBoard.includes("ESP8266")) {
+                flashOffset = 0x0;
+            }
+            
+            progressMessage.textContent = `Yazdırılıyor (Adres: 0x${flashOffset.toString(16)})...`;
+            progressFill.style.width = "75%";
+            
+            addConsoleLog(`Flash işlemi başladı (Offset: 0x${flashOffset.toString(16)}), lütfen bekleyin...`, "info");
+            
+            await esploader.flashBegin(firmwareData.length, flashOffset);
+            
+            let currentOffset = flashOffset;
+            let dataOffset = 0;
+            const flashWriteSize = esploader.flash_write_size || 0x4000;
+
+            while (dataOffset < firmwareData.length) {
+                const chunkLen = Math.min(flashWriteSize, firmwareData.length - dataOffset);
+                const chunk = firmwareData.slice(dataOffset, dataOffset + chunkLen);
+                await esploader.flashBlock(chunk, currentOffset);
+                currentOffset += chunkLen;
+                dataOffset += chunkLen;
+                const percent = Math.floor((dataOffset / firmwareData.length) * 100);
+                progressMessage.textContent = `Yazdırılıyor: %${percent}`;
+                progressFill.style.width = `${75 + (percent * 0.25)}%`;
+            }
+
+            progressFill.style.width = "100%";
+            addConsoleLog("Yükleme Tamamlandı! ESP yeniden başlatılıyor...", "success");
+            
+            await esploader.after("hard_reset");
+            
+        } catch (err) {
+            console.error("Web Upload Hatası:", err);
+            addConsoleLog("Web Upload Hatası: " + err.message, "error");
+        } finally {
+            if (transport) {
+                try { await transport.disconnect(); } catch(e){}
+            }
+            clearInterval(uploadProgressInterval);
+            compileProgressModal.classList.remove("show");
+            isCompilingOrUploading = false;
+        }
+    }
+
     btnVerify.addEventListener("click", handleCompile);
     btnUpload.addEventListener("click", handleUpload);
     
