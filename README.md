@@ -65,19 +65,32 @@ Linux ortamında `arduino-cli` aracı otomatik olarak sistem paket yöneticileri
    python3 main.py
    ```
 
-### 📱 Termux (Sadece Android Cihaz Üzerinde Local Sunucu Kurmak İsteyenler)
+### 📱 Termux (Android Cihaz Üzerinde Sunucu Kurmak İsteyenler)
 
-Eğer ayrı bir bilgisayar kullanmak istemiyor ve sunucuyu da direkt Android telefonunuzda barındırmak istiyorsanız:
-1. Termux uygulamasını açın.
-2. Gerekli paketleri kurun:
+Termux üzerinde sunucu kurarak projeyi Android'de çalıştırabilirsiniz. Ancak **dikkat etmeniz gereken kritik bir nokta var:**
+
+- **Eğer sadece Arduino Uno / Nano derleyecekseniz:** Düz Termux işinizi görür.
+- **Eğer ESP32 veya ESP8266 derleyecekseniz:** Resmi derleyiciler (glibc) Termux ile doğrudan uyumlu olmadığı için Termux içerisine **Ubuntu (proot-distro)** kurmanız **zorunludur**.
+
+**ESP32 Destekli Ubuntu (Termux) Kurulumu:**
+1. Termux'u açın ve Ubuntu kurun:
    ```bash
    pkg update
-   pkg install python arduino-cli
-   pip install flask
+   pkg install proot-distro
+   proot-distro install ubuntu
+   proot-distro login ubuntu
    ```
-3. Proje dizininde sunucuyu başlatın:
+2. Ubuntu içine girdikten sonra Linux adımlarını uygulayın:
    ```bash
-   python main.py
+   apt update
+   apt install python3 python3-pip curl
+   curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh
+   export PATH=$PATH:/root/bin
+   pip3 install flask
+   ```
+3. Proje klasörüne gidip sunucuyu başlatın:
+   ```bash
+   python3 main.py
    ```
 
 ---
