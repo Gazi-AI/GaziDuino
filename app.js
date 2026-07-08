@@ -679,6 +679,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function handleWebUpload() {
+        let port;
+        try {
+            port = await navigator.serial.requestPort();
+        } catch (err) {
+            console.error("Port seçilmedi veya iptal edildi:", err);
+            return;
+        }
+
         isCompilingOrUploading = true;
         disconnectSerial();
         console.log("[Web Upload] Derleme başlatılıyor...");
@@ -731,8 +739,7 @@ document.addEventListener("DOMContentLoaded", () => {
             compileProgressModal.classList.remove("show");
             
             // 3. Connect to Web Serial
-            addConsoleLog("Tarayıcıdan ESP'ye bağlanılıyor... Lütfen açılan pencereden portu seçin.", "");
-            const port = await navigator.serial.requestPort();
+            addConsoleLog("Tarayıcıdan ESP'ye bağlanılıyor...", "");
             transport = new window.esptooljs.Transport(port);
             
             const terminal = {
