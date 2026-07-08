@@ -700,6 +700,13 @@ document.addEventListener("DOMContentLoaded", () => {
             this.writable = null;
         }
 
+        getInfo() {
+            return {
+                usbVendorId: this.device_.vendorId,
+                usbProductId: this.device_.productId
+            };
+        }
+
         async open({ baudRate }) {
             await this.device_.open();
             if (this.device_.configuration === null) {
