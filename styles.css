@@ -762,6 +762,20 @@ body {
 .hl-builtin { color: #2980b9; } /* pinMode, digitalWrite, delay */
 
 /* Bottom Console Panel */
+.console-resizer {
+    height: 4px;
+    background-color: #2d2d2d;
+    cursor: ns-resize;
+    z-index: 100;
+    /* Increase touch hit area for Android */
+    padding-top: 10px;
+    margin-top: -10px;
+    background-clip: content-box; /* Only background on the content, not padding */
+}
+.console-resizer:hover {
+    background-color: #00979d;
+}
+
 .console-panel {
     background-color: #1e1e1e;
     color: #ffffff;
@@ -772,6 +786,9 @@ body {
     flex-direction: column;
     border-top: 1.5px solid #2d2d2d;
     transition: height 0.2s ease-in-out;
+}
+.console-panel.no-transition {
+    transition: none;
 }
 
 .console-header {

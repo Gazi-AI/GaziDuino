@@ -1024,6 +1024,48 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // --- Console Resizer Logic ---
+    const consoleResizer = document.getElementById("consoleResizer");
+    let isResizingConsole = false;
+
+    if (consoleResizer && consolePanel) {
+        const startResize = (e) => {
+            isResizingConsole = true;
+            consolePanel.classList.add("no-transition"); // Disable transition during drag for smoothness
+            document.body.style.cursor = "ns-resize";
+            // e.preventDefault(); // Don't prevent default on touch, it might block scrolling or tap if we're not careful, but for resizer it's fine
+        };
+
+        const doResize = (e) => {
+            if (!isResizingConsole) return;
+            // Get clientY from either mouse or touch event
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            // Calculate new height: from the bottom of the window to the cursor position
+            const newHeight = window.innerHeight - clientY;
+            if (newHeight >= 32 && newHeight <= window.innerHeight - 50) { // Keep within bounds
+                consolePanel.style.height = `${newHeight}px`;
+            }
+        };
+
+        const stopResize = () => {
+            if (isResizingConsole) {
+                isResizingConsole = false;
+                consolePanel.classList.remove("no-transition");
+                document.body.style.cursor = "default";
+            }
+        };
+
+        // Mouse Events
+        consoleResizer.addEventListener("mousedown", (e) => { e.preventDefault(); startResize(e); });
+        document.addEventListener("mousemove", doResize);
+        document.addEventListener("mouseup", stopResize);
+
+        // Touch Events (for Android/Tablets)
+        consoleResizer.addEventListener("touchstart", (e) => { e.preventDefault(); startResize(e); }, { passive: false });
+        document.addEventListener("touchmove", doResize, { passive: false });
+        document.addEventListener("touchend", stopResize);
+    }
+
     // --- 8. Real Menu Bar action implementations ---
 
     // Helper: Undo
