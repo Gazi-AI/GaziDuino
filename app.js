@@ -1507,10 +1507,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "reload-board": () => { updatePortsList(); addConsoleLog("Kart bilgisi yeniden yüklendi.", "success"); consolePanel.style.height = "220px"; },
         "get-board-info": () => getBoardInfo(),
         "help-getting-started": () => window.open("https://docs.arduino.cc/learn/starting-guide/getting-started-arduino", "_blank"),
-        "help-android": () => {
-            const modal = document.getElementById("androidOTGModal");
-            if (modal) modal.style.display = "block";
-        },
+
         "help-ref": () => window.open("https://www.arduino.cc/reference/en/", "_blank"),
         "help-about": () => {
             let modal = document.createElement("div");
@@ -3060,18 +3057,6 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
     // Load settings on startup
     loadAiSettings();
 
-    // Android OTG Guide Modal Close
-    const androidOTGModal = document.getElementById("androidOTGModal");
-    const closeAndroidOTGModal = document.getElementById("closeAndroidOTGModal");
-    if (closeAndroidOTGModal && androidOTGModal) {
-        closeAndroidOTGModal.addEventListener("click", () => {
-            androidOTGModal.style.display = "none";
-        });
-        window.addEventListener("click", (e) => {
-            if (e.target === androidOTGModal) {
-                androidOTGModal.style.display = "none";
-            }
-        });
-    }
+
 
 });
