@@ -35,6 +35,72 @@ document.addEventListener("DOMContentLoaded", () => {
     let redoStack = [];
     let lastSavedCode = "";
 
+    // --- Localization ---
+    let currentLang = localStorage.getItem("gaziLang") || "tr";
+    const i18n = {
+        tr: {
+            "btnSettings": "Kullanıcı Ayarları",
+            "settingsTitle": "⚙ Kullanıcı Ayarları",
+            "fontSize": "Yazı Tipi Boyutu",
+            "theme": "Tema",
+            "autoSave": "Otomatik Kaydetme",
+            "language": "Dil",
+            "btnApply": "Uygula",
+            "btnClose": "Kapat",
+            "active": "Aktif",
+            "panelSketchbook": "PROJE DOSYALARI",
+            "panelBoards": "KART YÖNETİCİSİ",
+            "panelLibraries": "KÜTÜPHANE YÖNETİCİSİ",
+            "panelDebug": "HATA AYIKLA",
+            "panelAi": "AI ASİSTAN",
+            "panelSearch": "ARA",
+            "newFile": "Yeni Dosya",
+            "newFolder": "Yeni Klasör",
+            "refresh": "Yenile"
+        },
+        en: {
+            "btnSettings": "User Settings",
+            "settingsTitle": "⚙ User Settings",
+            "fontSize": "Font Size",
+            "theme": "Theme",
+            "autoSave": "Auto Save",
+            "language": "Language",
+            "btnApply": "Apply",
+            "btnClose": "Close",
+            "active": "Active",
+            "panelSketchbook": "PROJECT FILES",
+            "panelBoards": "BOARDS MANAGER",
+            "panelLibraries": "LIBRARY MANAGER",
+            "panelDebug": "DEBUG",
+            "panelAi": "AI ASSISTANT",
+            "panelSearch": "SEARCH",
+            "newFile": "New File",
+            "newFolder": "New Folder",
+            "refresh": "Refresh"
+        }
+    };
+
+    function translateUi() {
+        const dict = i18n[currentLang];
+        if (!dict) return;
+        document.querySelectorAll("[data-i18n]").forEach(el => {
+            const key = el.getAttribute("data-i18n");
+            if (dict[key]) {
+                if (el.tagName === "INPUT" && el.type === "placeholder") {
+                    el.placeholder = dict[key];
+                } else if (el.hasAttribute("title")) {
+                    el.title = dict[key];
+                } else {
+                    el.textContent = dict[key];
+                }
+            }
+        });
+        
+        // Settings panel specific
+        const btnSettings = document.getElementById("btnSettings");
+        if(btnSettings) btnSettings.title = dict["btnSettings"];
+    }
+
     // Board Options State & Maps
     let boardOptions = {
         EraseFlash: "none",
@@ -353,22 +419,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Toggle settings modal
                 let settingsModal = document.getElementById("settingsModal");
                 if (!settingsModal) {
+                    const dict = i18n[currentLang];
                     settingsModal = document.createElement("div");
                     settingsModal.id = "settingsModal";
                     settingsModal.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:10000;display:flex;align-items:center;justify-content:center;";
                     settingsModal.innerHTML = `
                         <div style="background:#1e1e1e;border:1px solid #3c3c3c;border-radius:8px;padding:24px;width:420px;max-height:80vh;overflow-y:auto;color:#ccc;font-family:Inter,sans-serif;">
-                            <h3 style="margin:0 0 16px;color:#00979d;">⚙ Kullanıcı Ayarları</h3>
+                            <h3 style="margin:0 0 16px;color:#00979d;" data-i18n="settingsTitle">${dict.settingsTitle}</h3>
                             <div style="margin-bottom:12px;">
-                                <label style="display:block;margin-bottom:4px;font-size:12px;">Yazı Tipi Boyutu</label>
+                                <label style="display:block;margin-bottom:4px;font-size:12px;" data-i18n="fontSize">${dict.fontSize}</label>
                                 <input type="range" min="10" max="24" value="${editorFontSize}" id="settingsFontSize" style="width:100%;">
                                 <span id="settingsFontSizeVal">${editorFontSize}px</span>
                             </div>
                             <div style="margin-bottom:12px;">
-                                <label style="display:block;margin-bottom:4px;font-size:12px;">Tema</label>
+                                <label style="display:block;margin-bottom:4px;font-size:12px;" data-i18n="theme">Tema</label>
                                 <select id="settingsTheme" style="width:100%;padding:6px;background:#2d2d2d;color:#ccc;border:1px solid #555;border-radius:4px;">
                                     <option value="dark" selected>Koyu Tema</option>
                                     <option value="light">Açık Tema (yakında)</option>
+                                </select>
+                            </div>
+                            <div style="margin-bottom:12px;">
+                                <label style="display:block;margin-bottom:4px;font-size:12px;" data-i18n="language">Dil / Language</label>
+                                <select id="settingsLang" style="width:100%;padding:6px;background:#2d2d2d;color:#ccc;border:1px solid #555;border-radius:4px;">
+                                    <option value="tr" ${currentLang === 'tr' ? 'selected' : ''}>Türkçe</option>
+                                    <option value="en" ${currentLang === 'en' ? 'selected' : ''}>English</option>
                                 </select>
                             </div>
                             <div style="margin-bottom:12px;">
@@ -391,6 +465,13 @@ document.addEventListener("DOMContentLoaded", () => {
                         editorFontSize = parseInt(settingsModal.querySelector("#settingsFontSize").value);
                         codeTextarea.style.fontSize = editorFontSize + "px";
                         highlightOverlay.style.fontSize = editorFontSize + "px";
+                        
+                        const newLang = settingsModal.querySelector("#settingsLang").value;
+                        if (newLang !== currentLang) {
+                            currentLang = newLang;
+                            localStorage.setItem("gaziLang", currentLang);
+                            translateUi();
+                        }
                         settingsModal.remove();
                     });
                 }
@@ -1507,10 +1588,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "reload-board": () => { updatePortsList(); addConsoleLog("Kart bilgisi yeniden yüklendi.", "success"); consolePanel.style.height = "220px"; },
         "get-board-info": () => getBoardInfo(),
         "help-getting-started": () => window.open("https://docs.arduino.cc/learn/starting-guide/getting-started-arduino", "_blank"),
-        "help-android": () => {
-            const modal = document.getElementById("androidOTGModal");
-            if (modal) modal.style.display = "block";
-        },
         "help-ref": () => window.open("https://www.arduino.cc/reference/en/", "_blank"),
         "help-about": () => {
             let modal = document.createElement("div");
@@ -3060,18 +3137,6 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
     // Load settings on startup
     loadAiSettings();
 
-    // Android OTG Guide Modal Close
-    const androidOTGModal = document.getElementById("androidOTGModal");
-    const closeAndroidOTGModal = document.getElementById("closeAndroidOTGModal");
-    if (closeAndroidOTGModal && androidOTGModal) {
-        closeAndroidOTGModal.addEventListener("click", () => {
-            androidOTGModal.style.display = "none";
-        });
-        window.addEventListener("click", (e) => {
-            if (e.target === androidOTGModal) {
-                androidOTGModal.style.display = "none";
-            }
-        });
-    }
-
+    // Perform initial translation
+    translateUi();
 });

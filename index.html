@@ -277,8 +277,6 @@
             <div class="menu-item" id="menuYardim">Yardım
                 <div class="dropdown-menu">
                     <div class="menu-row" data-action="help-getting-started">Başlarken</div>
-                    <div class="menu-row" data-action="help-android" style="color: #00979d; font-weight: 500;">📱
-                        Android OTG Yükleme Rehberi</div>
                     <div class="menu-row" data-action="help-ref">Referans</div>
                     <div class="menu-row" data-action="help-about">Arduino IDE Hakkında</div>
                 </div>
@@ -429,11 +427,11 @@
             <!-- Sketchbook Panel -->
             <div class="panel-content active" id="panel-sketchbook">
                 <div class="panel-title-bar">
-                    <h3 class="panel-title">PROJE DOSYALARI</h3>
+                    <h3 class="panel-title" data-i18n="panelSketchbook">PROJE DOSYALARI</h3>
                     <div class="panel-title-actions">
-                        <button class="panel-action-btn" id="btnNewFile" title="Yeni Dosya">📄+</button>
-                        <button class="panel-action-btn" id="btnNewFolder" title="Yeni Klasör">📁+</button>
-                        <button class="panel-action-btn" id="btnRefreshTree" title="Yenile">🔄</button>
+                        <button class="panel-action-btn" id="btnNewFile" data-i18n="newFile" title="Yeni Dosya">📄+</button>
+                        <button class="panel-action-btn" id="btnNewFolder" data-i18n="newFolder" title="Yeni Klasör">📁+</button>
+                        <button class="panel-action-btn" id="btnRefreshTree" data-i18n="refresh" title="Yenile">🔄</button>
                     </div>
                 </div>
                 <div class="file-tree-container" id="fileTreeContainer">
@@ -443,7 +441,7 @@
 
             <!-- Boards Manager Panel -->
             <div class="panel-content" id="panel-boards">
-                <h3 class="panel-title">KART YÖNETİCİSİ</h3>
+                <h3 class="panel-title" data-i18n="panelBoards">KART YÖNETİCİSİ</h3>
                 <div class="panel-search-bar">
                     <input type="text" placeholder="Aramayı Filtrele..." id="panelBoardSearch">
                 </div>
@@ -460,7 +458,7 @@
 
             <!-- Library Manager Panel -->
             <div class="panel-content" id="panel-libraries">
-                <h3 class="panel-title">KÜTÜPHANE YÖNETİCİSİ</h3>
+                <h3 class="panel-title" data-i18n="panelLibraries">KÜTÜPHANE YÖNETİCİSİ</h3>
                 <div class="panel-search-bar">
                     <input type="text" placeholder="Kütüphane ara..." id="panelLibSearch">
                 </div>
@@ -477,7 +475,7 @@
 
             <!-- Debug Panel -->
             <div class="panel-content" id="panel-debug">
-                <h3 class="panel-title">HATA AYIKLA</h3>
+                <h3 class="panel-title" data-i18n="panelDebug">HATA AYIKLA</h3>
                 <div class="debug-placeholder">
                     <p>Hata ayıklayıcıyı kullanmak için desteklenen bir kart seçin.</p>
                     <button class="debug-start-btn" disabled>Hata Ayıklamayı Başlat</button>
@@ -487,7 +485,7 @@
             <!-- AI Assistant Panel -->
             <div class="panel-content" id="panel-ai">
                 <div class="panel-title-bar">
-                    <h3 class="panel-title">✨ AI ASİSTAN</h3>
+                    <h3 class="panel-title" data-i18n="panelAi">🤖 AI ASİSTAN</h3>
                     <div class="panel-title-actions">
                         <button class="panel-action-btn" id="btnAiHistory" title="Geçmiş Sohbetler">📜</button>
                         <button class="panel-action-btn" id="btnNewAiChat" title="Yeni Sohbet">➕</button>
@@ -529,7 +527,7 @@
 
             <!-- Search Panel -->
             <div class="panel-content" id="panel-search">
-                <h3 class="panel-title">ARA</h3>
+                <h3 class="panel-title" data-i18n="panelSearch">ARA</h3>
                 <div class="search-form">
                     <input type="text" placeholder="Aranacak kelime..." id="searchQueryInput">
                     <div class="search-options">
@@ -767,33 +765,7 @@ void loop() {
             </div>
         </div>
     </div>
-    <!-- Android OTG Guide Modal -->
-    <div id="androidOTGModal" class="modal">
-        <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header">
-                <h3>📱 Android OTG ile Karta Kod Yükleme</h3>
-                <span class="close-btn" id="closeAndroidOTGModal">&times;</span>
-            </div>
-            <div class="modal-body" style="padding: 15px; font-size: 13px; line-height: 1.5;">
-                <p>Android işletim sistemi güvenlik nedeniyle Termux gibi uygulamaların USB portuna
-                    (<b>/dev/ttyUSB0</b>) doğrudan yazmasına izin vermez (Root gerektirir).</p>
-                <p>Ancak <b>Root atmadan</b> karta kod yüklemenin çok kolay bir yolu var:</p>
-                <ol style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
-                    <li>Kodunuzu tamamladıktan sonra yukarıdaki <b>"Kontrol Et (Derle)"</b> butonuna basın.</li>
-                    <li>Derleme başarılı olunca menüden <b>Eskiz -> Derlenmiş İkiliyi İndir (.bin)</b> seçeneğine
-                        tıklayarak dosyayı tabletinize indirin.</li>
-                    <li>Google Play Store'dan ücretsiz bir yükleyici uygulama (Örn: <b>ESP8266/ESP32 Loader</b> veya
-                        <b>ArduinoDroid</b>) indirin.</li>
-                    <li>Uygulamayı açıp OTG kablosuyla kartınızı bağlayın, indirdiğiniz <b>.bin</b> dosyasını seçip
-                        yükleyin!</li>
-                </ol>
-                <div style="background: #e6f7ff; padding: 10px; border-left: 3px solid #1890ff; border-radius: 4px;">
-                    <b>💡 İpucu:</b> Yalnızca "Seri Port Ekranı"ndan gelen verileri okumak istiyorsanız <b>Web Serial
-                        Bağlan</b> butonunu kullanabilirsiniz (Bu, OTG destekler ve harici uygulama gerektirmez).
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Web Serial Polyfill (for Android WebUSB support) -->
     <script src="https://unpkg.com/web-serial-polyfill@1.0.15/dist/serial.js"></script>

@@ -1386,7 +1386,26 @@ def system_usage_monitor():
                     if diff_total > 0:
                         system_cpu_usage = (1.0 - (diff_idle / diff_total)) * 100.0
         except Exception:
-            pass
+            if os.name != 'nt':
+                try:
+                    res = subprocess.run(['top', '-n', '1', '-b'], capture_output=True, text=True)
+                    out = res.stdout
+                    import re
+                    m_id = re.search(r'([\d\.]+)\s*id', out)
+                    if m_id:
+                        system_cpu_usage = 100.0 - float(m_id.group(1))
+                    else:
+                        res = subprocess.run(['top', '-n', '1'], capture_output=True, text=True)
+                        out = res.stdout
+                        m_idle = re.search(r'(\d+)%idle', out)
+                        m_cpu = re.search(r'(\d+)%cpu', out)
+                        if m_idle and m_cpu:
+                            max_cpu = float(m_cpu.group(1))
+                            idle_cpu = float(m_idle.group(1))
+                            if max_cpu > 0:
+                                system_cpu_usage = ((max_cpu - idle_cpu) / max_cpu) * 100.0
+                except Exception:
+                    pass
 
         try:
             # 2. GPU Usage
