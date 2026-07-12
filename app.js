@@ -1722,38 +1722,55 @@ document.addEventListener("DOMContentLoaded", () => {
         const boardMenu = document.getElementById("menuBoardSubmenu");
         if (!boardMenu) return;
 
-        let availableBoards = [];
+        let hasBoards = false;
+        boardMenu.innerHTML = "";
+
         BOARD_PACKAGES.forEach(pkg => {
-            if (pkg.installed && pkg.boards) {
-                availableBoards = availableBoards.concat(pkg.boards);
+            if (pkg.installed && pkg.boards && pkg.boards.length > 0) {
+                hasBoards = true;
+
+                const parentDiv = document.createElement("div");
+                parentDiv.className = "menu-row parent";
+                
+                const spanName = document.createElement("span");
+                spanName.textContent = pkg.name;
+                parentDiv.appendChild(spanName);
+
+                const spanArrow = document.createElement("span");
+                spanArrow.className = "arrow";
+                spanArrow.textContent = "▶";
+                parentDiv.appendChild(spanArrow);
+
+                const submenu = document.createElement("div");
+                submenu.className = "submenu";
+
+                pkg.boards.forEach(board => {
+                    const div = document.createElement("div");
+                    div.className = "menu-row board-option";
+                    div.setAttribute("data-board", board);
+                    div.textContent = board;
+                    div.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        window.selectBoard(board);
+
+                        // Hide dropdown hack to resolve "menu stuck open"
+                        const parentDropdown = div.closest('.dropdown-menu');
+                        if (parentDropdown) {
+                            parentDropdown.style.display = 'none';
+                            setTimeout(() => parentDropdown.style.display = '', 150);
+                        }
+                    });
+                    submenu.appendChild(div);
+                });
+
+                parentDiv.appendChild(submenu);
+                boardMenu.appendChild(parentDiv);
             }
         });
 
-        boardMenu.innerHTML = "";
-
-        if (availableBoards.length === 0) {
+        if (!hasBoards) {
             boardMenu.innerHTML = '<div class="menu-row no-boards">Lütfen Kart Yöneticisinden bir kart paketi kurun.</div>';
-            return;
         }
-
-        availableBoards.forEach(board => {
-            const div = document.createElement("div");
-            div.className = "menu-row board-option";
-            div.setAttribute("data-board", board);
-            div.textContent = board;
-            div.addEventListener("click", (e) => {
-                e.stopPropagation();
-                window.selectBoard(board);
-
-                // Hide dropdown hack to resolve "menu stuck open"
-                const parentDropdown = div.closest('.dropdown-menu');
-                if (parentDropdown) {
-                    parentDropdown.style.display = 'none';
-                    setTimeout(() => parentDropdown.style.display = '', 150);
-                }
-            });
-            boardMenu.appendChild(div);
-        });
     }
 
     function renderBoardPackages(filter = "", typeFilter = "all") {
