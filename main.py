@@ -1364,48 +1364,64 @@ def system_usage_monitor():
     while True:
         try:
             # 1. CPU Usage
+            temp_cpu = 0.0
             if has_psutil:
                 import psutil
-                system_cpu_usage = psutil.cpu_percent(interval=0.5)
-            else:
-                if os.name == 'nt':
-                    res = subprocess.run(['wmic', 'cpu', 'get', 'LoadPercentage'], capture_output=True, text=True)
-                    lines = res.stdout.strip().split('\n')
-                    if len(lines) > 1:
-                        system_cpu_usage = float(lines[1].strip())
-                else:
-                    with open("/proc/stat", "r") as f:
-                        fields = [float(column) for column in f.readline().strip().split()[1:]]
-                    idle, total = fields[3], sum(fields)
-                    time.sleep(0.5)
-                    with open("/proc/stat", "r") as f:
-                        fields2 = [float(column) for column in f.readline().strip().split()[1:]]
-                    idle2, total2 = fields2[3], sum(fields2)
-                    diff_idle = idle2 - idle
-                    diff_total = total2 - total
-                    if diff_total > 0:
-                        system_cpu_usage = (1.0 - (diff_idle / diff_total)) * 100.0
-        except Exception:
-            if os.name != 'nt':
                 try:
-                    res = subprocess.run(['top', '-n', '1', '-b'], capture_output=True, text=True)
+                    temp_cpu = psutil.cpu_percent(interval=0.5)
+                except Exception:
+                    pass
+            
+            if not has_psutil or temp_cpu == 0.0:
+                if os.name == 'nt':
+                    try:
+                        res = subprocess.run(['wmic', 'cpu', 'get', 'LoadPercentage'], capture_output=True, text=True)
+                        lines = res.stdout.strip().split('\n')
+                        if len(lines) > 1:
+                            temp_cpu = float(lines[1].strip())
+                    except Exception:
+                        pass
+                else:
+                    try:
+                        with open("/proc/stat", "r") as f:
+                            fields = [float(column) for column in f.readline().strip().split()[1:]]
+                        idle, total = fields[3], sum(fields)
+                        time.sleep(0.5)
+                        with open("/proc/stat", "r") as f:
+                            fields2 = [float(column) for column in f.readline().strip().split()[1:]]
+                        idle2, total2 = fields2[3], sum(fields2)
+                        diff_idle = idle2 - idle
+                        diff_total = total2 - total
+                        if diff_total > 0:
+                            temp_cpu = (1.0 - (diff_idle / diff_total)) * 100.0
+                    except Exception:
+                        pass
+
+            # Fallback for Termux/Android
+            if temp_cpu == 0.0 and os.name != 'nt':
+                try:
+                    res = subprocess.run(['top', '-n', '1'], capture_output=True, text=True)
                     out = res.stdout
+                    # Remove ANSI escape sequences just in case
                     import re
+                    out = re.sub(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])', '', out)
                     m_id = re.search(r'([\d\.]+)\s*id', out)
                     if m_id:
-                        system_cpu_usage = 100.0 - float(m_id.group(1))
+                        temp_cpu = 100.0 - float(m_id.group(1))
                     else:
-                        res = subprocess.run(['top', '-n', '1'], capture_output=True, text=True)
-                        out = res.stdout
                         m_idle = re.search(r'(\d+)%idle', out)
                         m_cpu = re.search(r'(\d+)%cpu', out)
                         if m_idle and m_cpu:
                             max_cpu = float(m_cpu.group(1))
                             idle_cpu = float(m_idle.group(1))
                             if max_cpu > 0:
-                                system_cpu_usage = ((max_cpu - idle_cpu) / max_cpu) * 100.0
+                                temp_cpu = ((max_cpu - idle_cpu) / max_cpu) * 100.0
                 except Exception:
                     pass
+            
+            system_cpu_usage = temp_cpu
+        except Exception:
+            pass
 
         try:
             # 2. GPU Usage
