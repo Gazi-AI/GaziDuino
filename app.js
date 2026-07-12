@@ -1585,7 +1585,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "archive-sketch": () => archiveSketch(),
         "firmware-updater": () => { addConsoleLog("Firmware güncelleyici: Bağlı kartın firmware bilgisi kontrol ediliyor...", ""); consolePanel.style.height = "220px"; getBoardInfo(); },
         "ssl-uploader": () => { addConsoleLog("SSL sertifika yükleyicisi bu ortamda desteklenmiyor.", "error"); consolePanel.style.height = "220px"; },
-        "reload-board": () => { updatePortsList(); addConsoleLog("Kart bilgisi yeniden yüklendi.", "success"); consolePanel.style.height = "220px"; },
+        "reload-board": () => { updateBoardMenu(); addConsoleLog("Kart bilgisi yeniden yüklendi.", "success"); consolePanel.style.height = "220px"; },
         "get-board-info": () => getBoardInfo(),
         "help-getting-started": () => window.open("https://docs.arduino.cc/learn/starting-guide/getting-started-arduino", "_blank"),
         "help-ref": () => window.open("https://www.arduino.cc/reference/en/", "_blank"),
