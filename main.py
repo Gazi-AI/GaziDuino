@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import shutil
 import zipfile
 import subprocess
@@ -16,6 +17,8 @@ serial_monitor_proc = None
 
 # Cache the last board options to share with AI agent tools
 current_board_options = {
+    "CPUFreq": "240",
+    "CDCOnBoot": "cdc",
     "EraseFlash": "none",
     "EventsCore": "1",
     "FlashFreq": "80",
@@ -99,16 +102,117 @@ def ensure_arduino_cli():
 # FQBN Map from UI boards to Arduino CLI FQBNs
 FQBN_MAP = {
     "ESP32 Dev Module": "esp32:esp32:esp32",
+    "ESP32C2 Dev Module": "esp32:esp32:esp32c2",
+    "ESP32C3 Dev Module": "esp32:esp32:esp32c3",
+    "ESP32 C3 Super Module": "esp32:esp32:esp32c3",
+    "ESP32-C3 Super Module": "esp32:esp32:esp32c3",
+    "ESP32C5 Dev Module": "esp32:esp32:esp32c5",
+    "ESP32C6 Dev Module": "esp32:esp32:esp32c6",
+    "ESP32C61 Dev Module": "esp32:esp32:esp32c61",
+    "ESP32S2 Dev Module": "esp32:esp32:esp32s2",
+    "ESP32S3 Dev Module": "esp32:esp32:esp32s3",
+    "ESP32H2 Dev Module": "esp32:esp32:esp32h2",
     "Arduino Uno": "arduino:avr:uno",
     "Arduino Nano": "arduino:avr:nano",
     "Arduino Mega 2560": "arduino:avr:mega"
 }
 
+BOARD_OPTION_CACHE = {}
+
+def get_board_option_keys(fqbn):
+    """Return the menu keys supported by an installed Arduino board package."""
+    base_fqbn = ":".join(str(fqbn or "").split(":")[:3])
+    if base_fqbn in BOARD_OPTION_CACHE:
+        return BOARD_OPTION_CACHE[base_fqbn]
+
+    if not os.path.isfile(ARDUINO_CLI):
+        return None
+
+    try:
+        result = subprocess.run(
+            [ARDUINO_CLI, "board", "details", "-b", base_fqbn, "--format", "json"],
+            capture_output=True,
+            text=True,
+            timeout=15
+        )
+        if result.returncode != 0:
+            return None
+
+        details = json.loads(result.stdout)
+        option_keys = {
+            str(item.get("option"))
+            for item in details.get("config_options", [])
+            if item.get("option")
+        }
+        if option_keys:
+            BOARD_OPTION_CACHE[base_fqbn] = option_keys
+            return option_keys
+    except (OSError, ValueError, subprocess.SubprocessError):
+        pass
+
+    return None
+
+def fallback_board_option_keys(normalized_board):
+    """Safe menu keys for when the board package is not installed yet."""
+    common_keys = {
+        "CPUFreq", "EraseFlash", "FlashFreq", "FlashMode", "FlashSize",
+        "PartitionScheme", "UploadSpeed", "DebugLevel", "JTAGAdapter"
+    }
+    single_core_families = ("esp32c2", "esp32c3", "esp32c5", "esp32c6", "esp32c61", "esp32h2")
+    if any(family in normalized_board for family in single_core_families):
+        return common_keys | {"ZigbeeMode"}
+    return common_keys | {"EventsCore", "LoopCore", "PSRAM"}
+
 def build_fqbn_with_options(board, board_options):
-    fqbn = FQBN_MAP.get(board, "arduino:avr:uno")
-    if fqbn == "esp32:esp32:esp32" and board_options:
+    fqbn = FQBN_MAP.get(board)
+
+    # Board Manager can expose many ESP32-C3/C6 variant names. Keep those
+    # names on the correct Espressif core instead of silently falling back to
+    # Arduino AVR when a variant is not listed above.
+    if not fqbn:
+        normalized_board = "".join(ch.lower() for ch in str(board or "") if ch.isalnum())
+        for family in ("esp32c61", "esp32c6", "esp32c5", "esp32c3", "esp32c2", "esp32h2", "esp32s3", "esp32s2"):
+            if family in normalized_board:
+                fqbn = f"esp32:esp32:{family}"
+                break
+        if not fqbn and "esp32" in normalized_board:
+            fqbn = "esp32:esp32:esp32"
+        if not fqbn and "esp8266" in normalized_board:
+            fqbn = "esp8266:esp8266:nodemcuv2"
+        if not fqbn:
+            fqbn = "arduino:avr:uno"
+
+    options = dict(board_options or {})
+    normalized_board = "".join(ch.lower() for ch in str(board or "") if ch.isalnum())
+    if "esp8266" in normalized_board:
+        max_cpu_freq = 80
+    elif any(family in normalized_board for family in ("esp32c2", "esp32c3", "esp32c5", "esp32c6", "esp32c61", "esp32h2")):
+        max_cpu_freq = 160
+    else:
+        max_cpu_freq = 240
+
+    try:
+        if int(options.get("CPUFreq", max_cpu_freq)) > max_cpu_freq:
+            options["CPUFreq"] = str(max_cpu_freq)
+    except (TypeError, ValueError):
+        options["CPUFreq"] = str(max_cpu_freq)
+
+    # Native USB ESP32-C/H boards need CDC enabled for sketch Serial output
+    # to use the same USB port as the ROM boot messages. Older frontends may
+    # not send this option yet, so provide the safe default on the backend.
+    native_usb_families = ("esp32c2", "esp32c3", "esp32c5", "esp32c6", "esp32c61", "esp32h2")
+    if "CDCOnBoot" not in options and any(family in normalized_board for family in native_usb_families):
+        options["CDCOnBoot"] = "cdc"
+
+    if fqbn.startswith("esp32:esp32:"):
+        valid_option_keys = get_board_option_keys(fqbn)
+        if valid_option_keys is None:
+            valid_option_keys = fallback_board_option_keys(normalized_board)
+        options = {key: value for key, value in options.items() if key in valid_option_keys}
+
+    if fqbn.startswith("esp32:esp32:") and options:
         opts = []
-        for k, v in board_options.items():
+        for k, v in options.items():
             opts.append(f"{k}={v}")
         if opts:
             fqbn = f"{fqbn}:{','.join(opts)}"
@@ -1374,17 +1478,37 @@ def system_usage_monitor():
                     if len(lines) > 1:
                         system_cpu_usage = float(lines[1].strip())
                 else:
-                    with open("/proc/stat", "r") as f:
-                        fields = [float(column) for column in f.readline().strip().split()[1:]]
-                    idle, total = fields[3], sum(fields)
-                    time.sleep(0.5)
-                    with open("/proc/stat", "r") as f:
-                        fields2 = [float(column) for column in f.readline().strip().split()[1:]]
-                    idle2, total2 = fields2[3], sum(fields2)
-                    diff_idle = idle2 - idle
-                    diff_total = total2 - total
-                    if diff_total > 0:
-                        system_cpu_usage = (1.0 - (diff_idle / diff_total)) * 100.0
+                    try:
+                        with open("/proc/stat", "r") as f:
+                            fields = [float(column) for column in f.readline().strip().split()[1:]]
+                        idle, total = fields[3], sum(fields)
+                        time.sleep(0.5)
+                        with open("/proc/stat", "r") as f:
+                            fields2 = [float(column) for column in f.readline().strip().split()[1:]]
+                        idle2, total2 = fields2[3], sum(fields2)
+                        diff_idle = idle2 - idle
+                        diff_total = total2 - total
+                        if diff_total > 0:
+                            system_cpu_usage = (1.0 - (diff_idle / diff_total)) * 100.0
+                    except Exception:
+                        # Fallback for Android/Termux where /proc/stat is restricted
+                        res = subprocess.run(['top', '-n', '1'], capture_output=True, text=True)
+                        for line in res.stdout.split('\n'):
+                            if 'idle' in line.lower() or 'id' in line.lower():
+                                import re
+                                match = re.search(r'(\d+\.\d+|\d+)\s*(%?id|id)', line, re.IGNORECASE)
+                                if match:
+                                    idle_val = float(match.group(1))
+                                    system_cpu_usage = 100.0 - idle_val
+                                    break
+                                match2 = re.search(r'(\d+)\%idle', line, re.IGNORECASE)
+                                if match2:
+                                    match_total = re.search(r'(\d+)\%cpu', line, re.IGNORECASE)
+                                    if match_total:
+                                        idle_val = float(match2.group(1))
+                                        total_val = float(match_total.group(1))
+                                        system_cpu_usage = ((total_val - idle_val) / total_val) * 100.0
+                                    break
         except Exception:
             pass
 

@@ -131,6 +131,12 @@ body {
     display: block;
 }
 
+/* Click-open state keeps the menu usable while the pointer travels through
+   the dropdown or a nested submenu. */
+.menu-item.open > .dropdown-menu {
+    display: block;
+}
+
 .menu-row {
     padding: 4px 12px;
     display: flex;
@@ -196,6 +202,10 @@ body {
 }
 
 .menu-row.parent:hover > .submenu {
+    display: block;
+}
+
+.menu-row.parent.open > .submenu {
     display: block;
 }
 
@@ -2038,5 +2048,4 @@ body {
     background: #00979d;
     color: #fff;
 }
-
 

@@ -17,6 +17,34 @@ Arka planda Python (Flask) ve resmi `arduino-cli` kullanarak gerçek bir IDE'nin
 
 ---
 
+## Ekran Görüntüleri
+
+### Ana editör
+
+![GaziDuino ana editör ekranı](https://i.ibb.co/5hpzBwjB/Ekran-g-r-nt-s-2026-07-23-213510.png)
+
+### Kart ve işlemci ayarları
+
+![GaziDuino Araçlar menüsü ve kart ayarları](https://i.ibb.co/chXJkw7b/Ekran-g-r-nt-s-2026-07-23-213637.png)
+
+### Seri port monitörü
+
+![GaziDuino seri port monitörü](https://i.ibb.co/TqxKsZXV/Ekran-g-r-nt-s-2026-07-23-213746.png)
+
+### Kütüphane yöneticisi
+
+![GaziDuino kütüphane yöneticisi](https://i.ibb.co/Kc1JB0rd/Ekran-g-r-nt-s-2026-07-23-213824.png)
+
+### Kart yöneticisi
+
+![GaziDuino kart yöneticisi](https://i.ibb.co/bMQ9BW8H/Ekran-g-r-nt-s-2026-07-23-213854.png)
+
+### AI asistan
+
+![GaziDuino AI asistanı](https://i.ibb.co/QBKxv7m/Ekran-g-r-nt-s-2026-07-23-213922.png)
+
+---
+
 ## 📱 Android OTG ile Kod Yükleme (Önemli!)
 
 GaziDuino'nun en büyük devrimlerinden biri Android cihazlar üzerinden **hiçbir üçüncü parti uygulama kurmadan** doğrudan donanıma kod atabilmesidir. 

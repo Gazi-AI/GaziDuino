@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>sketch_jul6a | Arduino IDE 2.3.11-nightly-20260629</title>
-    <link rel="stylesheet" href="styles.css?v=22">
+    <link rel="stylesheet" href="styles.css?v=23">
     <!-- Google Fonts for professional UI look -->
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap?v=8"
@@ -163,11 +163,18 @@
                     <div class="menu-row" data-action="get-board-info"><span>Kart Bilgisini Al</span></div>
                     <div class="menu-row separator"></div>
                     <div class="menu-row parent">
-                        <span>CPU Frequency: "240MHz (WiFi/BT)"</span><span class="arrow">▶</span>
-                        <div class="submenu">
-                            <div class="menu-row">240MHz (WiFi/BT)</div>
-                            <div class="menu-row">160MHz</div>
-                            <div class="menu-row">80MHz</div>
+                        <span>CPU Frequency: "<span class="opt-val" id="cpuFrequencyValue">240MHz (WiFi/BT)</span>"</span><span class="arrow">▶</span>
+                        <div class="submenu" id="cpuFrequencySubmenu">
+                            <div class="menu-row" data-cpu-freq="240">240MHz (WiFi/BT)</div>
+                            <div class="menu-row" data-cpu-freq="160">160MHz</div>
+                            <div class="menu-row" data-cpu-freq="80">80MHz</div>
+                        </div>
+                    </div>
+                    <div class="menu-row parent">
+                        <span>USB CDC On Boot: "<span class="opt-val" id="cdcOnBootValue">Disabled</span>"</span><span class="arrow">▶</span>
+                        <div class="submenu" id="cdcOnBootSubmenu">
+                            <div class="menu-row">Disabled</div>
+                            <div class="menu-row">Enabled</div>
                         </div>
                     </div>
                     <div class="menu-row parent">
@@ -331,6 +338,10 @@
                 </div>
                 <div class="board-list" id="boardList">
                     <div class="board-item active" data-board="ESP32 Dev Module">ESP32 Dev Module</div>
+                    <div class="board-item" data-board="ESP32 C3 Super Module">ESP32 C3 Super Module</div>
+                    <div class="board-item" data-board="ESP32C3 Dev Module">ESP32C3 Dev Module</div>
+                    <div class="board-item" data-board="ESP32C6 Dev Module">ESP32C6 Dev Module</div>
+                    <div class="board-item" data-board="ESP32S3 Dev Module">ESP32S3 Dev Module</div>
                     <div class="board-item" data-board="Arduino Uno">Arduino Uno</div>
                     <div class="board-item" data-board="Arduino Nano">Arduino Nano</div>
                     <div class="board-item" data-board="Arduino Mega 2560">Arduino Mega 2560</div>
@@ -765,9 +776,7 @@ void loop() {
             </div>
         </div>
 
-    <script src="https://unpkg.com/web-serial-polyfill@1.0.15/dist/serial.js"></script>
-
-    <script src="app.js?v=25"></script>
+    <script src="app.js?v=30"></script>
 </body>
 
 </html>
