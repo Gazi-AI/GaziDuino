@@ -37,6 +37,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Board Options State & Maps
     let boardOptions = {
+        CPUFreq: "240",
+        CDCOnBoot: "cdc",
         EraseFlash: "none",
         EventsCore: "1",
         FlashFreq: "80",
@@ -52,6 +54,8 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const OPTION_KEY_MAP = {
+        "CPU Frequency": "CPUFreq",
+        "USB CDC On Boot": "CDCOnBoot",
         "Core Debug Level": "DebugLevel",
         "Erase All Flash Before Sketch Upload": "EraseFlash",
         "Events Run On": "EventsCore",
@@ -65,6 +69,102 @@ document.addEventListener("DOMContentLoaded", () => {
         "Upload Speed": "UploadSpeed",
         "Zigbee Mode": "ZigbeeMode"
     };
+
+    function getCpuFrequencyLimit(boardName) {
+        const normalized = String(boardName || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+        if (normalized.includes("esp8266")) return 80;
+
+        // ESP32-C/H families are the lower-frequency RISC-V variants.
+        const limitedEsp32Families = ["esp32c2", "esp32c3", "esp32c5", "esp32c6", "esp32c61", "esp32h2"];
+        if (limitedEsp32Families.some(family => normalized.includes(family))) return 160;
+
+        return 240;
+    }
+
+    function syncCpuFrequencyForBoard(boardName = currentBoard) {
+        const maxFrequency = getCpuFrequencyLimit(boardName);
+        const supportedFrequencies = [80, 160, 240];
+        const currentFrequency = Number(boardOptions.CPUFreq);
+        const safeFrequency = supportedFrequencies.includes(currentFrequency) && currentFrequency <= maxFrequency
+            ? currentFrequency
+            : maxFrequency;
+
+        boardOptions.CPUFreq = String(safeFrequency);
+
+        const valueLabel = document.getElementById("cpuFrequencyValue");
+        if (valueLabel) {
+            valueLabel.textContent = safeFrequency === 240 ? "240MHz (WiFi/BT)" : `${safeFrequency}MHz`;
+        }
+
+        document.querySelectorAll("#cpuFrequencySubmenu [data-cpu-freq]").forEach(row => {
+            const frequency = Number(row.getAttribute("data-cpu-freq"));
+            const allowed = frequency <= maxFrequency;
+            row.hidden = !allowed;
+            row.setAttribute("aria-disabled", String(!allowed));
+        });
+
+        // Native USB ESP32-C/H boards need CDC enabled for Serial output to
+        // appear on the same USB port as the ROM boot log.
+        const normalized = String(boardName || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+        const nativeUsbBoard = ["esp32c2", "esp32c3", "esp32c5", "esp32c6", "esp32c61", "esp32h2"]
+            .some(family => normalized.includes(family));
+        boardOptions.CDCOnBoot = nativeUsbBoard ? "cdc" : "default";
+        const cdcLabel = document.getElementById("cdcOnBootValue");
+        if (cdcLabel) cdcLabel.textContent = nativeUsbBoard ? "Enabled" : "Disabled";
+    }
+
+    syncCpuFrequencyForBoard();
+
+    // Menus must not depend solely on :hover. Keeping an explicit open state
+    // lets the pointer move from a top-level item to its dropdown/submenu
+    // without the menu disappearing between the two elements.
+    const topMenuItems = document.querySelectorAll(".menu-item");
+    const closeMenus = () => {
+        topMenuItems.forEach(item => item.classList.remove("open"));
+        document.querySelectorAll(".menu-row.parent.open").forEach(row => row.classList.remove("open"));
+    };
+
+    topMenuItems.forEach(item => {
+        item.addEventListener("click", (e) => {
+            // A click inside a dropdown is handled by the row itself.
+            if (e.target.closest(".dropdown-menu")) return;
+
+            const shouldOpen = !item.classList.contains("open");
+            closeMenus();
+            if (shouldOpen) item.classList.add("open");
+        });
+
+        // When a menu is already open, moving across the top bar switches to
+        // the newly hovered menu just like a native desktop menu bar.
+        item.addEventListener("mouseenter", () => {
+            const openItem = document.querySelector(".menu-item.open");
+            if (openItem && openItem !== item) {
+                closeMenus();
+                item.classList.add("open");
+            }
+        });
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest(".menu-bar")) closeMenus();
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeMenus();
+    });
+
+    document.querySelectorAll(".menu-row.parent").forEach(parent => {
+        parent.addEventListener("click", (e) => {
+            // Parent rows open their submenu; option rows stop propagation.
+            if (e.target.closest(".submenu")) return;
+            e.stopPropagation();
+            const shouldOpen = !parent.classList.contains("open");
+            parent.parentElement.querySelectorAll(":scope > .menu-row.parent.open")
+                .forEach(row => row.classList.remove("open"));
+            if (shouldOpen) parent.classList.add("open");
+        });
+    });
 
     // Generic handler for submenu options (EraseFlash, PSRAM, etc.)
     document.querySelectorAll(".submenu").forEach(submenu => {
@@ -101,6 +201,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     optVal = (valText === "Core 0") ? "0" : "1";
                 } else if (optKey === "FlashFreq") {
                     optVal = valText.replace("MHz", "");
+                } else if (optKey === "CPUFreq") {
+                    const cpuFreqMap = {
+                        "240MHz (WiFi/BT)": "240",
+                        "160MHz": "160",
+                        "80MHz": "80"
+                    };
+                    optVal = cpuFreqMap[valText] || valText.replace(/MHz.*$/, "");
+                } else if (optKey === "CDCOnBoot") {
+                    optVal = valText === "Enabled" ? "cdc" : "default";
                 } else if (optKey === "FlashMode") {
                     optVal = valText.toLowerCase();
                 } else if (optKey === "FlashSize") {
@@ -149,6 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Global selectBoard function for all board selection elements
     window.selectBoard = function (boardName) {
         currentBoard = boardName;
+        syncCpuFrequencyForBoard(boardName);
         const activeBoardLabel = document.getElementById("activeBoardLabel");
         if (activeBoardLabel) activeBoardLabel.textContent = boardName;
 
@@ -420,6 +530,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function selectBoard(boardName) {
         console.log(`[Board] Kart seçildi: ${boardName}`);
         currentBoard = boardName;
+        syncCpuFrequencyForBoard(boardName);
         toolbarBoardText.textContent = boardName;
         activeBoardLabel.textContent = boardName;
         statusBoardText.textContent = `${boardName} - ${currentPort} [bağlı değil]`;
@@ -483,20 +594,11 @@ document.addEventListener("DOMContentLoaded", () => {
         btnSelectWebPort.addEventListener("click", async (e) => {
             e.stopPropagation();
             try {
-                if ("usb" in navigator) {
-                    const usbDevice = await navigator.usb.requestDevice({ filters: [] });
-                    globalWebPort = new CP2102SerialPort(usbDevice);
-                    currentPort = `WebUSB (${usbDevice.productName || 'Cihaz'})`;
-                } else if ("serial" in navigator) {
-                    globalWebPort = await navigator.serial.requestPort();
-                    currentPort = "Web Serial Cihazı";
-                } else {
-                    alert("Tarayıcınız WebUSB veya Web Serial desteklemiyor.");
-                    return;
-                }
-                
-                activePortLabel.textContent = currentPort;
-                statusBoardText.textContent = `${currentBoard} - ${currentPort} [bağlı]`;
+                await closeSerialSession({ clearSelection: true });
+                const selection = await requestBrowserPort();
+                globalWebPort = selection.port;
+                currentPort = selection.label;
+                updatePortUi(true);
                 
                 // Hide dropdown hack
                 const parentDropdown = btnSelectWebPort.closest('.dropdown-menu');
@@ -674,9 +776,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ===== Custom CP2102 WebUSB Serial Driver =====
-    // The web-serial-polyfill only supports CDC-ACM (class 2) devices.
-    // CP2102 uses vendor-specific USB protocol, so we implement our own driver.
+    // ===== Custom CP2102 WebUSB Serial Driver (fallback) =====
+    // Web Serial is preferred for ESP32 native USB and USB-to-UART adapters.
+    // CP2102 uses a vendor-specific USB protocol, so WebUSB needs this driver
+    // only when native Web Serial is unavailable.
     class CP2102SerialPort {
         constructor(device) {
             this.device_ = device;
@@ -695,7 +798,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         async open({ baudRate }) {
-            await this.device_.open();
+            if (!this.device_.opened) await this.device_.open();
             if (this.device_.configuration === null) {
                 await this.device_.selectConfiguration(1);
             }
@@ -799,43 +902,64 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         async close() {
-            this._keepReading.value = false;
+            if (this._keepReading) this._keepReading.value = false;
             try {
-                await this.device_.controlTransferOut({
-                    requestType: 'vendor', recipient: 'interface',
-                    request: 0x00, value: 0x0000, index: this.interfaceNumber_
-                });
-                await this.device_.releaseInterface(this.interfaceNumber_);
-                await this.device_.close();
+                if (this.interfaceNumber_ >= 0 && this.device_.opened) {
+                    await this.device_.controlTransferOut({
+                        requestType: 'vendor', recipient: 'interface',
+                        request: 0x00, value: 0x0000, index: this.interfaceNumber_
+                    });
+                    await this.device_.releaseInterface(this.interfaceNumber_);
+                }
+                if (this.device_.opened) await this.device_.close();
             } catch (e) { console.warn("CP2102 close warning:", e); }
         }
     }
+
+    function updatePortUi(connected) {
+        const portLabel = currentPort || "Port Seçilmedi";
+        if (activePortLabel) activePortLabel.textContent = currentPort || "Yok";
+        if (statusBoardText) {
+            statusBoardText.textContent = `${currentBoard} - ${portLabel} ${connected ? "[bağlı]" : "[bağlı değil]"}`;
+        }
+    }
+
+    // ESP32 native USB (VID 0x303A) is a CDC/JTAG serial device. Prefer
+    // Web Serial so the browser owns the correct serial interface. WebUSB is
+    // kept only as a fallback for CP2102 adapters when Web Serial is absent.
+    async function requestBrowserPort() {
+        if ("serial" in navigator && typeof navigator.serial.requestPort === "function") {
+            return {
+                port: await navigator.serial.requestPort(),
+                label: "Web Serial Cihazı"
+            };
+        }
+
+        if ("usb" in navigator && typeof navigator.usb.requestDevice === "function") {
+            const usbDevice = await navigator.usb.requestDevice({ filters: [] });
+            if (usbDevice.vendorId !== 0x10C4) {
+                throw new Error("Bu ESP32 USB arayüzü için Web Serial destekli bir tarayıcı kullanın.");
+            }
+            return {
+                port: new CP2102SerialPort(usbDevice),
+                label: `WebUSB (${usbDevice.productName || "Cihaz"})`
+            };
+        }
+
+        throw new Error("Tarayıcınız Web Serial veya WebUSB desteklemiyor.");
+    }
+
     async function handleWebUpload() {
         let port = globalWebPort;
         if (!port) {
             try {
-                if ("usb" in navigator) {
-                    addConsoleLog("Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
-                    const usbDevice = await navigator.usb.requestDevice({ filters: [] });
-                    addConsoleLog("USB Cihaz bulundu: " + usbDevice.productName + " (VID:" + usbDevice.vendorId + ")", "info");
-                    
-                    port = new CP2102SerialPort(usbDevice);
-                    globalWebPort = port;
-                    currentPort = `WebUSB (${usbDevice.productName || 'Cihaz'})`;
-                    document.getElementById("activePortLabel").textContent = currentPort;
-                    document.getElementById("statusBoardText").textContent = `${currentBoard} - ${currentPort} [bağlı]`;
-                    addConsoleLog("CP2102 sürücüsü hazır!", "info");
-                } else if ("serial" in navigator) {
-                    addConsoleLog("Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
-                    port = await navigator.serial.requestPort();
-                    globalWebPort = port;
-                    currentPort = "Web Serial Cihazı";
-                    document.getElementById("activePortLabel").textContent = currentPort;
-                    document.getElementById("statusBoardText").textContent = `${currentBoard} - ${currentPort} [bağlı]`;
-                } else {
-                    addConsoleLog("Bu tarayıcı ne Web Serial ne de WebUSB destekliyor.", "error");
-                    return;
-                }
+                addConsoleLog("Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
+                const selection = await requestBrowserPort();
+                port = selection.port;
+                globalWebPort = port;
+                currentPort = selection.label;
+                updatePortUi(true);
+                addConsoleLog(`${selection.label} hazır.`, "info");
             } catch (err) {
                 console.error("Port seçilmedi veya iptal edildi:", err);
                 addConsoleLog("Port seçilmedi veya donanım desteklemiyor: " + err.message, "error");
@@ -846,7 +970,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         isCompilingOrUploading = true;
-        disconnectSerial();
+        await closeSerialSession({ clearSelection: false });
         console.log("[Web Upload] Derleme başlatılıyor...");
         consolePanel.style.height = "220px";
         consoleLogContent.innerHTML = "";
@@ -969,6 +1093,9 @@ document.addEventListener("DOMContentLoaded", () => {
             clearInterval(uploadProgressInterval);
             compileProgressModal.classList.remove("show");
             isCompilingOrUploading = false;
+            if (paneSerial.classList.contains("active") && globalWebPort) {
+                setTimeout(() => connectSerial(), 250);
+            }
         }
     }
 
@@ -1943,8 +2070,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let webSerialPort = null;
     let webSerialReader = null;
     let webSerialWriter = null;
+    let serialInputDone = null;
+    let serialOutputDone = null;
 
-    function disconnectSerial() {
+    async function closeSerialSession({ clearSelection = true } = {}) {
         if (serialEventSource) {
             console.log("[Serial] Bağlantı kesiliyor...");
             serialEventSource.close();
@@ -1952,46 +2081,61 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (webSerialReader) {
-            webSerialReader.cancel().catch(() => { });
+            try { await webSerialReader.cancel(); } catch (err) { }
+            webSerialReader.releaseLock();
             webSerialReader = null;
         }
         if (webSerialWriter) {
-            webSerialWriter.close().catch(() => { });
+            try { await webSerialWriter.close(); } catch (err) { }
+            webSerialWriter.releaseLock();
             webSerialWriter = null;
         }
-        if (globalWebPort && globalWebPort.close) {
-            globalWebPort.close().catch(() => { });
+        if (serialInputDone) {
+            await serialInputDone.catch(() => { });
+            serialInputDone = null;
+        }
+        if (serialOutputDone) {
+            await serialOutputDone.catch(() => { });
+            serialOutputDone = null;
+        }
+        const selectedPort = globalWebPort;
+        if (clearSelection) {
             globalWebPort = null;
+        }
+        if (selectedPort && selectedPort.close) {
+            try {
+                await selectedPort.close();
+            } catch (err) {
+                console.warn("Port kapatma uyarısı:", err);
+            }
         }
 
         fetch("/api/serial/disconnect", { method: "POST" }).catch(err => console.error("Disconnect error:", err));
+        updatePortUi(false);
+    }
+
+    function disconnectSerial() {
+        closeSerialSession({ clearSelection: true });
     }
 
     async function connectSerial() {
-        disconnectSerial();
+        // Stop a previous monitor session but keep the port selected in the
+        // top menu, otherwise opening the serial tab silently discards it.
+        await closeSerialSession({ clearSelection: false });
 
         let port = globalWebPort;
         if (!port) {
             try {
-                if ("usb" in navigator) {
-                    const usbDevice = await navigator.usb.requestDevice({ filters: [] });
-                    port = new CP2102SerialPort(usbDevice);
-                    globalWebPort = port;
-                    currentPort = `WebUSB (${usbDevice.productName || 'Cihaz'})`;
-                } else if ("serial" in navigator) {
-                    port = await navigator.serial.requestPort();
-                    globalWebPort = port;
-                    currentPort = "Web Serial Cihazı";
-                } else {
-                    alert("Tarayıcınız WebUSB veya Web Serial desteklemiyor.");
-                    return;
-                }
-                document.getElementById("activePortLabel").textContent = currentPort;
-                document.getElementById("statusBoardText").textContent = `${currentBoard} - ${currentPort} [bağlı]`;
+                const selection = await requestBrowserPort();
+                port = selection.port;
+                globalWebPort = port;
+                currentPort = selection.label;
+                updatePortUi(true);
             } catch (err) {
                 console.error("Port seçimi başarısız:", err);
                 serialWarningBanner.style.display = "block";
                 serialContentArea.classList.remove("connected");
+                updatePortUi(false);
                 return;
             }
         }
@@ -2003,34 +2147,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 await port.open({ baudRate: baud });
             }
 
-            // Reset ESP32 so it restarts and we catch the first Serial prints
-            if (port.setSignals) {
-                try {
-                    await port.setSignals({ dataTerminalReady: false, requestToSend: true });
-                    await new Promise(r => setTimeout(r, 100)); // wait 100ms
-                    await port.setSignals({ dataTerminalReady: false, requestToSend: false });
-                } catch(e) {
-                    console.warn("DTR/RTS reset failed:", e);
-                }
-            }
+            // Do not toggle DTR/RTS when opening the monitor. On ESP32-C3
+            // native USB this causes USB_UART_CHIP_RESET and can interrupt
+            // the sketch exactly when the monitor starts reading output.
 
             serialWarningBanner.style.display = "none";
             serialContentArea.classList.add("connected");
+            updatePortUi(true);
             serialMessageInput.placeholder = `Mesaj ('${currentPort}'’a mesaj göndermek için Enter'a basın)`;
             serialTerminal.innerHTML = `--- ${currentPort} portu açıldı (Hız: ${baud}) ---\n`;
 
             const decoder = new TextDecoderStream();
-            const inputDone = port.readable.pipeTo(decoder.writable);
+            serialInputDone = port.readable.pipeTo(decoder.writable).catch(() => { });
             webSerialReader = decoder.readable.getReader();
 
             const encoder = new TextEncoderStream();
-            const outputDone = encoder.readable.pipeTo(port.writable);
+            serialOutputDone = encoder.readable.pipeTo(port.writable).catch(() => { });
             webSerialWriter = encoder.writable.getWriter();
 
             readWebSerialLoop();
         } catch (err) {
             console.error("Seri Port Bağlantı Hatası:", err);
             serialTerminal.innerHTML += "\n[Bağlantı açılamadı: " + err.message + "]\n";
+            updatePortUi(false);
             disconnectSerial();
         }
     }
