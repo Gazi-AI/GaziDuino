@@ -1507,7 +1507,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Menu action dispatcher
     const menuActions = {
         "new-sketch": () => newSketch(),
-        "new-cloud-sketch": () => { newSketch(); addConsoleLog("Not: Bulut eskiz özelliği yerel projede desteklenmez, yerel yeni eskiz oluşturuldu.", ""); },
+        "new-cloud-sketch": () => { 
+  newSketch(); 
+  addConsoleLog((typeof getMsg === 'function' && getMsg('cloud_sketch_notice')) || "Not: Bulut eskiz özelliği yerel projede desteklenmez, yerel yeni eskiz oluşturuldu.", ""); 
+},
         "open": () => {
             const input = document.createElement("input");
             input.type = "file";
@@ -1523,7 +1526,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     lastSavedCode = codeTextarea.value;
                     updateEditor();
                     saveSketch();
-                    addConsoleLog(`Dosya açıldı: ${file.name}`, "success");
+                    //addConsoleLog(`Dosya açıldı: ${file.name}`, "success");
+                  addConsoleLog(((typeof getMsg === 'function' && getMsg('file_opened')) || "Dosya açıldı: {file}").replace('{file}', file.name), "success");
                     consolePanel.style.height = "220px";
                 };
                 reader.readAsText(file);
@@ -1531,15 +1535,19 @@ document.addEventListener("DOMContentLoaded", () => {
             input.click();
         },
         "close-sketch": () => {
-            if (confirm("Eskizi kapatmak istediğinizden emin misiniz?")) {
-                codeTextarea.value = "";
-                updateEditor();
-                saveSketch();
-            }
-        },
-        "save": () => { saveSketch(); addConsoleLog("Eskiz kaydedildi.", "success"); consolePanel.style.height = "220px"; },
+  if (confirm((typeof getMsg === 'function' && getMsg('close_sketch_confirm')) || "Eskizi kapatmak istediğinizden emin misiniz?")) {
+    codeTextarea.value = "";
+    updateEditor();
+    saveSketch();
+  }
+},
+        "save": () => { 
+  saveSketch(); 
+  addConsoleLog((typeof getMsg === 'function' && getMsg('sketch_saved')) || "Eskiz kaydedildi.", "success"); 
+  consolePanel.style.height = "220px"; 
+},
         "save-as": () => saveAs(),
-        "exit": () => { if (confirm("Uygulamadan çıkmak istediğinizden emin misiniz?")) window.close(); },
+        "exit": () => { if (confirm( (typeof getMsg === 'function' && getMsg('exit_confirm')) || "Uygulamadan çıkmak istediğinizden emin misiniz?")) window.close(); },
         "preferences": () => document.getElementById("btnSettings").click(),
         "adv-keyboard": () => {
             let modal = document.createElement("div");
@@ -1563,6 +1571,38 @@ document.addEventListener("DOMContentLoaded", () => {
                 </table>
                 <button onclick="this.parentElement.parentElement.remove()" style="margin-top:12px;padding:6px 16px;background:#00979d;color:#fff;border:none;border-radius:4px;cursor:pointer;float:right;">Kapat</button>
             </div>`;
+          modal.innerHTML = (function() {
+  const shortcuts = [
+    ['Ctrl+N', 'sc_new_sketch', 'Yeni Eskiz'],
+    ['Ctrl+O', 'sc_open_file', 'Dosya Aç'],
+    ['Ctrl+S', 'sc_save', 'Kaydet'],
+    ['Ctrl+Shift+S', 'sc_save_as', 'Farklı Kaydet'],
+    ['Ctrl+Z', 'sc_undo', 'Geri Al'],
+    ['Ctrl+Y', 'sc_redo', 'Yinele'],
+    ['Ctrl+R', 'sc_verify_compile', 'Doğrula/Derle'],
+    ['Ctrl+U', 'sc_upload_board', 'Karta Yükle'],
+    ['Ctrl+T', 'sc_auto_format', 'Otomatik Biçimlendir'],
+    ['Ctrl+F', 'sc_find', 'Bul'],
+    ['Ctrl+L', 'sc_go_to_line', 'Satıra Git'],
+    ['Ctrl+Shift+M', 'sc_serial_monitor', 'Seri Port Ekranı'],
+    ['Ctrl++/-', 'sc_font_size', 'Yazı Boyutu Büyüt/Küçült']
+  ];
+
+  const rows = shortcuts.map(([key, msgKey, fallback]) => {
+    const label = (typeof getMsg === 'function' && getMsg(msgKey)) || fallback;
+    return `<tr><td style="padding:4px 8px;border-bottom:1px solid #333;">${key}</td><td style="padding:4px 8px;border-bottom:1px solid #333;">${label}</td></tr>`;
+  });
+
+  // Remove border-bottom from last row
+  if (rows.length > 0) {
+    rows[rows.length - 1] = rows[rows.length - 1].replace(/border-bottom:1px solid #333;/g, '');
+  }
+
+  const title = (typeof getMsg === 'function' && getMsg('modal_shortcuts_title')) || 'Klavye Kısayolları';
+  const closeBtn = (typeof getMsg === 'function' && getMsg('btn_close')) || 'Kapat';
+
+  return `<div style="background:#1e1e1e;border:1px solid #3c3c3c;border-radius:8px;padding:24px;width:480px;max-height:70vh;overflow-y:auto;color:#ccc;font-family:Inter,sans-serif;"> <h3 style="margin:0 0 12px;color:#00979d;">⌨ ${title}</h3> <table style="width:100%;font-size:12px;border-collapse:collapse;"> ${rows.join('')} </table> <button onclick="this.parentElement.parentElement.remove()" style="margin-top:12px;padding:6px 16px;background:#00979d;color:#fff;border:none;border-radius:4px;cursor:pointer;float:right;">${closeBtn}</button> </div>`;
+})();
             modal.addEventListener("click", (e) => { if (e.target === modal) modal.remove(); });
             document.body.appendChild(modal);
         },
@@ -1629,9 +1669,21 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("panel-libraries").classList.add("active");
         },
         "archive-sketch": () => archiveSketch(),
-        "firmware-updater": () => { addConsoleLog("Firmware güncelleyici: Bağlı kartın firmware bilgisi kontrol ediliyor...", ""); consolePanel.style.height = "220px"; getBoardInfo(); },
-        "ssl-uploader": () => { addConsoleLog("SSL sertifika yükleyicisi bu ortamda desteklenmiyor.", "error"); consolePanel.style.height = "220px"; },
-        "reload-board": () => { updatePortsList(); addConsoleLog("Kart bilgisi yeniden yüklendi.", "success"); consolePanel.style.height = "220px"; },
+        "firmware-updater": () => { 
+  addConsoleLog((typeof getMsg === 'function' && getMsg('firmware_checking')) || "Firmware güncelleyici: Bağlı kartın firmware bilgisi kontrol ediliyor...", ""); 
+  consolePanel.style.height = "220px"; 
+  getBoardInfo(); 
+},
+        "ssl-uploader": () => { 
+  addConsoleLog((typeof getMsg === 'function' && getMsg('ssl_unsupported')) || "SSL sertifika yükleyicisi bu ortamda desteklenmiyor.", "error"); 
+  consolePanel.style.height = "220px"; 
+},
+
+"reload-board": () => { 
+  updatePortsList(); 
+  addConsoleLog((typeof getMsg === 'function' && getMsg('board_info_reloaded')) || "Kart bilgisi yeniden yüklendi.", "success"); 
+  consolePanel.style.height = "220px"; 
+},
         "get-board-info": () => getBoardInfo(),
         "help-getting-started": () => window.open("https://docs.arduino.cc/learn/starting-guide/getting-started-arduino", "_blank"),
 
@@ -1640,40 +1692,42 @@ document.addEventListener("DOMContentLoaded", () => {
             let modal = document.createElement("div");
             modal.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:10000;display:flex;align-items:center;justify-content:center;";
             modal.innerHTML = `<div style="background:#1e1e1e;border:1px solid #3c3c3c;border-radius:8px;padding:28px;width:380px;color:#ccc;font-family:Inter,sans-serif;text-align:center;">
-                <div style="font-size:36px;margin-bottom:12px;">∞</div>
-                <h3 style="margin:0 0 8px;color:#00979d;">GaziDuino IDE</h3>
-                <p style="font-size:12px;margin:4px 0;">Arduino IDE 2.3.11-nightly-20260629 Klonu</p>
-                <p style="font-size:11px;color:#888;margin:4px 0;">Web tabanlı Arduino geliştirme ortamı</p>
-                <p style="font-size:11px;color:#888;margin:4px 0;">Flask + Arduino CLI</p>
-                <hr style="border:none;border-top:1px solid #333;margin:16px 0;">
-                <p style="font-size:11px;color:#666;">© 2026 GaziDuino Projesi</p>
-                <button onclick="this.parentElement.parentElement.remove()" style="margin-top:12px;padding:6px 20px;background:#00979d;color:#fff;border:none;border-radius:4px;cursor:pointer;">Tamam</button>
-            </div>`;
+  <div style="font-size:36px;margin-bottom:12px;">∞</div>
+  <h3 style="margin:0 0 8px;color:#00979d;">GaziDuino IDE</h3>
+  <p style="font-size:12px;margin:4px 0;">${(typeof getMsg === 'function' && getMsg('about_clone_info')) || "Arduino IDE 2.3.11-nightly-20260629 Klonu"}</p>
+  <p style="font-size:11px;color:#888;margin:4px 0;">${(typeof getMsg === 'function' && getMsg('about_web_env')) || "Web tabanlı Arduino geliştirme ortamı"}</p>
+  <p style="font-size:11px;color:#888;margin:4px 0;">Flask + Arduino CLI</p>
+  <hr style="border:none;border-top:1px solid #333;margin:16px 0;">
+  <p style="font-size:11px;color:#666;">© 2026 GaziDuino Projesi</p>
+  <button onclick="this.parentElement.parentElement.remove()" style="margin-top:12px;padding:6px 20px;background:#00979d;color:#fff;border:none;border-radius:4px;cursor:pointer;">${(typeof getMsg === 'function' && getMsg('btn_ok')) || "Tamam"}</button>
+</div>`;
             modal.addEventListener("click", (e) => { if (e.target === modal) modal.remove(); });
             document.body.appendChild(modal);
         },
         "example-blink": () => {
-            if (!confirm("Mevcut kod bu örnekle değiştirilecek. Devam?")) return;
-            undoStack.push(codeTextarea.value);
-            redoStack = [];
-            codeTextarea.value = EXAMPLES["example-blink"];
-            lastSavedCode = codeTextarea.value;
-            updateEditor();
-            saveSketch();
-        },
-        "example-analog": () => {
-            if (!confirm("Mevcut kod bu örnekle değiştirilecek. Devam?")) return;
-            undoStack.push(codeTextarea.value);
-            redoStack = [];
-            codeTextarea.value = EXAMPLES["example-analog"];
-            lastSavedCode = codeTextarea.value;
-            updateEditor();
-            saveSketch();
-        },
-        "recent-1": () => addConsoleLog("Yakın geçmiş dosyası: sketch_jul05a (yerel eskiz defterinde aranıyor...)", ""),
-        "recent-2": () => addConsoleLog("Yakın geçmiş dosyası: Blink_LED (yerel eskiz defterinde aranıyor...)", ""),
-        "sketchbook-1": () => addConsoleLog("Eskiz defteri: sketch_jul6a zaten açık.", "success"),
-        "sketchbook-2": () => addConsoleLog("Eskiz defteri: ESP32_WiFi_Scanner (yerel eskiz defterinde aranıyor...)", ""),
+  if (!confirm((typeof getMsg === 'function' && getMsg('replace_code_confirm')) || "Mevcut kod bu örnekle değiştirilecek. Devam?")) return;
+  undoStack.push(codeTextarea.value);
+  redoStack = [];
+  codeTextarea.value = EXAMPLES["example-blink"];
+  lastSavedCode = codeTextarea.value;
+  updateEditor();
+  saveSketch();
+},
+
+"example-analog": () => {
+  if (!confirm((typeof getMsg === 'function' && getMsg('replace_code_confirm')) || "Mevcut kod bu örnekle değiştirilecek. Devam?")) return;
+  undoStack.push(codeTextarea.value);
+  redoStack = [];
+  codeTextarea.value = EXAMPLES["example-analog"];
+  lastSavedCode = codeTextarea.value;
+  updateEditor();
+  saveSketch();
+},
+
+"recent-1": () => addConsoleLog(((typeof getMsg === 'function' && getMsg('recent_searching')) || "Yakın geçmiş dosyası: {file} (yerel eskiz defterinde aranıyor...)").replace('{file}', 'sketch_jul05a'), ""),
+"recent-2": () => addConsoleLog(((typeof getMsg === 'function' && getMsg('recent_searching')) || "Yakın geçmiş dosyası: {file} (yerel eskiz defterinde aranıyor...)").replace('{file}', 'Blink_LED'), ""),
+"sketchbook-1": () => addConsoleLog(((typeof getMsg === 'function' && getMsg('sketchbook_already_open')) || "Eskiz defteri: {file} zaten açık.").replace('{file}', 'sketch_jul6a'), "success"),
+"sketchbook-2": () => addConsoleLog(((typeof getMsg === 'function' && getMsg('recent_searching')) || "Yakın geçmiş dosyası: {file} (yerel eskiz defterinde aranıyor...)").replace('{file}', 'ESP32_WiFi_Scanner'), ""),
     };
 
     document.querySelectorAll(".menu-row").forEach(row => {
@@ -2490,7 +2544,7 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
             fileTreeEl.innerHTML = "";
             renderTree(data.tree || [], fileTreeEl);
         } catch (err) {
-            fileTreeEl.innerHTML = '<div style="color:#999;font-size:11px;padding:8px">Dosya ağacı yüklenemedi.</div>';
+            fileTreeEl.innerHTML = `<div style="color:#999;font-size:11px;padding:8px">${(typeof getMsg === 'function' && getMsg('err_file_tree_failed')) || "Dosya ağacı yüklenemedi."}</div>`;
         }
     }
 
@@ -2529,10 +2583,10 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                 const activeRow = document.querySelector(`.tree-row[data-path="${path}"]`);
                 if (activeRow) activeRow.classList.add("active");
             } else {
-                addConsoleLog("Dosya okunamadı: " + (data.error || "Bilinmeyen hata"), "error");
+                addConsoleLog(((typeof getMsg === 'function' && getMsg('err_file_read_failed')) || "Dosya okunamadı: {err}").replace('{err}', data.error || (typeof getMsg === 'function' && getMsg('err_unknown')) || "Bilinmeyen hata"), "error");
             }
         } catch (err) {
-            addConsoleLog("Dosya açılamadı: " + err, "error");
+            addConsoleLog(((typeof getMsg === 'function' && getMsg('err_file_open_failed')) || "Dosya açılamadı: {err}").replace('{err}', err), "error");
         }
     }
 
@@ -2548,7 +2602,7 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
             const parentPath = ctxTargetType === "folder" ? ctxTargetPath : ctxTargetPath.split("/").slice(0, -1).join("/");
 
             if (action === "ctx-new-file") {
-                const name = prompt("Yeni dosya adı (uzantı dahil):", "yeni_dosya.h");
+                const name = prompt((typeof getMsg === 'function' && getMsg('prompt_new_file')) || "Yeni dosya adı (uzantı dahil):", "yeni_dosya.h");
                 if (!name) return;
                 const newPath = parentPath ? parentPath + "/" + name : name;
                 try {
@@ -2559,10 +2613,10 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                     });
                     const data = await res.json();
                     if (data.success) { loadFileTree(); openFileInEditor(newPath); }
-                    else addConsoleLog("Dosya oluşturulamadı: " + (data.error || ""), "error");
-                } catch (e) { addConsoleLog("Hata: " + e, "error"); }
+                    else addConsoleLog(((typeof getMsg === 'function' && getMsg('err_file_create_failed')) || "Dosya oluşturulamadı: {err}").replace('{err}', data.error || ""), "error");
+                } catch (e) { addConsoleLog(((typeof getMsg === 'function' && getMsg('err_generic')) || "Hata: {err}").replace('{err}', e), "error"); }
             } else if (action === "ctx-new-folder") {
-                const name = prompt("Yeni klasör adı:", "yeni_klasor");
+                const name = prompt((typeof getMsg === 'function' && getMsg('prompt_new_folder')) || "Yeni klasör adı:", "yeni_klasor");
                 if (!name) return;
                 const newPath = parentPath ? parentPath + "/" + name : name;
                 try {
@@ -2573,11 +2627,11 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                     });
                     const data = await res.json();
                     if (data.success) loadFileTree();
-                    else addConsoleLog("Klasör oluşturulamadı: " + (data.error || ""), "error");
-                } catch (e) { addConsoleLog("Hata: " + e, "error"); }
+                    else addConsoleLog(((typeof getMsg === 'function' && getMsg('err_folder_create_failed')) || "Klasör oluşturulamadı: {err}").replace('{err}', data.error || ""), "error");
+                } catch (e) { addConsoleLog(((typeof getMsg === 'function' && getMsg('err_generic')) || "Hata: {err}").replace('{err}', e), "error"); }
             } else if (action === "ctx-rename") {
                 const oldName = ctxTargetPath.split("/").pop();
-                const newName = prompt("Yeni ad:", oldName);
+                const newName = prompt((typeof getMsg === 'function' && getMsg('prompt_rename')) || "Yeni ad:", oldName);
                 if (!newName || newName === oldName) return;
                 try {
                     const res = await fetch("/api/files/rename", {
@@ -2594,11 +2648,11 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                             if (tabLabel) tabLabel.textContent = newName;
                         }
                         loadFileTree();
-                    } else addConsoleLog("Yeniden adlandırılamadı: " + (data.error || ""), "error");
-                } catch (e) { addConsoleLog("Hata: " + e, "error"); }
+                    } else addConsoleLog(((typeof getMsg === 'function' && getMsg('err_rename_failed')) || "Yeniden adlandırılamadı: {err}").replace('{err}', data.error || ""), "error");
+                } catch (e) { addConsoleLog(((typeof getMsg === 'function' && getMsg('err_generic')) || "Hata: {err}").replace('{err}', e), "error"); }
             } else if (action === "ctx-delete") {
                 const name = ctxTargetPath.split("/").pop();
-                if (!confirm(`"${name}" silinsin mi? Bu işlem geri alınamaz.`)) return;
+                if (!confirm(((typeof getMsg === 'function' && getMsg('confirm_delete')) || '"{name}" silinsin mi? Bu işlem geri alınamaz.').replace('{name}', name))) return;
                 try {
                     const res = await fetch("/api/files/delete", {
                         method: "POST",
@@ -2612,15 +2666,15 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                             currentFilePath = "sketch_jul6a.ino";
                             openFileInEditor(currentFilePath);
                         }
-                    } else addConsoleLog("Silinemedi: " + (data.error || ""), "error");
-                } catch (e) { addConsoleLog("Hata: " + e, "error"); }
+                    } else addConsoleLog(((typeof getMsg === 'function' && getMsg('err_delete_failed')) || "Silinemedi: {err}").replace('{err}', data.error || ""), "error");
+                } catch (e) { addConsoleLog(((typeof getMsg === 'function' && getMsg('err_generic')) || "Hata: {err}").replace('{err}', e), "error"); }
             }
         });
     });
 
     // Top action buttons
     document.getElementById("btnNewFile").addEventListener("click", async () => {
-        const name = prompt("Yeni dosya adı (uzantı dahil):", "yeni_dosya.ino");
+        const name = prompt((typeof getMsg === 'function' && getMsg('prompt_new_file')) || "Yeni dosya adı (uzantı dahil):", "yeni_dosya.ino");
         if (!name) return;
         try {
             const res = await fetch("/api/files/create", {
@@ -2630,12 +2684,12 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
             });
             const data = await res.json();
             if (data.success) { loadFileTree(); openFileInEditor(name); }
-            else addConsoleLog("Dosya oluşturulamadı: " + (data.error || ""), "error");
-        } catch (e) { addConsoleLog("Hata: " + e, "error"); }
+            else addConsoleLog(((typeof getMsg === 'function' && getMsg('err_file_create_failed')) || "Dosya oluşturulamadı: {err}").replace('{err}', data.error || ""), "error");
+        } catch (e) { addConsoleLog(((typeof getMsg === 'function' && getMsg('err_generic')) || "Hata: {err}").replace('{err}', e), "error"); }
     });
 
     document.getElementById("btnNewFolder").addEventListener("click", async () => {
-        const name = prompt("Yeni klasör adı:", "lib");
+        const name = prompt((typeof getMsg === 'function' && getMsg('prompt_new_folder')) || "Yeni klasör adı:", "lib");
         if (!name) return;
         try {
             const res = await fetch("/api/files/create", {
@@ -2645,8 +2699,8 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
             });
             const data = await res.json();
             if (data.success) loadFileTree();
-            else addConsoleLog("Klasör oluşturulamadı: " + (data.error || ""), "error");
-        } catch (e) { addConsoleLog("Hata: " + e, "error"); }
+            else addConsoleLog(((typeof getMsg === 'function' && getMsg('err_folder_create_failed')) || "Klasör oluşturulamadı: {err}").replace('{err}', data.error || ""), "error");
+        } catch (e) { addConsoleLog(((typeof getMsg === 'function' && getMsg('err_generic')) || "Hata: {err}").replace('{err}', e), "error"); }
     });
 
     document.getElementById("btnRefreshTree").addEventListener("click", loadFileTree);

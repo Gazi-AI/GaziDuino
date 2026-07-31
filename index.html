@@ -32,7 +32,7 @@
         </div>
 
         <nav class="menu-bar">
-            <div class="menu-item" id="menuDosya">Dosya
+            <div class="menu-item" id="menuDosya"><span data-label=file>Dosya</span>
                 <div class="dropdown-menu">
                     <div class="menu-row" data-action="new-sketch"><span>Yeni Eskiz</span><span
                             class="shortcut">Ctrl+N</span></div>
@@ -41,21 +41,21 @@
                     <div class="menu-row" data-action="open"><span>Aç...</span><span class="shortcut">Ctrl+O</span>
                     </div>
                     <div class="menu-row parent">
-                        <span>Yakın Geçmiş</span><span class="arrow">▶</span>
+                        <span data-label=open-recent>Yakın Geçmiş</span><span class="arrow">▶</span>
                         <div class="submenu">
                             <div class="menu-row" data-action="recent-1">sketch_jul05a</div>
                             <div class="menu-row" data-action="recent-2">Blink_LED</div>
                         </div>
                     </div>
                     <div class="menu-row parent">
-                        <span>Eskiz Defteri</span><span class="arrow">▶</span>
+                        <span data-label=sketchbook>Eskiz Defteri</span><span class="arrow">▶</span>
                         <div class="submenu">
                             <div class="menu-row" data-action="sketchbook-1">sketch_jul6a</div>
                             <div class="menu-row" data-action="sketchbook-2">ESP32_WiFi_Scanner</div>
                         </div>
                     </div>
                     <div class="menu-row parent">
-                        <span>Örnekler</span><span class="arrow">▶</span>
+                        <span data-label=examples>Örnekler</span><span class="arrow">▶</span>
                         <div class="submenu">
                             <div class="menu-row" data-action="example-blink">01.Basics -> Blink</div>
                             <div class="menu-row" data-action="example-analog">01.Basics -> ReadAnalogVoltage</div>
@@ -71,7 +71,7 @@
                     <div class="menu-row" data-action="preferences"><span>Tercihler...</span><span
                             class="shortcut">Ctrl+Virgül</span></div>
                     <div class="menu-row parent">
-                        <span>Gelişmiş</span><span class="arrow">▶</span>
+                        <span data-label=advanced>Gelişmiş</span><span class="arrow">▶</span>
                         <div class="submenu">
                             <div class="menu-row" data-action="adv-keyboard">Klavye Kısayolları</div>
                         </div>
@@ -81,7 +81,7 @@
                     </div>
                 </div>
             </div>
-            <div class="menu-item" id="menuDuzenle">Düzenle
+            <div class="menu-item" id="menuDuzenle"><span data-label=edit>Düzenle</span>
                 <div class="dropdown-menu">
                     <div class="menu-row" data-action="undo"><span>Geri al</span><span class="shortcut">Ctrl+Z</span>
                     </div>
@@ -122,7 +122,7 @@
                             class="shortcut">Ctrl+E</span></div>
                 </div>
             </div>
-            <div class="menu-item" id="menuEskiz">Eskiz
+            <div class="menu-item" id="menuEskiz"><span data-label=sketch>Eskiz</span>
                 <div class="dropdown-menu">
                     <div class="menu-row" data-action="verify"><span>Doğrula/Derle</span><span
                             class="shortcut">Ctrl+R</span></div>
@@ -134,7 +134,7 @@
                             class="shortcut">Alt+Ctrl+S</span></div>
                 </div>
             </div>
-            <div class="menu-item" id="menuAraclar">Araçlar
+            <div class="menu-item" id="menuAraclar"><span data-label=tools>Araçlar</span>
                 <div class="dropdown-menu">
                     <div class="menu-row" data-action="auto-format"><span>Otomatik Biçimlendir</span><span
                             class="shortcut">Ctrl+T</span></div>
@@ -281,7 +281,7 @@
                     </div>
                 </div>
             </div>
-            <div class="menu-item" id="menuYardim">Yardım
+            <div class="menu-item" id="menuYardim"><span data-label=help>Yardım</span>
                 <div class="dropdown-menu">
                     <div class="menu-row" data-action="help-getting-started">Başlarken</div>
                     <div class="menu-row" data-action="help-ref">Referans</div>
@@ -551,7 +551,7 @@
         </aside>
 
         <!-- Main Editor & Console Stack -->
-        <section class="code-editor-and-console">
+        <section class="code-editor-and-console" dir=ltr>
             <!-- Tabs Bar -->
             <div class="editor-tabs">
                 <div class="editor-tab active" id="tabSketch">
@@ -777,6 +777,7 @@ void loop() {
         </div>
 
     <script src="app.js?v=30"></script>
+    <script src="UIINT.js"></script>
 </body>
 
 </html>
