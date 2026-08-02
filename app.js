@@ -20,7 +20,8 @@ document.addEventListener("DOMContentLoaded", () => {
             errDiv.style.overflow = 'auto';
             document.body.appendChild(errDiv);
         }
-        errDiv.innerHTML += `<div style="margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px;">❌ Hata: ${e.message}<br><small style="color: #ccc;">Dosya: ${e.filename.split('/').pop()} | Satır: ${e.lineno}</small></div>`;
+        errDiv.innerHTML += `<div style="margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px;">❌ <span data-label="error">${(typeof getMsg === 'function' && getMsg('error')) || "Hata"}</span>: ${e.message}<br><small style="color: #ccc;"><span data-label="file">${(typeof getMsg === 'function' && getMsg('file')) || "Dosya"}</span>: ${e.filename.split('/').pop()} | <span data-label="line">${(typeof getMsg === 'function' && getMsg('line')) || "Satır"}</span>: ${e.lineno}</small></div>`;
+//errDiv.innerHTML += `<div style="margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px;">❌ Hata: ${e.message}<br><small style="color: #ccc;">Dosya: ${e.filename.split('/').pop()} | Satır: ${e.lineno}</small></div>`;
     });
 
     // --- State Elements ---
@@ -431,7 +432,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const lines = sub.split("\n");
         const line = lines.length;
         const col = lines[lines.length - 1].length + 1;
-        cursorPosition.textContent = `Satır ${line}, Sütun ${col}`;
+        //cursorPosition.textContent = `Satır ${line}, Sütun ${col}`;
+        const lineStr = (typeof getMsg === 'function' && getMsg('line')) || "Satır";
+const colStr = (typeof getMsg === 'function' && getMsg('column')) || "Sütun";
+cursorPosition.textContent = `${lineStr} ${line}, ${colStr} ${col}`;
     }
 
     codeTextarea.addEventListener("input", () => {
@@ -467,29 +471,29 @@ document.addEventListener("DOMContentLoaded", () => {
                     settingsModal.id = "settingsModal";
                     settingsModal.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:10000;display:flex;align-items:center;justify-content:center;";
                     settingsModal.innerHTML = `
-                        <div style="background:#1e1e1e;border:1px solid #3c3c3c;border-radius:8px;padding:24px;width:420px;max-height:80vh;overflow-y:auto;color:#ccc;font-family:Inter,sans-serif;">
-                            <h3 style="margin:0 0 16px;color:#00979d;">⚙ Kullanıcı Ayarları</h3>
-                            <div style="margin-bottom:12px;">
-                                <label style="display:block;margin-bottom:4px;font-size:12px;">Yazı Tipi Boyutu</label>
-                                <input type="range" min="10" max="24" value="${editorFontSize}" id="settingsFontSize" style="width:100%;">
-                                <span id="settingsFontSizeVal">${editorFontSize}px</span>
-                            </div>
-                            <div style="margin-bottom:12px;">
-                                <label style="display:block;margin-bottom:4px;font-size:12px;">Tema</label>
-                                <select id="settingsTheme" style="width:100%;padding:6px;background:#2d2d2d;color:#ccc;border:1px solid #555;border-radius:4px;">
-                                    <option value="dark" selected>Koyu Tema</option>
-                                    <option value="light">Açık Tema (yakında)</option>
-                                </select>
-                            </div>
-                            <div style="margin-bottom:12px;">
-                                <label style="display:block;margin-bottom:4px;font-size:12px;">Otomatik Kaydetme</label>
-                                <label style="font-size:12px;"><input type="checkbox" id="settingsAutoSave" checked> Aktif</label>
-                            </div>
-                            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;">
-                                <button id="settingsClose" style="padding:6px 16px;background:#3c3c3c;color:#ccc;border:none;border-radius:4px;cursor:pointer;">Kapat</button>
-                                <button id="settingsApply" style="padding:6px 16px;background:#00979d;color:#fff;border:none;border-radius:4px;cursor:pointer;">Uygula</button>
-                            </div>
-                        </div>`;
+    <div style="background:#1e1e1e;border:1px solid #3c3c3c;border-radius:8px;padding:24px;width:420px;max-height:80vh;overflow-y:auto;color:#ccc;font-family:Inter,sans-serif;">
+        <h3 style="margin:0 0 16px;color:#00979d;">⚙ <span data-label="user_settings">${(typeof getMsg === 'function' && getMsg('user_settings')) || "Kullanıcı Ayarları"}</span></h3>
+        <div style="margin-bottom:12px;">
+            <label style="display:block;margin-bottom:4px;font-size:12px;" data-label="font_size">${(typeof getMsg === 'function' && getMsg('font_size')) || "Yazı Tipi Boyutu"}</label>
+            <input type="range" min="10" max="24" value="${editorFontSize}" id="settingsFontSize" style="width:100%;">
+            <span id="settingsFontSizeVal">${editorFontSize}px</span>
+        </div>
+        <div style="margin-bottom:12px;">
+            <label style="display:block;margin-bottom:4px;font-size:12px;" data-label="theme">${(typeof getMsg === 'function' && getMsg('theme')) || "Tema"}</label>
+            <select id="settingsTheme" style="width:100%;padding:6px;background:#2d2d2d;color:#ccc;border:1px solid #555;border-radius:4px;">
+                <option value="dark" selected data-label="dark_theme">${(typeof getMsg === 'function' && getMsg('dark_theme')) || "Koyu Tema"}</option>
+                <option value="light" data-label="light_theme_soon">${(typeof getMsg === 'function' && getMsg('light_theme')) || "Açık Tema (yakında)"}</option>
+            </select>
+        </div>
+        <div style="margin-bottom:12px;">
+            <label style="display:block;margin-bottom:4px;font-size:12px;" data-label="auto_save">${(typeof getMsg === 'function' && getMsg('auto_save')) || "Otomatik Kaydetme"}</label>
+            <label style="font-size:12px;"><input type="checkbox" id="settingsAutoSave" checked> <span data-label="active">${(typeof getMsg === 'function' && getMsg('active')) || "Aktif"}</span></label>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;">
+            <button id="settingsClose" style="padding:6px 16px;background:#3c3c3c;color:#ccc;border:none;border-radius:4px;cursor:pointer;" data-label="close">${(typeof getMsg === 'function' && getMsg('close')) || "Kapat"}</button>
+            <button id="settingsApply" style="padding:6px 16px;background:#00979d;color:#fff;border:none;border-radius:4px;cursor:pointer;" data-label="apply">${(typeof getMsg === 'function' && getMsg('apply')) || "Uygula"}</button>
+        </div>
+    </div>`;
                     document.body.appendChild(settingsModal);
 
                     settingsModal.querySelector("#settingsClose").addEventListener("click", () => settingsModal.remove());
@@ -607,10 +611,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     setTimeout(() => parentDropdown.style.display = '', 150);
                 }
                 
-                addConsoleLog(`Port başarıyla seçildi: ${currentPort}`, "success");
+                addConsoleLog(`<span data-label="port_selected_prefix">${(typeof getMsg === 'function' && getMsg('port_selected_prefix')) || "Port başarıyla seçildi:"}</span> ${currentPort}`, "success");//addConsoleLog(`Port başarıyla seçildi: ${currentPort}`, "success");
             } catch (err) {
                 console.error("Port seçimi başarısız:", err);
-                addConsoleLog("Port seçimi iptal edildi veya başarısız oldu: " + err.message, "error");
+                addConsoleLog(`<span data-label="port_selection_failed_prefix">${(typeof getMsg === 'function' && getMsg('port_selection_failed_prefix')) || "Port seçimi iptal edildi veya başarısız oldu:"}</span> ${err.message}`, "error");//addConsoleLog("Port seçimi iptal edildi veya başarısız oldu: " + err.message, "error");
             }
         });
     }
@@ -621,14 +625,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // --- 6. Compile & Upload Simulation & Logs ---
-    function addConsoleLog(text, type = "") {
-        const div = document.createElement("div");
-        div.textContent = text;
-        if (type === "error") div.classList.add("log-error");
-        if (type === "success") div.classList.add("log-success");
-        consoleLogContent.appendChild(div);
-        consoleLogContent.scrollTop = consoleLogContent.scrollHeight;
-    }
+    function addConsoleLog(text, type = "", isHtml = false) {
+  const div = document.createElement("div");
+  
+  if (type === "error") div.classList.add("log-error");
+  if (type === "success") div.classList.add("log-success");
+
+  if (isHtml==true || (text.indexOf('span data-label')!=-1)) {
+    div.innerHTML = text;
+  } else {
+    div.textContent = text;
+  }
+
+  consoleLogContent.appendChild(div);
+  consoleLogContent.scrollTop = consoleLogContent.scrollHeight;
+}
 
     async function handleCompile() {
         if (isCompilingOrUploading) return;
@@ -675,9 +686,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                 }
                 if (data.success) {
-                    addConsoleLog("Derleme başarıyla tamamlandı.", "success");
+                    addConsoleLog(`<span data-label="compile_success">${(typeof getMsg === 'function' && getMsg('compile_success')) || "Derleme başarıyla tamamlandı."}</span>`, "success", true);//addConsoleLog("Derleme başarıyla tamamlandı.", "success");
                 } else {
-                    addConsoleLog("Derleme sırasında hata oluştu.", "error");
+                    addConsoleLog(`<span data-label="compile_error">${(typeof getMsg === 'function' && getMsg('compile_error')) || "Derleme sırasında hata oluştu."}</span>`, "error", true);//addConsoleLog("Derleme sırasında hata oluştu.", "error");
                 }
             }, 500);
 
@@ -685,7 +696,7 @@ document.addEventListener("DOMContentLoaded", () => {
             clearInterval(uploadProgressInterval);
             compileProgressModal.classList.remove("show");
             isCompilingOrUploading = false;
-            addConsoleLog("Hata: Sunucu ile iletişim kurulamadı.", "error");
+            addConsoleLog(`<span data-label="err_server_comm">${(typeof getMsg === 'function' && getMsg('err_server_comm')) || "Hata: Sunucu ile iletişim kurulamadı."}</span>`, "error", true);//addConsoleLog("Hata: Sunucu ile iletişim kurulamadı.", "error");
         }
     }
 
@@ -702,7 +713,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // If board is ESP, ALWAYS use web flasher
         if (currentBoard && (currentBoard.includes("ESP") || currentBoard.includes("esp"))) {
-            addConsoleLog(`Web Yükleyici aktif!`, "info");
+            addConsoleLog(`<span data-label="web_flasher_active">${(typeof getMsg === 'function' && getMsg('web_flasher_active')) || "Web Yükleyici aktif!"}</span>`, "info", true);//addConsoleLog(`Web Yükleyici aktif!`, "info");
             await handleWebUpload();
             return;
         }
@@ -752,9 +763,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                 }
                 if (data.success) {
-                    addConsoleLog("Yükleme tamamlandı!", "success");
+                    addConsoleLog(`<span data-label="upload_success">${(typeof getMsg === 'function' && getMsg('upload_success')) || "Yükleme tamamlandı!"}</span>`, "success", true);//addConsoleLog("Yükleme tamamlandı!", "success");
                 } else {
-                    addConsoleLog("Yükleme sırasında hata oluştu.", "error");
+                    addConsoleLog(`<span data-label="upload_error">${(typeof getMsg === 'function' && getMsg('upload_error')) || "Yükleme sırasında hata oluştu."}</span>`, "error", true);//addConsoleLog("Yükleme sırasında hata oluştu.", "error");
                 }
 
                 // Reconnect serial monitor after upload completes
@@ -767,7 +778,7 @@ document.addEventListener("DOMContentLoaded", () => {
             clearInterval(uploadProgressInterval);
             compileProgressModal.classList.remove("show");
             isCompilingOrUploading = false;
-            addConsoleLog("Hata: Yükleme sunucu hatası.", "error");
+            addConsoleLog(`<span data-label="err_upload_server">${(typeof getMsg === 'function' && getMsg('err_upload_server')) || "Hata: Yükleme sunucu hatası."}</span>`, "error", true);//addConsoleLog("Hata: Yükleme sunucu hatası.", "error");
 
             // Reconnect serial monitor on connection error
             if (paneSerial.classList.contains("active")) {
@@ -953,20 +964,20 @@ document.addEventListener("DOMContentLoaded", () => {
         let port = globalWebPort;
         if (!port) {
             try {
-                addConsoleLog("Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
+                addConsoleLog(`<span data-label="esp_select_prompt">${(typeof getMsg === 'function' && getMsg('esp_select_prompt')) || "Lütfen açılan pencereden ESP cihazınızı seçin..."}</span>`, "info", true);//addConsoleLog("Lütfen açılan pencereden ESP cihazınızı seçin...", "info");
                 const selection = await requestBrowserPort();
                 port = selection.port;
                 globalWebPort = port;
                 currentPort = selection.label;
                 updatePortUi(true);
-                addConsoleLog(`${selection.label} hazır.`, "info");
+                addConsoleLog(`${selection.label} <span data-label="device_ready">${(typeof getMsg === 'function' && getMsg('device_ready')) || "hazır."}</span>`, "info", true);//addConsoleLog(`${selection.label} hazır.`, "info");
             } catch (err) {
-                console.error("Port seçilmedi veya iptal edildi:", err);
-                addConsoleLog("Port seçilmedi veya donanım desteklemiyor: " + err.message, "error");
+                console.error("Port seçilmedi veya iptal edildi:", err);//console.error("Port seçilmedi veya iptal edildi:", err);
+                addConsoleLog(`<span data-label="err_port_not_selected">${(typeof getMsg === 'function' && getMsg('err_port_not_selected')) || "Port seçilmedi veya donanım desteklemiyor:"}</span> ${err.message}`, "error", true);//addConsoleLog("Port seçilmedi veya donanım desteklemiyor: " + err.message, "error");
                 return;
             }
         } else {
-            addConsoleLog("Daha önce seçilen port kullanılıyor...", "info");
+            addConsoleLog(`<span data-label="using_prev_port">${(typeof getMsg === 'function' && getMsg('using_prev_port')) || "Daha önce seçilen port kullanılıyor..."}</span>`, "info", true);//addConsoleLog("Daha önce seçilen port kullanılıyor...", "info");
         }
 
         isCompilingOrUploading = true;
@@ -1021,7 +1032,7 @@ document.addEventListener("DOMContentLoaded", () => {
             compileProgressModal.classList.remove("show");
 
             // 3. Dynamically import esptool-js and connect to Web Serial
-            addConsoleLog("esptool-js yükleniyor...", "");
+            addConsoleLog(`<span data-label="loading_esptool">${(typeof getMsg === 'function' && getMsg('loading_esptool')) || "esptool-js yükleniyor..."}</span>`, "", true);//addConsoleLog("esptool-js yükleniyor...", "");
             const esptoolModule = await import('https://unpkg.com/esptool-js/bundle.js');
             addConsoleLog("esptool exports: " + Object.keys(esptoolModule).join(", "), "info");
             const ESPLoader = esptoolModule.ESPLoader;
@@ -1029,7 +1040,7 @@ document.addEventListener("DOMContentLoaded", () => {
             addConsoleLog("Transport: " + typeof Transport + ", ESPLoader: " + typeof ESPLoader, "info");
             addConsoleLog("port.getInfo: " + typeof port.getInfo, "info");
 
-            addConsoleLog("Tarayıcıdan ESP'ye bağlanılıyor...", "");
+            addConsoleLog(`<span data-label="connecting_esp">${(typeof getMsg === 'function' && getMsg('connecting_esp')) || "Tarayıcıdan ESP'ye bağlanılıyor..."}</span>`, "", true);//addConsoleLog("Tarayıcıdan ESP'ye bağlanılıyor...", "");
             transport = new Transport(port, true);
 
             const terminal = {
@@ -1059,7 +1070,15 @@ document.addEventListener("DOMContentLoaded", () => {
             progressMessage.textContent = `Yazdırılıyor (Adres: 0x${flashOffset.toString(16)})...`;
             progressFill.style.width = "75%";
 
-            addConsoleLog(`Flash işlemi başladı (Offset: 0x${flashOffset.toString(16)}), lütfen bekleyin...`, "info");
+            const flashStarted = (typeof getMsg === 'function' && getMsg('flash_started')) || "Flash işlemi başladı";
+const offsetLabel = (typeof getMsg === 'function' && getMsg('offset')) || "Offset";
+const pleaseWait = (typeof getMsg === 'function' && getMsg('please_wait')) || "lütfen bekleyin...";
+
+addConsoleLog(
+  `<span data-label="flash_started">${flashStarted}</span> (<span data-label="offset">${offsetLabel}</span>: 0x${flashOffset.toString(16)}), <span data-label="please_wait">${pleaseWait}</span>`,
+  "info",
+  true
+);//addConsoleLog(`Flash işlemi başladı (Offset: 0x${flashOffset.toString(16)}), lütfen bekleyin...`, "info");
 
             await esploader.flashBegin(firmwareData.length, flashOffset);
 
@@ -1079,13 +1098,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             progressFill.style.width = "100%";
-            addConsoleLog("Yükleme Tamamlandı! ESP yeniden başlatılıyor...", "success");
+            addConsoleLog(`<span data-label="upload_success_reboot">${(typeof getMsg === 'function' && getMsg('upload_success_reboot')) || "Yükleme Tamamlandı! ESP yeniden başlatılıyor..."}</span>`, "success");//addConsoleLog("Yükleme Tamamlandı! ESP yeniden başlatılıyor...", "success");
 
             await esploader.after("hard_reset");
 
         } catch (err) {
             console.error("Web Upload Hatası:", err);
-            addConsoleLog("Web Upload Hatası: " + err.message, "error");
+            addConsoleLog(`<span data-label="web_upload_error">${(typeof getMsg === 'function' && getMsg('web_upload_error')) || "Web Upload Hatası"}</span>: ${err.message}`, "error", true);//addConsoleLog("Web Upload Hatası: " + err.message, "error");
         } finally {
             if (transport) {
                 try { await transport.disconnect(); } catch (e) { }
@@ -1107,7 +1126,8 @@ document.addEventListener("DOMContentLoaded", () => {
         clearInterval(uploadProgressInterval);
         compileProgressModal.classList.remove("show");
         isCompilingOrUploading = false;
-        addConsoleLog("İşlem kullanıcı tarafından iptal edildi.", "error");
+        addConsoleLog(`<span data-label="cancelled_by_user">${(typeof getMsg === 'function' && getMsg('cancelled_by_user')) || "İşlem kullanıcı tarafından iptal edildi."}</span>`, "error", true);
+//addConsoleLog("İşlem kullanıcı tarafından iptal edildi.", "error");
     });
 
     // --- 7. Console Controls ---
@@ -1294,7 +1314,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lastSavedCode = codeTextarea.value;
         updateEditor();
         saveSketch();
-        addConsoleLog("Kod otomatik biçimlendirildi.", "success");
+        addConsoleLog(`<span data-label="code_formatted">${(typeof getMsg === 'function' && getMsg('code_formatted')) || "Kod otomatik biçimlendirildi."}</span>`, "success", true);//addConsoleLog("Kod otomatik biçimlendirildi.", "success");
         consolePanel.style.height = "220px";
     }
 
@@ -1393,7 +1413,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lastSavedCode = codeTextarea.value;
         updateEditor();
         saveSketch();
-        addConsoleLog("Yeni eskiz oluşturuldu.", "success");
+        addConsoleLog(`<span data-label="new_sketch_created">${(typeof getMsg === 'function' && getMsg('new_sketch_created')) || "Yeni eskiz oluşturuldu."}</span>`, "success", true);//addConsoleLog("Yeni eskiz oluşturuldu.", "success");
         consolePanel.style.height = "220px";
     }
 
@@ -1406,13 +1426,13 @@ document.addEventListener("DOMContentLoaded", () => {
         a.download = "sketch.ino";
         a.click();
         URL.revokeObjectURL(url);
-        addConsoleLog("Eskiz dosya olarak indirildi.", "success");
+        addConsoleLog(`<span data-label="sketch_downloaded">${(typeof getMsg === 'function' && getMsg('sketch_downloaded')) || "Eskiz dosya olarak indirildi."}</span>`, "success", true);//addConsoleLog("Eskiz dosya olarak indirildi.", "success");
         consolePanel.style.height = "220px";
     }
 
     // Helper: Export compiled binary
     async function exportBinary() {
-        addConsoleLog("Derlenmiş ikili dosya dışa aktarılıyor...", "");
+        addConsoleLog(`<span data-label="exporting_binary">${(typeof getMsg === 'function' && getMsg('exporting_binary')) || "Derlenmiş ikili dosya dışa aktarılıyor..."}</span>`, "", true);//addConsoleLog("Derlenmiş ikili dosya dışa aktarılıyor...", "");
         consolePanel.style.height = "220px";
         try {
             const res = await fetch("/api/export-binary", {
@@ -1427,19 +1447,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 a.href = "/api/download-binary?file=" + encodeURIComponent(data.filename);
                 a.download = data.filename;
                 a.click();
-                addConsoleLog("İkili dosya başarıyla dışa aktarıldı: " + data.filename, "success");
+                addConsoleLog(`<span data-label="binary_exported">${(typeof getMsg === 'function' && getMsg('binary_exported')) || "İkili dosya başarıyla dışa aktarıldı:"}</span> ${data.filename}`, "success", true);
+//addConsoleLog("İkili dosya başarıyla dışa aktarıldı: " + data.filename, "success");
             } else {
-                addConsoleLog("İkili dosya dışa aktarılamadı.", "error");
+                addConsoleLog(`<span data-label="binary_export_failed">${(typeof getMsg === 'function' && getMsg('binary_export_failed')) || "İkili dosya dışa aktarılamadı."}</span>`, "error", true);//addConsoleLog("İkili dosya dışa aktarılamadı.", "error");
                 if (data.log) data.log.forEach(l => addConsoleLog(l, "error"));
             }
         } catch (err) {
-            addConsoleLog("Hata: Sunucuya bağlanılamadı.", "error");
+            addConsoleLog(`<span data-label="err_server_connection">${(typeof getMsg === 'function' && getMsg('err_server_connection')) || "Hata: Sunucuya bağlanılamadı."}</span>`, "error", true);//addConsoleLog("Hata: Sunucuya bağlanılamadı.", "error");
         }
     }
 
     // Helper: Archive sketch as ZIP
     async function archiveSketch() {
-        addConsoleLog("Eskiz arşivleniyor...", "");
+        addConsoleLog(`<span data-label="archiving_sketch">${(typeof getMsg === 'function' && getMsg('archiving_sketch')) || "Eskiz arşivleniyor..."}</span>`, "", true);//addConsoleLog("Eskiz arşivleniyor...", "");
         consolePanel.style.height = "220px";
         try {
             const res = await fetch("/api/archive");
@@ -1451,12 +1472,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 a.download = "sketch_jul6a.zip";
                 a.click();
                 URL.revokeObjectURL(url);
-                addConsoleLog("Eskiz arşiv olarak indirildi.", "success");
+                addConsoleLog(`<span data-label="archive_downloaded">${(typeof getMsg === 'function' && getMsg('archive_downloaded')) || "Eskiz arşiv olarak indirildi."}</span>`, "success", true);//addConsoleLog("Eskiz arşiv olarak indirildi.", "success");
             } else {
-                addConsoleLog("Arşivleme sırasında hata oluştu.", "error");
+                addConsoleLog(`<span data-label="archiving_failed">${(typeof getMsg === 'function' && getMsg('archiving_failed')) || "Arşivleme sırasında hata oluştu."}</span>`, "error", true);//addConsoleLog("Arşivleme sırasında hata oluştu.", "error");
             }
         } catch (err) {
-            addConsoleLog("Hata: Sunucuya bağlanılamadı.", "error");
+            addConsoleLog(`<span data-label="err_server_connection">${(typeof getMsg === 'function' && getMsg('err_server_connection')) || "Hata: Sunucuya bağlanılamadı."}</span>`, "error", true);//addConsoleLog("Hata: Sunucuya bağlanılamadı.", "error");
         }
     }
 
@@ -1476,14 +1497,16 @@ document.addEventListener("DOMContentLoaded", () => {
     function copyAsMarkdown() {
         const md = "```cpp\n" + codeTextarea.value + "\n```";
         navigator.clipboard.writeText(md).then(() => {
-            addConsoleLog("Kod Markdown formatında panoya kopyalandı.", "success");
+            addConsoleLog(`<span data-label="copied_markdown">${(typeof getMsg === 'function' && getMsg('copied_markdown')) || "Kod Markdown formatında panoya kopyalandı."}</span>`, "success", true);
+//addConsoleLog("Kod Markdown formatında panoya kopyalandı.", "success");
             consolePanel.style.height = "220px";
         });
     }
 
     // Helper: Get board info from arduino-cli
     async function getBoardInfo() {
-        addConsoleLog("Kart bilgisi alınıyor...", "");
+        addConsoleLog(`<span data-label="getting_board_info">${(typeof getMsg === 'function' && getMsg('getting_board_info')) || "Kart bilgisi alınıyor..."}</span>`, "", true);
+//addConsoleLog("Kart bilgisi alınıyor...", "");
         consolePanel.style.height = "220px";
         try {
             const res = await fetch("/api/board-info?port=" + encodeURIComponent(currentPort));
@@ -1491,10 +1514,11 @@ document.addEventListener("DOMContentLoaded", () => {
             if (data.info) {
                 data.info.forEach(line => addConsoleLog(line, ""));
             } else {
-                addConsoleLog("Kart bilgisi alınamadı.", "error");
+                addConsoleLog(`<span data-label="board_info_failed">${(typeof getMsg === 'function' && getMsg('board_info_failed')) || "Kart bilgisi alınamadı."}</span>`, "error", true);
+//addConsoleLog("Kart bilgisi alınamadı.", "error");
             }
         } catch (err) {
-            addConsoleLog("Hata: Sunucuya bağlanılamadı.", "error");
+            addConsoleLog(`<span data-label="err_server_connection">${(typeof getMsg === 'function' && getMsg('err_server_connection')) || "Hata: Sunucuya bağlanılamadı."}</span>`, "error", true);//addConsoleLog("Hata: Sunucuya bağlanılamadı.", "error");
         }
     }
 
@@ -1509,7 +1533,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "new-sketch": () => newSketch(),
         "new-cloud-sketch": () => { 
   newSketch(); 
-  addConsoleLog((typeof getMsg === 'function' && getMsg('cloud_sketch_notice')) || "Not: Bulut eskiz özelliği yerel projede desteklenmez, yerel yeni eskiz oluşturuldu.", ""); 
+  addConsoleLog(`<span data-label="cloud_sketch_notice">${(typeof getMsg === 'function' && getMsg('cloud_sketch_notice')) || "Not: Bulut eskiz özelliği yerel projede desteklenmez, yerel yeni eskiz oluşturuldu."}</span>`, "", true);//addConsoleLog((typeof getMsg === 'function' && getMsg('cloud_sketch_notice')) || "Not: Bulut eskiz özelliği yerel projede desteklenmez, yerel yeni eskiz oluşturuldu.", ""); 
 },
         "open": () => {
             const input = document.createElement("input");
@@ -1527,7 +1551,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     updateEditor();
                     saveSketch();
                     //addConsoleLog(`Dosya açıldı: ${file.name}`, "success");
-                  addConsoleLog(((typeof getMsg === 'function' && getMsg('file_opened')) || "Dosya açıldı: {file}").replace('{file}', file.name), "success");
+                  addConsoleLog(`<span data-label="file_opened_prefix">${(typeof getMsg === 'function' && getMsg('file_opened_prefix')) || "Dosya açıldı:"}</span> ${file.name}`, "success");//addConsoleLog(((typeof getMsg === 'function' && getMsg('file_opened')) || "Dosya açıldı: {file}").replace('{file}', file.name), "success");
                     consolePanel.style.height = "220px";
                 };
                 reader.readAsText(file);
@@ -1543,7 +1567,7 @@ document.addEventListener("DOMContentLoaded", () => {
 },
         "save": () => { 
   saveSketch(); 
-  addConsoleLog((typeof getMsg === 'function' && getMsg('sketch_saved')) || "Eskiz kaydedildi.", "success"); 
+  addConsoleLog(`<span data-label="sketch_saved">${(typeof getMsg === 'function' && getMsg('sketch_saved')) || "Eskiz kaydedildi."}</span>`, "success");//addConsoleLog((typeof getMsg === 'function' && getMsg('sketch_saved')) || "Eskiz kaydedildi.", "success"); 
   consolePanel.style.height = "220px"; 
 },
         "save-as": () => saveAs(),
@@ -1670,18 +1694,18 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         "archive-sketch": () => archiveSketch(),
         "firmware-updater": () => { 
-  addConsoleLog((typeof getMsg === 'function' && getMsg('firmware_checking')) || "Firmware güncelleyici: Bağlı kartın firmware bilgisi kontrol ediliyor...", ""); 
+  addConsoleLog(`<span data-label="firmware_checking">${(typeof getMsg === 'function' && getMsg('firmware_checking')) || "Firmware güncelleyici: Bağlı kartın firmware bilgisi kontrol ediliyor..."}</span>`, "");//addConsoleLog((typeof getMsg === 'function' && getMsg('firmware_checking')) || "Firmware güncelleyici: Bağlı kartın firmware bilgisi kontrol ediliyor...", ""); 
   consolePanel.style.height = "220px"; 
   getBoardInfo(); 
 },
         "ssl-uploader": () => { 
-  addConsoleLog((typeof getMsg === 'function' && getMsg('ssl_unsupported')) || "SSL sertifika yükleyicisi bu ortamda desteklenmiyor.", "error"); 
+  addConsoleLog(`<span data-label="ssl_unsupported">${(typeof getMsg === 'function' && getMsg('ssl_unsupported')) || "SSL sertifika yükleyicisi bu ortamda desteklenmiyor."}</span>`, "error");//addConsoleLog((typeof getMsg === 'function' && getMsg('ssl_unsupported')) || "SSL sertifika yükleyicisi bu ortamda desteklenmiyor.", "error"); 
   consolePanel.style.height = "220px"; 
 },
 
 "reload-board": () => { 
   updatePortsList(); 
-  addConsoleLog((typeof getMsg === 'function' && getMsg('board_info_reloaded')) || "Kart bilgisi yeniden yüklendi.", "success"); 
+  addConsoleLog(`<span data-label="board_info_reloaded">${(typeof getMsg === 'function' && getMsg('board_info_reloaded')) || "Kart bilgisi yeniden yüklendi."}</span>`, "success");//addConsoleLog((typeof getMsg === 'function' && getMsg('board_info_reloaded')) || "Kart bilgisi yeniden yüklendi.", "success"); 
   consolePanel.style.height = "220px"; 
 },
         "get-board-info": () => getBoardInfo(),
@@ -1723,11 +1747,14 @@ document.addEventListener("DOMContentLoaded", () => {
   updateEditor();
   saveSketch();
 },
-
-"recent-1": () => addConsoleLog(((typeof getMsg === 'function' && getMsg('recent_searching')) || "Yakın geçmiş dosyası: {file} (yerel eskiz defterinde aranıyor...)").replace('{file}', 'sketch_jul05a'), ""),
+"recent-1": () => addConsoleLog(`<span data-label="recent_searching_prefix">${(typeof getMsg === 'function' && getMsg('recent_searching_prefix')) || "Yakın geçmiş dosyası:"}</span> sketch_jul05a <span data-label="searching_in_sketchbook">${(typeof getMsg === 'function' && getMsg('searching_in_sketchbook')) || "(yerel eskiz defterinde aranıyor...)"}</span>`, ""),
+"recent-2": () => addConsoleLog(`<span data-label="recent_searching_prefix">${(typeof getMsg === 'function' && getMsg('recent_searching_prefix')) || "Yakın geçmiş dosyası:"}</span> Blink_LED <span data-label="searching_in_sketchbook">${(typeof getMsg === 'function' && getMsg('searching_in_sketchbook')) || "(yerel eskiz defterinde aranıyor...)"}</span>`, ""),
+"sketchbook-1": () => addConsoleLog(`<span data-label="sketchbook_prefix">${(typeof getMsg === 'function' && getMsg('sketchbook_prefix')) || "Eskiz defteri:"}</span> sketch_jul6a <span data-label="already_open">${(typeof getMsg === 'function' && getMsg('already_open')) || "zaten açık."}</span>`, "success"),
+"sketchbook-2": () => addConsoleLog(`<span data-label="recent_searching_prefix">${(typeof getMsg === 'function' && getMsg('recent_searching_prefix')) || "Yakın geçmiş dosyası:"}</span> ESP32_WiFi_Scanner <span data-label="searching_in_sketchbook">${(typeof getMsg === 'function' && getMsg('searching_in_sketchbook')) || "(yerel eskiz defterinde aranıyor...)"}</span>`, ""),
+/*"recent-1": () => addConsoleLog(((typeof getMsg === 'function' && getMsg('recent_searching')) || "Yakın geçmiş dosyası: {file} (yerel eskiz defterinde aranıyor...)").replace('{file}', 'sketch_jul05a'), ""),
 "recent-2": () => addConsoleLog(((typeof getMsg === 'function' && getMsg('recent_searching')) || "Yakın geçmiş dosyası: {file} (yerel eskiz defterinde aranıyor...)").replace('{file}', 'Blink_LED'), ""),
 "sketchbook-1": () => addConsoleLog(((typeof getMsg === 'function' && getMsg('sketchbook_already_open')) || "Eskiz defteri: {file} zaten açık.").replace('{file}', 'sketch_jul6a'), "success"),
-"sketchbook-2": () => addConsoleLog(((typeof getMsg === 'function' && getMsg('recent_searching')) || "Yakın geçmiş dosyası: {file} (yerel eskiz defterinde aranıyor...)").replace('{file}', 'ESP32_WiFi_Scanner'), ""),
+"sketchbook-2": () => addConsoleLog(((typeof getMsg === 'function' && getMsg('recent_searching')) || "Yakın geçmiş dosyası: {file} (yerel eskiz defterinde aranıyor...)").replace('{file}', 'ESP32_WiFi_Scanner'), ""),*/
     };
 
     document.querySelectorAll(".menu-row").forEach(row => {
@@ -1903,13 +1930,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (data.success) {
                         pkg.installed = true;
                         pkg.installedVer = ver;
-                        addConsoleLog(`${pkg.name} başarıyla kuruldu.`, "success");
+                        addConsoleLog(`${pkg.name} <span data-label="pkg_install_success">${(typeof getMsg === 'function' && getMsg('pkg_install_success')) || "başarıyla kuruldu."}</span>`, "success");//addConsoleLog(`${pkg.name} başarıyla kuruldu.`, "success");
                         updateBoardMenu();
                     } else {
-                        addConsoleLog(`${pkg.name} kurulamadı.`, "error");
+                        addConsoleLog(`${pkg.name} <span data-label="pkg_install_failed">${(typeof getMsg === 'function' && getMsg('pkg_install_failed')) || "kurulamadı."}</span>`, "error");//addConsoleLog(`${pkg.name} kurulamadı.`, "error");
                         if (data.log) data.log.forEach(l => addConsoleLog(l, "error"));
                     }
-                } catch (e) { addConsoleLog("Hata: Sunucuya bağlanılamadı.", "error"); }
+                } catch (e) { addConsoleLog(`<span data-label="err_server_connection">${(typeof getMsg === 'function' && getMsg('err_server_connection')) || "Hata: Sunucuya bağlanılamadı."}</span>`, "error");//addConsoleLog("Hata: Sunucuya bağlanılamadı.", "error");
+                            }
                 consolePanel.style.height = "220px";
                 renderBoardPackages(document.getElementById("panelBoardSearch").value, document.getElementById("boardTypeFilter").value);
             });
@@ -1931,12 +1959,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (data.success) {
                         pkg.installed = false;
                         pkg.installedVer = "";
-                        addConsoleLog(`${pkg.name} kaldırıldı.`, "success");
+                        addConsoleLog(`${pkg.name} <span data-label="pkg_removed">${(typeof getMsg === 'function' && getMsg('pkg_removed')) || "kaldırıldı."}</span>`, "success");//addConsoleLog(`${pkg.name} kaldırıldı.`, "success");
                         updateBoardMenu();
                     } else {
-                        addConsoleLog(`${pkg.name} kaldırılamadı.`, "error");
+                        addConsoleLog(`${pkg.name} <span data-label="pkg_remove_failed">${(typeof getMsg === 'function' && getMsg('pkg_remove_failed')) || "kaldırılamadı."}</span>`, "error");//addConsoleLog(`${pkg.name} kaldırılamadı.`, "error");
                     }
-                } catch (e) { addConsoleLog("Hata.", "error"); }
+                } catch (e) { addConsoleLog(`<span data-label="err_generic">${(typeof getMsg === 'function' && getMsg('err_generic')) || "Hata."}</span>`, "error");//addConsoleLog("Hata.", "error");
+                            }
                 consolePanel.style.height = "220px";
                 renderBoardPackages(document.getElementById("panelBoardSearch").value, document.getElementById("boardTypeFilter").value);
             });
@@ -2003,12 +2032,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (data.success) {
                         lib.installed = true;
                         lib.installedVer = ver;
-                        addConsoleLog(`${lib.name} kütüphanesi başarıyla kuruldu.`, "success");
+                        addConsoleLog(`${lib.name} <span data-label="lib_install_success">${(typeof getMsg === 'function' && getMsg('lib_install_success')) || "kütüphanesi başarıyla kuruldu."}</span>`, "success");//addConsoleLog(`${lib.name} kütüphanesi başarıyla kuruldu.`, "success");
                     } else {
-                        addConsoleLog(`${lib.name} kurulamadı.`, "error");
+                        addConsoleLog(`${lib.name} <span data-label="pkg_install_failed">${(typeof getMsg === 'function' && getMsg('pkg_install_failed')) || "kurulamadı."}</span>`, "error");//addConsoleLog(`${lib.name} kurulamadı.`, "error");
                         if (data.log) data.log.forEach(l => addConsoleLog(l, "error"));
                     }
-                } catch (e) { addConsoleLog("Hata: Sunucuya bağlanılamadı.", "error"); }
+                } catch (e) { addConsoleLog(`<span data-label="err_server_connection">${(typeof getMsg === 'function' && getMsg('err_server_connection')) || "Hata: Sunucuya bağlanılamadı."}</span>`, "error");//addConsoleLog("Hata: Sunucuya bağlanılamadı.", "error");
+                            }
                 consolePanel.style.height = "220px";
                 renderLibraries(document.getElementById("panelLibSearch").value, document.getElementById("libTypeFilter").value);
             });
@@ -2030,9 +2060,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (data.success) {
                         lib.installed = false;
                         lib.installedVer = "";
-                        addConsoleLog(`${lib.name} kaldırıldı.`, "success");
-                    } else { addConsoleLog(`Kaldırma başarısız.`, "error"); }
-                } catch (e) { addConsoleLog("Hata.", "error"); }
+                        addConsoleLog(`${lib.name} <span data-label="pkg_removed">${(typeof getMsg === 'function' && getMsg('pkg_removed')) || "kaldırıldı."}</span>`, "success");//addConsoleLog(`${lib.name} kaldırıldı.`, "success");
+                    } else { addConsoleLog(`<span data-label="remove_failed">${(typeof getMsg === 'function' && getMsg('remove_failed')) || "Kaldırma başarısız."}</span>`, "error");//addConsoleLog(`Kaldırma başarısız.`, "error");
+                           }
+                } catch (e) { addConsoleLog(`<span data-label="err_generic">${(typeof getMsg === 'function' && getMsg('err_generic')) || "Hata."}</span>`, "error");//addConsoleLog("Hata.", "error");
+                            }
                 consolePanel.style.height = "220px";
                 renderLibraries(document.getElementById("panelLibSearch").value, document.getElementById("libTypeFilter").value);
             });
@@ -2544,7 +2576,7 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
             fileTreeEl.innerHTML = "";
             renderTree(data.tree || [], fileTreeEl);
         } catch (err) {
-            fileTreeEl.innerHTML = `<div style="color:#999;font-size:11px;padding:8px">${(typeof getMsg === 'function' && getMsg('err_file_tree_failed')) || "Dosya ağacı yüklenemedi."}</div>`;
+            fileTreeEl.innerHTML = `<div data-label="err_file_tree_failed" style="color:#999;font-size:11px;padding:8px">${(typeof getMsg === 'function' && getMsg('err_file_tree_failed')) || "Dosya ağacı yüklenemedi."}</div>`;
         }
     }
 
@@ -2583,10 +2615,10 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                 const activeRow = document.querySelector(`.tree-row[data-path="${path}"]`);
                 if (activeRow) activeRow.classList.add("active");
             } else {
-                addConsoleLog(((typeof getMsg === 'function' && getMsg('err_file_read_failed')) || "Dosya okunamadı: {err}").replace('{err}', data.error || (typeof getMsg === 'function' && getMsg('err_unknown')) || "Bilinmeyen hata"), "error");
+                addConsoleLog(`<span data-label="err_file_read_failed_prefix">${(typeof getMsg === 'function' && getMsg('err_file_read_failed_prefix')) || "Dosya okunamadı:"}</span> ${data.error || ((typeof getMsg === 'function' && getMsg('err_unknown')) ? `<span data-label="err_unknown">${getMsg('err_unknown')}</span>` : "Bilinmeyen hata")}`, "error");//addConsoleLog(((typeof getMsg === 'function' && getMsg('err_file_read_failed')) || "Dosya okunamadı: {err}").replace('{err}', data.error || (typeof getMsg === 'function' && getMsg('err_unknown')) || "Bilinmeyen hata"), "error");
             }
         } catch (err) {
-            addConsoleLog(((typeof getMsg === 'function' && getMsg('err_file_open_failed')) || "Dosya açılamadı: {err}").replace('{err}', err), "error");
+            addConsoleLog(`<span data-label="err_file_open_failed_prefix">${(typeof getMsg === 'function' && getMsg('err_file_open_failed_prefix')) || "Dosya açılamadı:"}</span> ${err}`, "error");//addConsoleLog(((typeof getMsg === 'function' && getMsg('err_file_open_failed')) || "Dosya açılamadı: {err}").replace('{err}', err), "error");
         }
     }
 
@@ -2613,8 +2645,13 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                     });
                     const data = await res.json();
                     if (data.success) { loadFileTree(); openFileInEditor(newPath); }
-                    else addConsoleLog(((typeof getMsg === 'function' && getMsg('err_file_create_failed')) || "Dosya oluşturulamadı: {err}").replace('{err}', data.error || ""), "error");
-                } catch (e) { addConsoleLog(((typeof getMsg === 'function' && getMsg('err_generic')) || "Hata: {err}").replace('{err}', e), "error"); }
+                    else addConsoleLog(`<span data-label="err_file_create_failed_prefix">${(typeof getMsg === 'function' && getMsg('err_file_create_failed_prefix')) || "Dosya oluşturulamadı:"}</span> ${data.error || ""}`, "error");//addConsoleLog(((typeof getMsg === 'function' && getMsg('err_file_create_failed')) || "Dosya oluşturulamadı: {err}").replace('{err}', data.error || ""), "error");
+                } catch (e) {
+          const msg = (typeof getMsg === 'function' && getMsg('err_generic')) || "Hata:";
+const htmlContent = `<span data-label="err_generic">${msg}</span> ${e}`;
+
+addConsoleLog(htmlContent, "error", true); 
+        }
             } else if (action === "ctx-new-folder") {
                 const name = prompt((typeof getMsg === 'function' && getMsg('prompt_new_folder')) || "Yeni klasör adı:", "yeni_klasor");
                 if (!name) return;
@@ -2627,8 +2664,13 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                     });
                     const data = await res.json();
                     if (data.success) loadFileTree();
-                    else addConsoleLog(((typeof getMsg === 'function' && getMsg('err_folder_create_failed')) || "Klasör oluşturulamadı: {err}").replace('{err}', data.error || ""), "error");
-                } catch (e) { addConsoleLog(((typeof getMsg === 'function' && getMsg('err_generic')) || "Hata: {err}").replace('{err}', e), "error"); }
+                    else addConsoleLog(`<span data-label="err_folder_create_failed_prefix">${(typeof getMsg === 'function' && getMsg('err_folder_create_failed_prefix')) || "Klasör oluşturulamadı:"}</span> ${data.error || ""}`, "error");//addConsoleLog(((typeof getMsg === 'function' && getMsg('err_folder_create_failed')) || "Klasör oluşturulamadı: {err}").replace('{err}', data.error || ""), "error");
+                } catch (e) {
+          const msg = (typeof getMsg === 'function' && getMsg('err_generic')) || "Hata:";
+const htmlContent = `<span data-label="err_generic">${msg}</span> ${e}`;
+
+addConsoleLog(htmlContent, "error", true); 
+        }
             } else if (action === "ctx-rename") {
                 const oldName = ctxTargetPath.split("/").pop();
                 const newName = prompt((typeof getMsg === 'function' && getMsg('prompt_rename')) || "Yeni ad:", oldName);
@@ -2648,8 +2690,13 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                             if (tabLabel) tabLabel.textContent = newName;
                         }
                         loadFileTree();
-                    } else addConsoleLog(((typeof getMsg === 'function' && getMsg('err_rename_failed')) || "Yeniden adlandırılamadı: {err}").replace('{err}', data.error || ""), "error");
-                } catch (e) { addConsoleLog(((typeof getMsg === 'function' && getMsg('err_generic')) || "Hata: {err}").replace('{err}', e), "error"); }
+                    } else addConsoleLog(`<span data-label="err_rename_failed_prefix">${(typeof getMsg === 'function' && getMsg('err_rename_failed_prefix')) || "Yeniden adlandırılamadı:"}</span> ${data.error || ""}`, "error");//addConsoleLog(((typeof getMsg === 'function' && getMsg('err_rename_failed')) || "Yeniden adlandırılamadı: {err}").replace('{err}', data.error || ""), "error");
+                } catch (e) {
+          const msg = (typeof getMsg === 'function' && getMsg('err_generic')) || "Hata:";
+const htmlContent = `<span data-label="err_generic">${msg}</span> ${e}`;
+
+addConsoleLog(htmlContent, "error", true); 
+        }
             } else if (action === "ctx-delete") {
                 const name = ctxTargetPath.split("/").pop();
                 if (!confirm(((typeof getMsg === 'function' && getMsg('confirm_delete')) || '"{name}" silinsin mi? Bu işlem geri alınamaz.').replace('{name}', name))) return;
@@ -2666,8 +2713,13 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
                             currentFilePath = "sketch_jul6a.ino";
                             openFileInEditor(currentFilePath);
                         }
-                    } else addConsoleLog(((typeof getMsg === 'function' && getMsg('err_delete_failed')) || "Silinemedi: {err}").replace('{err}', data.error || ""), "error");
-                } catch (e) { addConsoleLog(((typeof getMsg === 'function' && getMsg('err_generic')) || "Hata: {err}").replace('{err}', e), "error"); }
+                    } else addConsoleLog(`<span data-label="err_delete_failed_prefix">${(typeof getMsg === 'function' && getMsg('err_delete_failed_prefix')) || "Silinemedi:"}</span> ${data.error || ""}`, "error");//addConsoleLog(((typeof getMsg === 'function' && getMsg('err_delete_failed')) || "Silinemedi: {err}").replace('{err}', data.error || ""), "error");
+                } catch (e) {
+          const msg = (typeof getMsg === 'function' && getMsg('err_generic')) || "Hata:";
+const htmlContent = `<span data-label="err_generic">${msg}</span> ${e}`;
+
+addConsoleLog(htmlContent, "error", true); 
+        }
             }
         });
     });
@@ -2684,8 +2736,14 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
             });
             const data = await res.json();
             if (data.success) { loadFileTree(); openFileInEditor(name); }
-            else addConsoleLog(((typeof getMsg === 'function' && getMsg('err_file_create_failed')) || "Dosya oluşturulamadı: {err}").replace('{err}', data.error || ""), "error");
-        } catch (e) { addConsoleLog(((typeof getMsg === 'function' && getMsg('err_generic')) || "Hata: {err}").replace('{err}', e), "error"); }
+            else 
+addConsoleLog(`<span data-label="err_file_create_failed_prefix">${(typeof getMsg === 'function' && getMsg('err_file_create_failed_prefix')) || "Dosya oluşturulamadı:"}</span> ${data.error || ""}`, "error");//addConsoleLog(((typeof getMsg === 'function' && getMsg('err_file_create_failed')) || "Dosya oluşturulamadı: {err}").replace('{err}', data.error || ""), "error");
+        } catch (e) {
+          const msg = (typeof getMsg === 'function' && getMsg('err_generic')) || "Hata:";
+const htmlContent = `<span data-label="err_generic">${msg}</span> ${e}`;
+
+addConsoleLog(htmlContent, "error", true); 
+        }
     });
 
     document.getElementById("btnNewFolder").addEventListener("click", async () => {
@@ -2699,8 +2757,13 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
             });
             const data = await res.json();
             if (data.success) loadFileTree();
-            else addConsoleLog(((typeof getMsg === 'function' && getMsg('err_folder_create_failed')) || "Klasör oluşturulamadı: {err}").replace('{err}', data.error || ""), "error");
-        } catch (e) { addConsoleLog(((typeof getMsg === 'function' && getMsg('err_generic')) || "Hata: {err}").replace('{err}', e), "error"); }
+            else addConsoleLog(`<span data-label="err_folder_create_failed_prefix">${(typeof getMsg === 'function' && getMsg('err_folder_create_failed_prefix')) || "Klasör oluşturulamadı:"}</span> ${data.error || ""}`, "error");//addConsoleLog(((typeof getMsg === 'function' && getMsg('err_folder_create_failed')) || "Klasör oluşturulamadı: {err}").replace('{err}', data.error || ""), "error");
+        } catch (e) {
+          const msg = (typeof getMsg === 'function' && getMsg('err_generic')) || "Hata:";
+const htmlContent = `<span data-label="err_generic">${msg}</span> ${e}`;
+
+addConsoleLog(htmlContent, "error", true); 
+        }
     });
 
     document.getElementById("btnRefreshTree").addEventListener("click", loadFileTree);
@@ -3154,7 +3217,7 @@ document.getElementById('plotMsg').addEventListener('keydown', (e) => {
     document.getElementById("aiSettingsSave").addEventListener("click", () => {
         saveAiSettings();
         aiSettingsOverlay.classList.remove("show");
-        addConsoleLog("AI ayarları kaydedildi.", "success");
+        addConsoleLog(`<span data-label="ai_settings_saved">${(typeof getMsg === 'function' && getMsg('ai_settings_saved')) || "AI ayarları kaydedildi."}</span>`, "success");//addConsoleLog("AI ayarları kaydedildi.", "success");
     });
 
     aiTemperatureInput.addEventListener("input", (e) => {

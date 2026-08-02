@@ -141,6 +141,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function getMsg(key) {
   const lang = localStorage.getItem('preferred_language') //|| 'en';
-  alert(lang+'\n'+appMessages[lang][key])
   return (appMessages[lang] && appMessages[lang][key]) || null;
 }
