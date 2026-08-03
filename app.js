@@ -3431,7 +3431,7 @@ bubble.innerHTML += `<br><br>❌ *<span data-label="stream_interrupted">${stream
     }
 
     // Poll every 2 seconds
-    //setInterval(updateSystemUsage, 2000);
+    setInterval(updateSystemUsage, 2000);
     updateSystemUsage(); // Immediate initial update
 
     // Load settings on startup
