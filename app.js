@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- State Elements ---
     let currentBoard = "ESP32 Dev Module";
-    let currentPort = "Yok";
+    let currentPort = "Yok";//"port_not_selected";
     let globalWebPort = null; // Stored WebUSB/Serial port
     let isConsoleMaximized = false;
     let uploadProgressInterval = null;
@@ -114,7 +114,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const cdcLabel = document.getElementById("cdcOnBootValue");
         if (cdcLabel) {
           //cdcLabel.textContent = nativeUsbBoard ? "Enabled" : "Disabled";
-          cdcLabel.style.background='red';
           if (nativeUsbBoard) {
     cdcLabel.dataset.label = "enabled";
     cdcLabel.textContent = (typeof getMsg === 'function' && getMsg('enabled')) || "Enabled";
@@ -277,7 +276,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (statusBoardText) {
           const noPortText = (typeof getMsg === 'function' && getMsg('port_not_selected')) || "Port Seçilmedi";
 const connectedText = (typeof getMsg === 'function' && getMsg('connected_status')) || "bağlı";
-statusBoardText.innerHTML = `${currentBoard} - ${currentPort || `<span data-label="port_not_selected">${noPortText}</span>`} [<span data-label="connected_status">${connectedText}</span>]`;
+statusBoardText.innerHTML = `${currentBoard} - ${(currentPort && currentPort!="Yok") || `<span data-label="port_not_selected">${noPortText}</span>`} [<span data-label="connected_status">${connectedText}</span>]`;
           //statusBoardText.textContent = `${currentBoard} - ${currentPort || "Port Seçilmedi"} [bağlı]`;
         }
 
@@ -957,9 +956,11 @@ progressMessage.textContent = (typeof getMsg === 'function' && getMsg('uploading
     }
 
     function updatePortUi(connected) {
-        const portLabel = currentPort || "Port Seçilmedi";
+        //const portLabel = currentPort || "Port Seçilmedi";
+
+const portLabel = (currentPort && currentPort!="Yok")? currentPort : `<span data-label="port_not_selected">${(typeof getMsg === 'function' && getMsg('port_not_selected')) || "Port Seçilmedi"}</span>`;
         if (activePortLabel) {
-          if (currentPort) {
+          if (currentPort && (currentPort!="Yok")) {
     activePortLabel.removeAttribute('data-label');
     activePortLabel.textContent = currentPort;
 } else {
@@ -1113,9 +1114,9 @@ progressMessage.textContent = (typeof getMsg === 'function' && getMsg('connectin
                 flashOffset = 0x0;
             }
 
-            const writingAddrText = (typeof getMsg === 'function' && getMsg('writing_address')) || "Yazdırılıyor";
+            
           const AddrText = (typeof getMsg === 'function' && getMsg('address')) || "Adres";
-progressMessage.innerHTML = `<span data-label="writing_address">${writingAddrText}</span> (<span data-label="address">${AddrText}</span>: 0x${flashOffset.toString(16)})...`;//progressMessage.textContent = `Yazdırılıyor (Adres: 0x${flashOffset.toString(16)})...`;
+progressMessage.innerHTML = `<span data-label="writing_address">${(typeof getMsg === 'function' && getMsg('writing_address')) || "Yazdırılıyor"}</span> (<span data-label="address">${AddrText}</span>: 0x${flashOffset.toString(16)})...`;//progressMessage.textContent = `Yazdırılıyor (Adres: 0x${flashOffset.toString(16)})...`;
             progressFill.style.width = "75%";
 
             const flashStarted = (typeof getMsg === 'function' && getMsg('flash_started')) || "Flash işlemi başladı";
@@ -1141,8 +1142,8 @@ addConsoleLog(
                 currentOffset += chunkLen;
                 dataOffset += chunkLen;
                 const percent = Math.floor((dataOffset / firmwareData.length) * 100);
-                const writingPercentText = (typeof getMsg === 'function' && getMsg('writing_percent')) || "Yazdırılıyor";
-progressMessage.innerHTML = `<span data-label="writing_percent">${writingPercentText}</span>: %${percent}`;//progressMessage.textContent = `Yazdırılıyor: %${percent}`;
+                
+progressMessage.innerHTML = `<span data-label="writing_percent">${(typeof getMsg === 'function' && getMsg('writing_percent')) || "Yazdırılıyor"}</span>: %${percent}`;//progressMessage.textContent = `Yazdırılıyor: %${percent}`;
                 progressFill.style.width = `${75 + (percent * 0.25)}%`;
             }
 
@@ -1918,7 +1919,7 @@ findBar.innerHTML = `
 
         if (availableBoards.length === 0) {
 const noBoardsMsg = (typeof getMsg === 'function' && getMsg('no_boards_install_hint')) || "Lütfen Kart Yöneticisinden bir kart paketi kurun.";
-boardMenu.innerHTML = `<div class="menu-row no-boards" data-label="no_boards_install_hint">${noBoardsMsg}</div>`;
+boardMenu.innerHTML = `<div class="menu-row no-boards" data-label="no_boards_install_hint" onclick="let t=document.querySelector('[data-panel=\\'panel-boards\\']'); if(t)t.click()">${noBoardsMsg}</div>`;
             //boardMenu.innerHTML = '<div class="menu-row no-boards">Lütfen Kart Yöneticisinden bir kart paketi kurun.</div>';
             return;
         }
@@ -2433,7 +2434,7 @@ serialTerminal.innerHTML += `\n[<span data-label="conn_failed">${connFailedLabel
             connectSerial();
         }
 
-        const plotterHTML = `<!DOCTYPE html>
+        /*const plotterHTML = `<!DOCTYPE html>
 <html><head><title>Seri Çizici - ${currentPort || 'COM?'}</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -2535,6 +2536,133 @@ function draw() {
 document.getElementById('btnPlotStop').addEventListener('click', function() {
     running = !running;
     this.textContent = running ? 'STOP' : 'START';
+    this.className = running ? 'btn-stop running' : 'btn-stop';
+});
+
+document.getElementById('plotSend').addEventListener('click', async () => {
+    const msg = document.getElementById('plotMsg').value;
+    if (!msg) return;
+    try {
+        await fetch('/api/serial/send', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ message: msg, lineEnding: document.getElementById('plotLineEnd').value })
+        });
+        document.getElementById('plotMsg').value = '';
+    } catch(e) {}
+});
+document.getElementById('plotMsg').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('plotSend').click();
+});
+<\/script></body></html>`;*/
+
+const plotterHTML = `<!DOCTYPE html>
+<html><head><title>${(typeof getMsg === 'function' && getMsg('serial_plotter')) || "Seri Çizici"} - ${currentPort || 'COM?'}</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#1e1e1e; color:#ccc; font-family:Inter,sans-serif; display:flex; flex-direction:column; height:100vh; }
+.top-bar { display:flex; align-items:center; justify-content:space-between; padding:8px 16px; background:#252526; border-bottom:1px solid #333; }
+.top-bar .title { font-size:13px; color:#00979d; font-weight:600; }
+.controls { display:flex; align-items:center; gap:12px; }
+.controls label { font-size:12px; }
+.btn-stop { padding:4px 16px; background:#e74c3c; color:#fff; border:none; border-radius:4px; font-weight:700; font-size:12px; cursor:pointer; }
+.btn-stop.running { background:#2ecc71; }
+canvas { flex:1; background:#fff; }
+.bottom-bar { display:flex; align-items:center; gap:8px; padding:8px 12px; background:#252526; border-top:1px solid #333; }
+.bottom-bar input { flex:1; padding:5px 10px; background:#2d2d2d; color:#ccc; border:1px solid #3c3c3c; border-radius:3px; font-size:12px; }
+.bottom-bar .btn-send { padding:5px 14px; background:#00979d; color:#fff; border:none; border-radius:4px; font-weight:700; cursor:pointer; }
+.bottom-bar select { padding:4px 6px; background:#2d2d2d; color:#ccc; border:1px solid #3c3c3c; border-radius:3px; font-size:11px; }
+</style></head><body>
+<div class="top-bar">
+    <span class="title">∞ ${currentPort || 'COM?'}</span>
+    <div class="controls">
+        <label>${(typeof getMsg === 'function' && getMsg('interpolate')) || "İnterpole Et"} <input type="checkbox" id="interpolateChk" checked></label>
+        <button class="btn-stop running" id="btnPlotStop">${(typeof getMsg === 'function' && getMsg('stop')) || "DURDUR"}</button>
+    </div>
+</div>
+<canvas id="plotCanvas"></canvas>
+<div class="bottom-bar">
+    <input type="text" id="plotMsg" placeholder="${(typeof getMsg === 'function' && getMsg('type_message')) || "Mesaj Yazın"}">
+    <button class="btn-send" id="plotSend">${(typeof getMsg === 'function' && getMsg('send')) || "GÖNDER"}</button>
+    <select id="plotLineEnd">
+        <option value="nl" selected>${(typeof getMsg === 'function' && getMsg('new_line')) || "Yeni Satır"}</option>
+        <option value="none">${(typeof getMsg === 'function' && getMsg('no_line_ending')) || "Satır Sonu Yok"}</option>
+        <option value="cr">${(typeof getMsg === 'function' && getMsg('carriage_return')) || "Satır Başı (CR)"}</option>
+        <option value="both">${(typeof getMsg === 'function' && getMsg('both_nl_cr')) || "İkisi De (NL & CR)"}</option>
+    </select>
+    <select id="plotBaud">
+        <option value="115200" selected>115200 ${(typeof getMsg === 'function' && getMsg('baud')) || "baud"}</option>
+        <option value="9600">9600 ${(typeof getMsg === 'function' && getMsg('baud')) || "baud"}</option>
+    </select>
+</div>
+<script>
+const canvas = document.getElementById('plotCanvas');
+const ctx = canvas.getContext('2d');
+let dataPoints = [];
+const MAX_POINTS = 200;
+let running = true;
+let minY = -0.2, maxY = 1.2;
+const colors = ['#e74c3c','#3498db','#2ecc71','#f1c40f','#9b59b6','#e67e22'];
+
+function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; draw(); }
+window.addEventListener('resize', resize);
+setTimeout(resize, 50);
+
+window.addPlotData = function(rawLine) {
+    if (!running) return;
+    const trimmed = rawLine.trim();
+    if (!trimmed) return;
+    const nums = trimmed.split(/[,\t\s]+/).map(Number).filter(n => !isNaN(n));
+    if (nums.length === 0) return;
+    dataPoints.push(nums);
+    if (dataPoints.length > MAX_POINTS) dataPoints.shift();
+    let allNums = dataPoints.flat();
+    minY = Math.min(...allNums) - 0.2;
+    maxY = Math.max(...allNums) + 0.2;
+    if (minY === maxY) { minY -= 1; maxY += 1; }
+    draw();
+};
+
+function draw() {
+    const w = canvas.width, h = canvas.height;
+    const pad = { left: 50, right: 20, top: 20, bottom: 30 };
+    const pw = w - pad.left - pad.right;
+    const ph = h - pad.top - pad.bottom;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+        const y = pad.top + (ph / 5) * i;
+        ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
+        const val = maxY - ((maxY - minY) / 5) * i;
+        ctx.fillStyle = '#666'; ctx.font = '10px Inter'; ctx.textAlign = 'right';
+        ctx.fillText(val.toFixed(1), pad.left - 5, y + 3);
+    }
+    for (let i = 0; i <= 5; i++) {
+        const x = pad.left + (pw / 5) * i;
+        ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, h - pad.bottom); ctx.stroke();
+    }
+    if (dataPoints.length < 2) return;
+    const interpolate = document.getElementById('interpolateChk').checked;
+    const numChannels = Math.max(...dataPoints.map(d => d.length));
+    for (let ch = 0; ch < numChannels; ch++) {
+        ctx.strokeStyle = colors[ch % colors.length]; ctx.lineWidth = 2;
+        ctx.beginPath();
+        let first = true;
+        for (let i = 0; i < dataPoints.length; i++) {
+            const val = dataPoints[i][ch] !== undefined ? dataPoints[i][ch] : 0;
+            const x = pad.left + (i / (MAX_POINTS - 1)) * pw;
+            const y = pad.top + ph - ((val - minY) / (maxY - minY)) * ph;
+            if (first) { ctx.moveTo(x, y); first = false; } 
+            else if (interpolate) { ctx.lineTo(x, y); }
+            else { const px = pad.left + ((i-1)/(MAX_POINTS-1))*pw; ctx.lineTo(px, y); ctx.lineTo(x, y); }
+        }
+        ctx.stroke();
+    }
+}
+
+document.getElementById('btnPlotStop').addEventListener('click', function() {
+    running = !running;
+    this.textContent = running ? ${(typeof getMsg === 'function' && JSON.stringify(getMsg('stop'))) || '"DURDUR"'} : ${(typeof getMsg === 'function' && JSON.stringify(getMsg('start'))) || '"BAŞLAT"'};
     this.className = running ? 'btn-stop running' : 'btn-stop';
 });
 

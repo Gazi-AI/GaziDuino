@@ -112,7 +112,7 @@ window.translations.en = {
     '#panel-ai .ai-history-header': { textContent: 'Previous Chats' },
     '#panel-ai .ai-bubble': {
       fn: (el) => {
-        el.innerHTML = `Hello! I'm GaziDuino AI Assistant. I can help you with Arduino programming, circuit design, and debugging. 🤖<br><br><small style="opacity:0.7">Enter your API key in settings to start.</small>`;
+        el.innerHTML = `Hello! I'm GaziDuino AI Assistant. I can help you with Arduino programming, circuit design, and debugging. 🤖<br><br><small style="opacity:0.7">Enter your API key in <a href="javascript:void(0)" onclick="(function(){let t=document.querySelector('#btnAiSettings'); if(t)t.click()})()">settings</a> to start.</small>`;
       }
     },
     '#aiInput': { placeholder: 'Ask something about Arduino...' },
@@ -226,6 +226,7 @@ window.translations.en = {
 '[data-label="esp_select_prompt"]': { textContent: "Please select your ESP device from the popup window..." },
 '[data-label="device_ready"]': { textContent: "ready." },
 '[data-label="err_port_not_selected"]': { textContent: "Port not selected or hardware not supported:" },
+'[data-label="port_not_selected"]': { textContent: "Port not selected" },
 '[data-label="using_prev_port"]': { textContent: "Using previously selected port..." },
 '[data-label="loading_esptool"]': { textContent: "Loading esptool-js..." },
 '[data-label="connecting_esp"]': { textContent: "Connecting to ESP from browser..." },
@@ -326,6 +327,8 @@ window.translations.en = {
 '[data-label="added_success"]': { textContent: "✅ Added" },
 '[data-label="add_to_code"]': { textContent: "Add to Code" },
 '[data-label="user_you"]': { textContent: "You" },
+//**
+'#serialMessageInput': { placeholder: `Press Enter to send message to ('${window.currentPort ? window.currentPort : 'currentPort'}')` },
 };
 
 window.appMessages.en = {
@@ -389,7 +392,7 @@ error: "Error",
 file: "File",
 line: "Line",
 port_not_selected: "Port Not Selected",
-connected_status: "[connected]",
+connected_status: "connected",
 column: "Column",
 user_settings: "User Settings",
 font_size: "Font Size",
@@ -474,11 +477,11 @@ server_error: "A server error occurred.",
 ai_no_response: "AI generated no response.",
 conn_error: "Connection error",
 stream_interrupted: "Stream interrupted",
-  //careful
+  //
   enabled: "Enabled",
 disabled: "Disabled",
 disconnected_status: "disconnected",
-none: "None",
+'none': "None",
 compiling_sketch: "Compiling sketch...",
 uploading_to_board: "Uploading to board...",
 compiling_pre_web_upload: "Compiling (Pre-Web Upload)...",
@@ -493,4 +496,18 @@ chat_default: "Chat",
 added_success: "✅ Added",
 add_to_code: "Add to Code",
 user_you: "You",
+
+// en //
+serial_plotter: "Serial Plotter",
+interpolate: "Interpolate",
+stop: "STOP",
+start: "START",
+type_message: "Type Message",
+send: "SEND",
+new_line: "New Line",
+no_line_ending: "No Line Ending",
+carriage_return: "Carriage Return",
+both_nl_cr: "Both NL & CR",
+baud: "baud",
+
 };

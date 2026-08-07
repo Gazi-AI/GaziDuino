@@ -50,7 +50,6 @@ function applyTranslation(lang = 'en') {
   });
 }
 // Dynamically creates the Language selector menu inside <nav class="menu-bar">
-// Dynamically creates the Language selector menu inside <nav class="menu-bar">
 function setupLanguageMenu() {
   const menuBar = document.querySelector('nav.menu-bar');
   if (!menuBar || document.getElementById('menuLanguageContainer')) return;

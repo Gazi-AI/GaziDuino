@@ -106,7 +106,7 @@ window.translations.ar = {
     '#panel-ai .ai-history-header': { textContent: 'المحادثات السابقة' },
     '#panel-ai .ai-bubble': {
       fn: (el) => {
-        el.innerHTML = `مرحباً! أنا مساعد GaziDuino للذكاء الاصطناعي. يمكنني مساعدتك في برمجة أردوينو وتصميم الدوائر وتصحيح الأخطاء. 🤖<br><br><small style="opacity:0.7">أدخل مفتاح API في الإعدادات للبدء.</small>`;
+        el.innerHTML = `مرحباً! أنا مساعد GaziDuino للذكاء الاصطناعي. يمكنني مساعدتك في برمجة أردوينو وتصميم الدوائر وتصحيح الأخطاء. 🤖<br><br><small style="opacity:0.7">أدخل مفتاح API في <a href="javascript:void(0)" onclick="(function(){let t=document.querySelector('#btnAiSettings'); if(t)t.click()})()">الإعدادات</a> للبدء.</small>`;
       }
     },
     '#aiInput': { placeholder: 'اسأل شيئاً عن أردوينو...' },
@@ -216,6 +216,7 @@ window.translations.ar = {
 '[data-label="esp_select_prompt"]': { textContent: "يرجى تحديد جهاز ESP الخاص بك من النافذة المنبثقة..." },
 '[data-label="device_ready"]': { textContent: "جاهز." },
 '[data-label="err_port_not_selected"]': { textContent: "لم يتم تحديد المنفذ أو العتاد غير مدعوم:" },
+'[data-label="port_not_selected"]': { textContent: "لم يتم تحديد منفذ" },
 '[data-label="using_prev_port"]': { textContent: "جاري استخدام المنفذ المحدد سابقًا..." },
 '[data-label="loading_esptool"]': { textContent: "جاري تحميل esptool-js..." },
 '[data-label="connecting_esp"]': { textContent: "جاري الاتصال بـ ESP من المتصفح..." },
@@ -315,6 +316,7 @@ window.translations.ar = {
 '[data-label="added_success"]': { textContent: "✅ تم الإضافة" },
 '[data-label="add_to_code"]': { textContent: "إضافة إلى الكود" },
 '[data-label="user_you"]': { textContent: "أنت" },
+'#serialMessageInput': { placeholder: `اضغط على Enter لإرسال رسالة إلى ('${window.currentPort ? window.currentPort : 'currentPort'}')` },
 };
 
 window.appMessages.ar = {
@@ -378,7 +380,7 @@ error: "خطأ",
 file: "الملف",
 line: "السطر",
 port_not_selected: "لم يتم تحديد منفذ",
-connected_status: "[متصل]",
+connected_status: "متصل",
 column: "عمود",
 user_settings: "إعدادات المستخدم",
 font_size: "حجم الخط",
@@ -481,4 +483,17 @@ chat_default: "محادثة",
 added_success: "✅ تم الإضافة",
 add_to_code: "إضافة إلى الكود",
 user_you: "أنت",
+
+// ar //
+serial_plotter: "رسم بياني تسلسلي",
+interpolate: "استيفاء",
+stop: "إيقاف",
+start: "بدء",
+type_message: "اكتب رسالة",
+send: "إرسال",
+new_line: "سطر جديد",
+no_line_ending: "بدون نهاية سطر",
+carriage_return: "رجوع إلى البداية (CR)",
+both_nl_cr: "كلاهما NL و CR",
+baud: "باود",
 };
