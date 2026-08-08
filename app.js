@@ -183,7 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
         submenu.querySelectorAll(".menu-row").forEach(row => {
             row.addEventListener("click", (e) => {
                 e.stopPropagation();
-                const valText = row.textContent.trim();
+                const rawVal = row.getAttribute("data-opt-val") || row.textContent.trim();
                 const parent = submenu.closest(".parent");
                 if (!parent) return;
 
@@ -192,43 +192,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const valSpan = labelSpan.querySelector(".opt-val");
                 if (valSpan) {
-                    valSpan.textContent = valText;
+                    valSpan.textContent = row.textContent.trim();
+                    const rowLabel = row.getAttribute("data-label");
+                    if (rowLabel) {
+                        valSpan.setAttribute("data-label", rowLabel);
+                    } else {
+                        valSpan.removeAttribute("data-label");
+                    }
                 }
 
-                const labelTextFull = labelSpan.textContent;
-                const labelName = labelTextFull.split(":")[0].trim();
-
-                const optKey = OPTION_KEY_MAP[labelName];
-                let optVal = valText;
+                let optKey = parent.getAttribute("data-opt-key");
+                if (!optKey) {
+                    const labelTextFull = labelSpan.textContent;
+                    const labelName = labelTextFull.split(":")[0].trim();
+                    optKey = OPTION_KEY_MAP[labelName];
+                }
+                let optVal = rawVal;
 
                 // Specific value mappings per key to prevent flat lookup collisions
                 if (optKey === "DebugLevel") {
                     const debugMap = { "None": "none", "Error": "err", "Warning": "warn", "Info": "info", "Debug": "dbg", "Verbose": "verbose" };
-                    optVal = debugMap[valText] || valText.toLowerCase();
+                    optVal = debugMap[rawVal] || rawVal.toLowerCase();
                 } else if (optKey === "EraseFlash") {
-                    optVal = (valText === "Enabled") ? "all" : "none";
+                    optVal = (rawVal === "Enabled") ? "all" : "none";
                 } else if (optKey === "EventsCore") {
-                    optVal = (valText === "Core 0") ? "0" : "1";
+                    optVal = (rawVal === "Core 0") ? "0" : "1";
                 } else if (optKey === "FlashFreq") {
-                    optVal = valText.replace("MHz", "");
+                    optVal = rawVal.replace("MHz", "");
                 } else if (optKey === "CPUFreq") {
                     const cpuFreqMap = {
                         "240MHz (WiFi/BT)": "240",
                         "160MHz": "160",
                         "80MHz": "80"
                     };
-                    optVal = cpuFreqMap[valText] || valText.replace(/MHz.*$/, "");
+                    optVal = cpuFreqMap[rawVal] || rawVal.replace(/MHz.*$/, "");
                 } else if (optKey === "CDCOnBoot") {
-                    optVal = valText === "Enabled" ? "cdc" : "default";
+                    optVal = rawVal === "Enabled" ? "cdc" : "default";
                 } else if (optKey === "FlashMode") {
-                    optVal = valText.toLowerCase();
+                    optVal = rawVal.toLowerCase();
                 } else if (optKey === "FlashSize") {
                     const sizeMap = { "2MB (16Mb)": "2M", "4MB (32Mb)": "4M", "8MB (64Mb)": "8M", "16MB (128Mb)": "16M" };
-                    optVal = sizeMap[valText] || valText;
+                    optVal = sizeMap[rawVal] || rawVal;
                 } else if (optKey === "JTAGAdapter") {
-                    optVal = (valText === "Integrated USB JTAG") ? "integrated" : "default";
+                    optVal = (rawVal === "Integrated USB JTAG") ? "integrated" : "default";
                 } else if (optKey === "LoopCore") {
-                    optVal = (valText === "Core 0") ? "0" : "1";
+                    optVal = (rawVal === "Core 0") ? "0" : "1";
                 } else if (optKey === "PartitionScheme") {
                     const partMap = {
                         "Default 4MB with spiffs (1.2MB APP/1.5MB SPIFFS)": "default",
@@ -238,15 +246,15 @@ document.addEventListener("DOMContentLoaded", () => {
                         "Huge APP (3MB No OTA/1MB SPIFFS)": "huge_app",
                         "Minimal SPIFFS (1.9MB APP/190KB SPIFFS)": "min_spiffs"
                     };
-                    optVal = partMap[valText] || valText;
+                    optVal = partMap[rawVal] || rawVal;
                 } else if (optKey === "PSRAM") {
                     const psramMap = { "Disabled": "disabled", "QSPI": "enabled", "OPI": "opi", "Enabled": "enabled", "OPI PSRAM": "opi" };
-                    optVal = psramMap[valText] || "disabled";
+                    optVal = psramMap[rawVal] || "disabled";
                 } else if (optKey === "UploadSpeed") {
-                    optVal = valText;
+                    optVal = rawVal;
                 } else if (optKey === "ZigbeeMode") {
                     const zigbeeMap = { "Disabled": "default", "ED (Zigbee End Device)": "ed", "ZCZR (Zigbee Coordinator/Router)": "zczr" };
-                    optVal = zigbeeMap[valText] || "default";
+                    optVal = zigbeeMap[rawVal] || "default";
                 }
 
                 if (optKey) {
