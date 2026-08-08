@@ -74,6 +74,30 @@ def ensure_arduino_cli():
         return ARDUINO_CLI
 
     if os.name != 'nt':
+        # Try automatic installation via pkg (Termux) or apt (Linux) if available
+        pkg_bin = shutil.which("pkg")
+        apt_bin = shutil.which("apt-get")
+        if pkg_bin:
+            try:
+                print("[Arduino CLI] Bulunamadı. Termux üzerinde otomatik kuruluyor (pkg install arduino-cli)...")
+                subprocess.run([pkg_bin, "install", "-y", "arduino-cli"], capture_output=True)
+                cli_path = shutil.which("arduino-cli")
+                if cli_path:
+                    print("[Arduino CLI] Başarıyla kuruldu.")
+                    return cli_path
+            except Exception:
+                pass
+        elif apt_bin:
+            try:
+                print("[Arduino CLI] Bulunamadı. Linux üzerinde otomatik kuruluyor (apt-get install arduino-cli)...")
+                subprocess.run(["sudo", apt_bin, "install", "-y", "arduino-cli"], capture_output=True)
+                cli_path = shutil.which("arduino-cli")
+                if cli_path:
+                    print("[Arduino CLI] Başarıyla kuruldu.")
+                    return cli_path
+            except Exception:
+                pass
+
         print("[Arduino CLI] Bulunamadı. Termux veya Linux üzerinde 'pkg install arduino-cli' veya paket yöneticiniz ile manuel kurunuz.")
         return None
 
